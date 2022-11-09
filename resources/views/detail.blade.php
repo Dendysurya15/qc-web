@@ -2,7 +2,7 @@
 <div class="content-wrapper">
     <section class="content">
         <div class="container-fluid">
-            <a href="/cetakpdf/{{ $data-> $id}}" class="fa fa-file-pdf">cetak pdf</a>
+            <a href="/cetakpdf/" class="fa fa-file-pdf">cetak pdf</a>
             <table class="table table-warning col-xs-1 text-center">
                 <thead>
                     <tr>
@@ -20,19 +20,19 @@
                             </tr>
                             <tr>
                                 <th>TANGGAL</th>
-                                <td>27/10/2022</td>
+                                <td>{{ $data->tanggal }}</td>
                             </tr>
                             <tr>
                                 <th>KTU</th>
-                                <td>Fery Sigit Prayogi</td>
+                                <td>{{ $data->ktu }}</td>
                             </tr>
                             <tr>
                                 <th>KEPALA GUDANG</th>
-                                <td>Ifani Rach madhani</td>
+                                <td>{{ $data->kpl_gudang }}</td>
                             </tr>
                             <tr>
                                 <th>DIPERIKSA OLEH</th>
-                                <td>Slamet Indarto</td>
+                                <td>{{ $data->qc }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -44,7 +44,7 @@
                                 <th class="table-warning text-center">SKOR</th>
                             </tr>
                             <tr>
-                                <th class="text-center">100</th>
+                                <th class="text-center">{{ $data->skor_total }}</th>
                             </tr>
                             <tr>
                                 <th class="table-primary text-center">EXCELLENT</th>

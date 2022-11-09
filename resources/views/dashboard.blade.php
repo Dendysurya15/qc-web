@@ -192,6 +192,7 @@
     strColumn += ']'
 
     dataJsonTable = JSON.parse(strColumn)
+    console.log(dataJsonTable)
 
     $(document).ready(function () {
    $('#table_qc').DataTable({

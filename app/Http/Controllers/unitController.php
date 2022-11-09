@@ -462,18 +462,18 @@ class unitController extends Controller
     public function detailInspeksi($wil, $est, $bulan)
     {
 
-        $estateQuery = DB::table('estate')
-            ->select('estate.*')
-            ->join('wil', 'wil.id', '=', 'estate.wil')
-            ->where('estate.est', $est)
-            ->first();
+        $id = 190;
+        // $estateQuery = DB::table('estate')
+        //     ->select('estate.*')
+        //     ->join('wil', 'wil.id', '=', 'estate.wil')
+        //     ->where('estate.est', $est)
+        //     ->first();
 
         // dd($estateQuery);
         $query = DB::table('qc_gudang')
-            ->where('unit', '=', $estateQuery->id)
-            ->get();
-
-        // dd($query);
+            ->where('id', '=', $id)
+            ->first();
+        dd($query);
         return view('detail', ['data' => $query]);
     }
     public function cetakpdf($id)
