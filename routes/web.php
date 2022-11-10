@@ -26,6 +26,6 @@ Route::post('/store', [unitController::class, 'store']);
 Route::get('/edit/{id}', [unitController::class, 'edit']);
 Route::post('/update', [unitController::class, 'update']);
 Route::get('/hapus/{id}', [unitController::class, 'hapus']);
-Route::get('detailInspeksi/{wil}/{est}/{bulan}', [unitController::class, 'detailInspeksi'])->name('detailInspeksi');
+Route::get('detailInspeksi/{id}', [unitController::class, 'detailInspeksi'])->name('detailInspeksi');
 Route::get('/qc', [unitController::class, 'load_qc_gudang'])->name('qc');
 Route::get('/cetakpdf/{id}', [unitController::class, 'cetakpdf']);

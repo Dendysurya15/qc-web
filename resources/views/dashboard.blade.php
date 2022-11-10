@@ -121,9 +121,9 @@
     var bulanJson = '<?php echo $bulanJson; ?>';
     var bulanJson = JSON.parse(bulanJson)
 
-    var resultCount = JSON.parse(resultCount)
-    var countArr = Object.entries(resultCount)
-    // console.log(resultCount)
+    var arrCountMonth = JSON.parse(resultCount)
+    var countArr = Object.entries(arrCountMonth)
+
     strColumn = '[{"data"'
     strColumn += ":"
     strColumn += '"wil", "name"'
@@ -150,10 +150,10 @@
     strColumn += ":"
     strColumn += '"est"},'
     // console.log(resultCount[bulanJson[9]])
-    var inc = 1;
+    // var inc = 1;
     for (let i = 0; i < countArr.length; i++) {
-        if(resultCount[bulanJson[i]] > 1){
-            for (let j = 1; j <= resultCount[bulanJson[i]]; j++) {
+        if(arrCountMonth[bulanJson[i]] > 1){
+            for (let j = 1; j <= arrCountMonth[bulanJson[i]]; j++) {
                 strColumn += '{"data"'
                 strColumn += ":"
                 strColumn += '"'+bulanJson[i]+'_'+j+'", "name"'
@@ -163,16 +163,16 @@
         }else{
                 strColumn += '{"data"'
                 strColumn += ":"
-                strColumn += '"'+bulanJson[i]+'", "name"'
+                strColumn += '"'+bulanJson[i]+'_1", "name"'
                 strColumn += ":"
-                strColumn += '"'+bulanJson[i]+'"},'
+                strColumn += '"'+bulanJson[i]+'_1"},'
         }
                 strColumn += '{"data"'
                 strColumn += ":"
-                strColumn += '"skor_bulan_'+inc+'", "name"'
+                strColumn += '"skor_bulan_'+bulanJson[i]+'", "name"'
                 strColumn += ":"
-                strColumn += '"skor_bulan_'+inc+'"},'
-                inc++;
+                strColumn += '"skor_bulan_'+bulanJson[i]+'"},'
+                // inc++;
     }
     strColumn += '{"data"'
     strColumn += ":"
@@ -191,8 +191,9 @@
     strColumn += '"rank"}'
     strColumn += ']'
 
+    console.log(strColumn)
     dataJsonTable = JSON.parse(strColumn)
-    console.log(dataJsonTable)
+    // console.log(dataJsonTable)
 
     $(document).ready(function () {
    $('#table_qc').DataTable({
@@ -201,28 +202,7 @@
         serverSide: true,
         pageLength: 25,
         ajax: '{{ route('qc') }}',
-        columns: dataJsonTable
-            // { "data": 'wil', "name": 'wil' },
-            // { "data": 'estate', "name": 'estate' },
-            // { "data": 'est', "name": 'est' },
-            // { "data": 'est', "name": 'est' },
-            // { "data": 'est', "name": 'est' },
-            // // { "data": 'January', "name": 'January' },
-            // { "data": 'February', "name": 'February' },
-            // { "data": 'March', "name": 'March' },
-            // { "data": 'April', "name": 'April' },
-            // { "data": 'May', "name": 'May' },
-            // { "data": 'June', "name": 'June' },
-            // { "data": 'July', "name": 'July' },
-            // // { "data": 'August', name: 'August' },
-            // // { "data": 'September', name: 'September' },
-            // // { "data": 'October', name: 'October' },
-            // // { "data": 'November', name: 'November' },
-            // // { "data": 'December', name: 'December' },
-            // { "data": 'skor_tahunan', name: 'skor_tahunan' },
-            // { "data": 'status', name: 'status' },
-            // { "data": 'rank', name: 'rank' },
-        ,
+        columns: dataJsonTable,
     });
  });
 </script>

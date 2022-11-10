@@ -64,7 +64,7 @@
                 <tbody>
                     <tr>
                         <th>ESTATE</th>
-                        <td>Sulung</td>
+                        <td>{{ $data->nama }}</td>
                         <td style="color: white;border:1px solid white"></td>
                         <td style="color: white;border:1px solid white"></td>
                         <td style="color: white;border:1px solid white"></td>
@@ -78,7 +78,9 @@
                     </tr>
                     <tr>
                         <th>TANGGAL</th>
-                        <td>27/10/2022</td>
+                        <td>
+                            {{ $data->tanggal_formatted }}
+                        </td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
@@ -86,13 +88,13 @@
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border-top:1px solid white;border-bottom:1px solid white">test</td>
-                        <td colspan="3" class="text-center">100</td>
+                        <td colspan="3" class="text-center">{{ $data->skor_total }}</td>
                         {{-- <th class="table-bordered-warning" colspan="2">100</th> --}}
                         {{-- <td>Sulung</td> --}}
                     </tr>
                     <tr>
                         <th>KTU</th>
-                        <td>Fery Sigit Prayogi</td>
+                        <td>{{ $data->ktu }}</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
@@ -100,13 +102,25 @@
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border-top:1px solid white;border-bottom:1px solid white">test</td>
+                        @if ($data->skor_total >= 95)
                         <td colspan="3" class="table-primary text-center">EXCELLENT</td>
-                        {{-- <th class="table-bordered-warning" colspan="2">EXCELLENT</th> --}}
-                        {{-- <td>Sulung</td> --}}
+                        @elseif($data->skor_total >= 85 && $data->skor_total <95) <td colspan="3"
+                            class="table-success text-center">
+                            Good</td>
+                            @elseif($data->skor_total >= 75 && $data->skor_total <85) <td colspan="3"
+                                class="table text-center" style="background-color: yellow">Satisfactory</td>
+                                @elseif($data->skor_total >= 65 && $data->skor_total <75) <td colspan="3"
+                                    class="table-warning text-center">Fair</td>
+                                    @elseif($data->skor_total <75) <td colspan="3" class="table text-center"
+                                        style="background-color: red">Poor
+                                        </td>
+                                        @endif
+                                        {{-- <th class="table-bordered-warning" colspan="2">EXCELLENT</th> --}}
+                                        {{-- <td>Sulung</td> --}}
                     </tr>
                     <tr>
                         <th>KEPALA GUDANG</th>
-                        <td>Ifani Rach madhani</td>
+                        <td>{{ $data->kpl_gudang }}</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
                         <td style="color: white;border:1px solid white">test</td>
@@ -120,7 +134,7 @@
                     </tr>
                     <tr>
                         <th>DIPERIKSA OLEH</th>
-                        <td>Slamet Indarto</td>
+                        <td>{{ $data->qc }}</td>
                         <td style="border-bottom:1px solid white"></td>
                     </tr>
                 </tbody>
@@ -163,9 +177,9 @@
                     <td> <img src="{{ public_path('img/foto.jpeg') }}" style="weight:75pt;height:150pt"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">Tidak terdapat selisih fisik vs bincard</td>
-                    <td colspan="2">Tidak terdapat selisih fisik vs PPRO</td>
-                    <td colspan="2">Tidak ditemukan chemical expired</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_kesesuaian_bincard }}</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_kesesuaian_ppro }}</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_chemical_expired }}</td>
                 </tr>
                 <tr>
                     <th class="table-primary"></th>
@@ -197,9 +211,9 @@
                     <td><img src="{{ public_path('img/foto.jpeg') }}" style="weight:75pt;height:150pt"></td>
                 </tr>
                 <tr>
-                    <td colspan="2">Tidak terdapat barang non stock</td>
-                    <td colspan="2">Seluruh MR sudah ditandatangan lengakap oleh EM</td>
-                    <td colspan="2">Secara umum gudang dan kantor gudang sudah rapi</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_barang_nonstok }}</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_mr_ditandatangani }}</td>
+                    <td class="text-center" colspan="2">{{ $data->komentar_kebersihan_gudang }}</td>
                 </tr>
                 <tr>
                     <th class="table-primary"></th>
@@ -225,7 +239,8 @@
                 </tr>
                 <tr>
 
-                    <td colspan="2" style="border: 1px solid black">Logbook Tersedia Dan Todate</td>
+                    <td class="text-center" colspan="2" style="border: 1px solid black">
+                        {{ $data->komentar_inspeksi_ktu }}</td>
                     <td colspan="2" style="border: 1px solid rgb(255, 255, 255)"> </td>
 
 

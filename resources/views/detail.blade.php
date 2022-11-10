@@ -2,7 +2,7 @@
 <div class="content-wrapper">
     <section class="content">
         <div class="container-fluid">
-            <a href="/cetakpdf/" class="fa fa-file-pdf">cetak pdf</a>
+            <a href="/cetakpdf/{{ $data->id }}" class="fa fa-file-pdf">cetak pdf</a>
             <table class="table table-warning col-xs-1 text-center">
                 <thead>
                     <tr>
@@ -16,11 +16,11 @@
                         <tbody>
                             <tr>
                                 <th>ESTATE</th>
-                                <td>Sulung</td>
+                                <td>{{ $data->nama }}</td>
                             </tr>
                             <tr>
                                 <th>TANGGAL</th>
-                                <td>{{ $data->tanggal }}</td>
+                                <td>{{ $data->tanggal_formatted }}</td>
                             </tr>
                             <tr>
                                 <th>KTU</th>
@@ -47,7 +47,19 @@
                                 <th class="text-center">{{ $data->skor_total }}</th>
                             </tr>
                             <tr>
+                                @if ($data->skor_total >= 95)
                                 <th class="table-primary text-center">EXCELLENT</th>
+                                @elseif($data->skor_total >= 85 && $data->skor_total <95) <th
+                                    class="table-success text-center">Good</th>
+                                    @elseif($data->skor_total >= 75 && $data->skor_total <85) <th
+                                        class="table text-center" style="background-color: yellow">Satisfactory</th>
+                                        @elseif($data->skor_total >= 65 && $data->skor_total <75) <th
+                                            class="table-warning text-center">Fair</th>
+                                            @elseif($data->skor_total <75) <th class="table text-center"
+                                                style="background-color: red">Poor
+                                                </th>
+                                                @endif
+
                             </tr>
                         </tbody>
                     </table>
@@ -85,9 +97,9 @@
                             <td><img src="{{ asset('img/CBI-logo.png') }}" class="img-fluid"></td>
                         </tr>
                         <tr>
-                            <td colspan="2">Tidak terdapat selisih fisik vs bincard</td>
-                            <td colspan="2">Tidak terdapat selisih fisik vs PPRO</td>
-                            <td colspan="2">Tidak ditemukan chemical expired</td>
+                            <td colspan="2" class="text-center">{{ $data->komentar_kesesuaian_bincard }}</td>
+                            <td colspan="2" class="text-center">{{ $data->komentar_kesesuaian_ppro }}</td>
+                            <td colspan="2" class="text-center">{{ $data->komentar_chemical_expired }}</td>
                         </tr>
                         <tr>
                             <th></th>
@@ -119,13 +131,13 @@
                             <td><img src="{{ asset('img/CBI-logo.png') }}" class="img-fluid"></td>
                             <td><img src="{{ asset('img/CBI-logo.png') }}" class="img-fluid"></td>
                         </tr>
-                        <td colspan="2">Tidak terdapat barang non stock</td>
-                        <td colspan="2">Seluruh MR sudah ditandatangan lengakap oleh EM</td>
-                        <td colspan="2">Secara umum gudang dan kantor gudang sudah rapi</td>
+                        <td colspan="2" class="text-center">{{ $data->komentar_barang_nonstok }}</td>
+                        <td colspan="2" class="text-center">{{ $data->komentar_mr_ditandatangani }}</td>
+                        <td colspan="2" class="text-center">{{ $data->komentar_kebersihan_gudang }}</td>
                         </tr>
                         <tr>
                             <th></th>
-                            <th>7.BARANG NON-STOCK</th>
+                            <th>7. BUKU INSPEKSI KTU</th>
                         <tr>
                             <td>HASIL</td>
                             <td>FOTO</td>
@@ -138,7 +150,7 @@
                             <td><img src="{{ asset('img/CBI-logo.png') }}" class="img-fluid"></td>
                         </tr>
                         <tr>
-                            <td colspan="2">Logbook Tersedia Dan Todate</td>
+                            <td colspan="2" class="text-center">{{ $data->komentar_inspeksi_ktu }}</td>
                         </tr>
                     </tbody>
                 </table>
