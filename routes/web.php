@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\DB;
 
 
 Route::get('/index', [unitController::class, 'index']);
-Route::get('/dashboard', [unitController::class, 'dashboard'])->name('dashboard');
+Route::get('/dashboard_gudang', [unitController::class, 'dashboard_gudang'])->name('dashboard_gudang');
+Route::get('/dashboard_sidak_tph', [unitController::class, 'dashboard_sidak_tph'])->name('dashboard_sidak_tph');
+Route::post('/getDataByYear', [unitController::class, 'getDataByYear'])->name('getDataByYear');
 
 Route::get('/tambah', [unitController::class, 'tambah']);
 Route::post('/store', [unitController::class, 'store']);

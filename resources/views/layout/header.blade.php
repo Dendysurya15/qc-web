@@ -100,10 +100,20 @@
                         <!-- TABEL -->
                         <li class="nav-item">
                             <!-- uses solid style -->
-                            <a href="{{ asset('/dashboard') }}" class="nav-link">
+                            <a href="{{ asset('/dashboard_gudang') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file"></i>
                                 <p>
                                     Inspeksi QC Gudang
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <!-- uses solid style -->
+                            <a href="{{ asset('/dashboard_sidak_tph') }}" class="nav-link">
+                                <i class="nav-icon fa-solid fa-file"></i>
+                                <p>
+                                    QC Sidak TPH
                                 </p>
                             </a>
                         </li>

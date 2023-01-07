@@ -10,10 +10,5 @@
 <script src="{{ asset('js/js_tabel/jquery.dataTables.min.js') }}"></script>
 
 <script>
-    $(function () {
-        $('.select2').select2({
-            theme: 'bootstrap4'
-        });
-     })
-     
+
 </script>
