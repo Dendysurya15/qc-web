@@ -263,7 +263,7 @@ class unitController extends Controller
                     }
                 } else {
                     $arrView[$key][] = '-';
-                    $arrId[$key][] = 'askdfjk';
+                    $arrId[$key][] = $key3;
                 }
                 $arrView[$key][] = $value['skor_bulan_' . $data];
                 $arrId[$key][] = '-';
@@ -296,6 +296,7 @@ class unitController extends Controller
         $arrResult['arrView'] = $arrView;
         $arrResult['arrId'] = $arrId;
         $arrResult['arrHeader'] = $arrHeader;
+        $arrResult['arrMonth'] = $bulan;
         echo json_encode($arrResult);
         exit();
     }

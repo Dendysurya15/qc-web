@@ -74,6 +74,42 @@
         overflow-x: auto;
         white-space: nowrap;
     }
+
+    td:first-child,
+    th:first-child {
+        position: sticky;
+        left: 0;
+        background-color: white;
+    }
+
+    td:nth-child(2),
+    th:nth-child(2) {
+        position: sticky;
+        left: 4.5%;
+        background-color: white;
+    }
+
+
+    td:nth-child(3),
+    th:nth-child(3) {
+        position: sticky;
+        left: 10%;
+        background-color: white;
+    }
+
+    td:nth-child(4),
+    th:nth-child(4) {
+        position: sticky;
+        left: 13%;
+        background-color: white;
+    }
+
+    td:nth-child(5),
+    th:nth-child(5) {
+        position: sticky;
+        left: 15.5%;
+        background-color: white;
+    }
 </style>
 <div class="content-wrapper">
     <section class="content">
@@ -93,7 +129,6 @@
                 <div class="card table_wrapper">
 
                     <table id="tableData" class="table table-stripped" class="display" style="width:100%">
-
                         <tbody id="list" class="list">
                         </tbody>
                     </table>
@@ -144,7 +179,7 @@
                     document.getElementById("tableData").deleteTHead();
 
                     var arrHeader = Object.entries(result['arrHeader'])
-                
+                    var arrMonth = Object.entries(result['arrMonth'])
                      
                     var rowHeader = '['
                     for (let i = 0; i < arrHeader.length; i++) {
@@ -157,21 +192,28 @@
 
                     var parserowHeader  = JSON.parse(rowHeader)
 
-
                     var thead = document.createElement('thead');
                     var table = document.getElementById('tableData')
                     table.appendChild(thead);
 
-                    for (var i=0; i<parserowHeader.length; i++) {
-                        thead.appendChild(document.createElement("th")).
-                            appendChild(document.createTextNode(parserowHeader[i]));
-                    }
-                    
+                        for (var i=0; i<parserowHeader.length; i++) {
+                            thead.appendChild(document.createElement("th")).
+                                appendChild(document.createTextNode(parserowHeader[i]));
+                        }
+
+                    // var yourTable = document.querySelector('table'); // select your table
+                    // var row = document.createElement('tr');
+                    // for (var i=0; i<parserowHeader.length; i++) {
+                    //     var cell = document.createElement("th");
+                    //     cell.innerHTML = parserowHeader[i];
+                    //     row.appendChild(cell);
+                    // }
+                    // thead.appendChild(row);
+                    // yourTable.insertBefore(thead, yourTable.children[0]);
 
                     const pagination_element = document.getElementById('pagination')
                     var list_element = document.getElementById('list')
 
-                    
                     let current_page = 1;
                     let rows = 12;
 
@@ -240,23 +282,32 @@
                      
                         for (let j = 0; j < childArrView.length; j++) {
                             
-                            var item = 'item' + arrResult[i][0]
-                         
+                            // var item = 'item' + arrResult[i][0]
                             
-                            if (childArrView[j][1] == '-' || childArrView[j][1] == '0') {
-                                var item = childArrView[j][1]
-                            }else{
-                                var item = 'nais'
-                            }
-                            // console.log(childArrView[i][1])
+                            if (childArrView[j][1] == '-' ) {
+                                // console.log(childArrId);
+                                if (childArrView[j][1] == '-') {
+                                    var dt = '0'
+                                }
 
-                            var item_element = 'item_element' +  arrResult[i][0]
+                                var item_element = document.createElement('td')
+                                item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + dt + ' </a>'
+                                tr.appendChild(item_element);
+                            } else if (childArrId[j][1] != '-') {
+                                var item_element = document.createElement('td')
+                                item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + childArrView[j][1] + ' </a>'
+                                tr.appendChild(item_element);
+                            } else {
+                                var item = childArrView[j][1]
+                                var item_element = 'item_element' +  arrResult[i][0]
                             
                             var item_element = document.createElement('td')
-
                             item_element.innerText = item
 
                             tr.appendChild(item_element);
+                            }
+
+                          
                         }
                     // });
                         list_element.appendChild(tr)
