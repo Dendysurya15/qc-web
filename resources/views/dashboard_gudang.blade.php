@@ -114,13 +114,27 @@
 <div class="content-wrapper">
     <section class="content">
         <br>
-        <div class="col-2">
-            {{csrf_field()}}
-            <select name="" class="form-control" id="yearData">
-                <option value="" disabled selected>Pilih Tahun</option>
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-            </select>
+        <div class="row">
+
+            <div class="col-2">
+                {{csrf_field()}}
+
+                <select name="" class="form-control" id="regionalData">
+                    <option value="" disabled selected>Pilih Regional</option>
+                    <option value="1">Regional 1</option>
+                    <option value="2">Regional 2</option>
+                    <option value="3">Regional 3</option>
+                </select>
+            </div>
+            <div class="col-2">
+
+                <select name="" class="form-control" id="yearData">
+                    <option value="" disabled selected>Pilih Tahun</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+
         </div>
         <br>
         <div class="container-fluid">
@@ -149,13 +163,21 @@
     //     "pageLength": 25
     // });
 
-    
+    // var regional = ''
+    // $('#regionalData').change(function(){
+    //     regional = $(this).val();
+        
+    //     // getData(year)
+    // });
+
 
     $('#yearData').change(function(){
         year = $(this).val();
+        regional = document.getElementById('regionalData').value;
         
-        
-        getData(year)
+
+        console.log(regional)
+        // getData(year)
     });
 
 
