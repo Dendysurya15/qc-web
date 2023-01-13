@@ -17,31 +17,15 @@ class unitController extends Controller
 {
     public function index()
     {
-        $table = DB::table('pekerja')->get();
-
-        //  dd($table);
-        return view('index', ['pekerja' => $table]);
-    }
-    public function dashboard_sidak_tph()
-    {
-        $query = DB::table('sidak_tph')
-            ->select("sidak_tph.*")
-            ->get();
-
-        return view('dashboard_sidak_tph');
-    }
-
-    public function getDataByYear(Request $request)
-    {
         $year = $request->get('year');
-
+        $regional = $request->get('regional');
 
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         $queryEstate = DB::table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
-            ->where('wil.regional', 1)
+            ->where('wil.regional', $regional)
             ->get();
 
         $queryEstate = json_decode($queryEstate, true);
@@ -151,6 +135,11 @@ class unitController extends Controller
                 if ($wilayah == 1)  $dataResult[$key]['wil'] = 'I';
                 else if ($wilayah == 2)  $dataResult[$key]['wil'] = 'II';
                 else if ($wilayah == 3)  $dataResult[$key]['wil'] = 'III';
+                else if ($wilayah == 4)  $dataResult[$key]['wil'] = 'IV';
+                else if ($wilayah == 5)  $dataResult[$key]['wil'] = 'V';
+                else if ($wilayah == 6)  $dataResult[$key]['wil'] = 'VI';
+                else if ($wilayah == 7)  $dataResult[$key]['wil'] = 'VII';
+                else if ($wilayah == 8)  $dataResult[$key]['wil'] = 'VIII';
                 $dataResult[$key]['est'] = $estateQuery->est;
             } else {
                 foreach ($bulan as $key4 => $value) {
@@ -169,6 +158,11 @@ class unitController extends Controller
                 if ($wilayah == 1)  $dataResult[$key]['wil'] = 'I';
                 else if ($wilayah == 2)  $dataResult[$key]['wil'] = 'II';
                 else if ($wilayah == 3)  $dataResult[$key]['wil'] = 'III';
+                else if ($wilayah == 4)  $dataResult[$key]['wil'] = 'IV';
+                else if ($wilayah == 5)  $dataResult[$key]['wil'] = 'V';
+                else if ($wilayah == 6)  $dataResult[$key]['wil'] = 'VI';
+                else if ($wilayah == 7)  $dataResult[$key]['wil'] = 'VII';
+                else if ($wilayah == 8)  $dataResult[$key]['wil'] = 'VIII';
                 $dataResult[$key]['skor_tahunan'] = 0;
                 $dataResult[$key]['status'] = 'Poor';
             }
@@ -232,7 +226,7 @@ class unitController extends Controller
                         } else {
                             unset($dataResult[$key2][$key]);
                             for ($i = 0; $i < $value; $i++) {
-                                $dataResult[$key2][$key][] = '-';
+                                $dataResult[$key2][$key]['null' . $i] = '-';
                             }
                         }
                     }
@@ -263,7 +257,7 @@ class unitController extends Controller
                     }
                 } else {
                     $arrView[$key][] = '-';
-                    $arrId[$key][] = $key3;
+                    $arrId[$key][] = 0;
                 }
                 $arrView[$key][] = $value['skor_bulan_' . $data];
                 $arrId[$key][] = '-';
@@ -280,6 +274,305 @@ class unitController extends Controller
         // dd($arrView);
         $arrHeader = array();
         $arrHeader = ['WILAYAH', 'ESTATE', 'KODE', 'KTU', 'EM'];
+        if (empty($resultCount)) {
+            foreach ($bulan as $key => $value) {
+                $resultCount[$value] = 1;
+            }
+        }
+
+        foreach ($resultCount as $key => $value) {
+
+            if ($value > 1) {
+                for ($i = 1; $i <= $value; $i++) {
+                    $arrHeader[] = $i;
+                }
+            } else {
+                $arrHeader[] = '1';
+            }
+            $arrHeader[] = 'SKOR';
+        }
+        array_push($arrHeader, 'SKOR', 'STATUS', 'RANK');
+
+        $arrResult['arrView'] = $arrView;
+        $arrResult['arrId'] = $arrId;
+        $arrResult['arrHeader'] = $arrHeader;
+        $arrResult['arrMonth'] = $bulan;
+        echo json_encode($arrResult);
+    }
+    public function dashboard_sidak_tph()
+    {
+        $query = DB::table('sidak_tph')
+            ->select("sidak_tph.*")
+            ->get();
+
+        return view('dashboard_sidak_tph');
+    }
+
+    public function getDataByYear(Request $request)
+    {
+        $year = $request->get('year');
+        $regional = $request->get('regional');
+
+        $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        $queryEstate = DB::table('estate')
+            ->select('estate.*')
+            ->join('wil', 'wil.id', '=', 'estate.wil')
+            ->where('wil.regional', $regional)
+            ->get();
+
+        $queryEstate = json_decode($queryEstate, true);
+
+        $dataRaw = array();
+
+        foreach ($queryEstate as $value) {
+
+            // dd($year);
+            $queryPerEstate = DB::table('qc_gudang')
+                ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
+                ->where('unit', $value['id'])
+                ->whereYear('tanggal', $year)
+                ->get();
+
+
+
+            if ($queryPerEstate->first() != '') {
+
+                $inc = 0;
+                $total_skor = 0;
+                foreach ($queryPerEstate as $key2 => $val) {
+
+                    foreach ($bulan as $key => $val2) {
+                        if ($val2 == $val->bulan) {
+                            // if ($total_skor != 0) {
+                            // $dataRaw[$value['est']][$val2]['skor_rerata'] = $total_skor / $inc;
+                            // }
+                            // $total_skor = $total_skor + $val->skor_total;
+                            // $dataRaw[$value['est']][$val2]['total'] = $total_skor;
+                            $dataRaw[$value['est']][$val2][$val->id] = $val->skor_total;
+                        } else {
+                            $dataRaw[$value['est']][$val2][] = 0;
+                        }
+                    }
+                    $inc++;
+                }
+            } else {
+                $dataRaw[$value['est']] = 'kosong';
+            }
+        }
+
+        // dd($dataRaw);
+
+        $dataResult = array();
+        $countDataPerEstate = array();
+        foreach ($dataRaw as $key => $value) {
+            if ($value != 'kosong') {
+                $total_skor = 0;
+                $total_bulan = 0;
+                $inc_bulan = 0;
+                foreach ($value as $key2 => $data) {
+                    $inc = 0;
+                    $inc_count_data = 0;
+                    // dd($data);
+                    $inc_count_data_2 = 1;
+                    foreach ($data as $key3 => $val) {
+
+                        $total_skor = $total_skor + $val;
+                        if ((int)$val != 0) {
+                            // $dataResult[$key][$key2][$key3] = $val;
+                            $dataResult[$key][$key2][$key3] = $val;
+
+                            $inc++;
+                            $inc_count_data_2++;
+                            $inc_count_data++;
+                        }
+                        $countDataPerEstate[$key][$key2] = $inc_count_data;
+                    }
+
+                    $skor = 0;
+                    if ($inc != 0) {
+                        $skor = round($total_skor / $inc, 2);
+                        // $dataResult[$key][$key2] = $skor;
+                        $dataResult[$key]['skor_bulan_' . $key2] = $skor;
+                    } else {
+                        $dataResult[$key][$key2] = 0;
+                        $dataResult[$key]['skor_bulan_' . $key2] = $skor;
+                    }
+                    $total_skor = 0;
+                    $total_bulan = $total_bulan + $skor;
+                    $inc_bulan++;
+                }
+                $skor_tahunan = round($total_bulan / $inc_bulan, 2);
+                $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                if ($skor_tahunan >= 95) {
+                    $dataResult[$key]['status'] = 'Excellent';
+                } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                    $dataResult[$key]['status'] = 'Good';
+                } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                    $dataResult[$key]['status'] = 'Satisfactory';
+                } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                    $dataResult[$key]['status'] = 'Fair';
+                } else if ($skor_tahunan < 65) {
+                    $dataResult[$key]['status'] = 'Poor';
+                }
+
+                $estateQuery = DB::table('estate')
+                    ->select('estate.*')
+                    ->join('wil', 'wil.id', '=', 'estate.wil')
+                    ->where('estate.est', $key)
+                    ->first();
+
+                $dataResult[$key]['estate'] = $estateQuery->nama;
+                $wilayah =  $estateQuery->wil;
+                $dataResult[$key]['wilayah'] = $wilayah;
+                if ($wilayah == 1)  $dataResult[$key]['wil'] = 'I';
+                else if ($wilayah == 2)  $dataResult[$key]['wil'] = 'II';
+                else if ($wilayah == 3)  $dataResult[$key]['wil'] = 'III';
+                else if ($wilayah == 4)  $dataResult[$key]['wil'] = 'IV';
+                else if ($wilayah == 5)  $dataResult[$key]['wil'] = 'V';
+                else if ($wilayah == 6)  $dataResult[$key]['wil'] = 'VI';
+                else if ($wilayah == 7)  $dataResult[$key]['wil'] = 'VII';
+                else if ($wilayah == 8)  $dataResult[$key]['wil'] = 'VIII';
+                $dataResult[$key]['est'] = $estateQuery->est;
+            } else {
+                foreach ($bulan as $key4 => $value) {
+                    $dataResult[$key][$value] = 0;
+                    $dataResult[$key]['skor_bulan_' . $value] = 0;
+                }
+                $estateQuery = DB::table('estate')
+                    ->select('estate.*')
+                    ->join('wil', 'wil.id', '=', 'estate.wil')
+                    ->where('estate.est', $key)
+                    ->first();
+                $dataResult[$key]['estate'] = $estateQuery->nama;
+                $dataResult[$key]['est'] = $estateQuery->est;
+                $wilayah =  $estateQuery->wil;
+                $dataResult[$key]['wilayah'] = $wilayah;
+                if ($wilayah == 1)  $dataResult[$key]['wil'] = 'I';
+                else if ($wilayah == 2)  $dataResult[$key]['wil'] = 'II';
+                else if ($wilayah == 3)  $dataResult[$key]['wil'] = 'III';
+                else if ($wilayah == 4)  $dataResult[$key]['wil'] = 'IV';
+                else if ($wilayah == 5)  $dataResult[$key]['wil'] = 'V';
+                else if ($wilayah == 6)  $dataResult[$key]['wil'] = 'VI';
+                else if ($wilayah == 7)  $dataResult[$key]['wil'] = 'VII';
+                else if ($wilayah == 8)  $dataResult[$key]['wil'] = 'VIII';
+                $dataResult[$key]['skor_tahunan'] = 0;
+                $dataResult[$key]['status'] = 'Poor';
+            }
+        }
+        //khusus untuk menghitung record setiap bulan per estate
+        // dd($countDataPerEstate);
+        $resultCountMax = array();
+        foreach ($bulan as $key => $value) {
+            foreach ($countDataPerEstate as $key2 => $val) {
+
+                if (array_key_exists($value, $val)) {
+                    $resultCountMax[$value] = max(array_column($countDataPerEstate, $value));
+                }
+            }
+        }
+
+        // dd($bulan);
+        // dd($resultCountMax);
+        $resultCount = array();
+        foreach ($resultCountMax as $key => $value) {
+            if ($value == 0 || $value == 1) {
+                $resultCount[$key] = 1;
+            } else {
+                $resultCount[$key] = $value;
+            }
+        }
+
+        // dd($resultCount);
+
+        $resultCountJson = json_encode($resultCount);
+        // dd($resultCountJson);
+        $total_column = 0;
+        foreach ($resultCount as $key => $value) {
+            $total_column = $total_column + $value;
+        }
+
+        // dd($total_column);
+
+        $total_column_bulan = $total_column + 12;
+        array_multisort(array_column($dataResult, 'skor_tahunan'), SORT_DESC, $dataResult);
+        $inc = 1;
+        foreach ($dataResult as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                $dataResult[$key]['rank'] = $inc;
+            }
+            $inc++;
+        }
+        array_multisort(array_column($dataResult, 'wilayah'), SORT_ASC, $dataResult);
+
+        foreach ($resultCount as $key => $value) {
+            foreach ($dataResult as $key2 => $data) {
+                if (array_key_exists($key, $data)) {
+                    if ($value != 1) {
+                        if (is_array($data[$key])) {
+                            if (count($data[$key]) != $value) {
+                                // dd(count($data[$key]));
+                                for ($i = 0; $i < $value - count($data[$key]); $i++) {
+                                    $dataResult[$key2][$key]['null' . $i] = '-';
+                                }
+                            }
+                        } else {
+                            unset($dataResult[$key2][$key]);
+                            for ($i = 0; $i < $value; $i++) {
+                                $dataResult[$key2][$key]['null' . $i] = '-';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $arrView = array();
+        $arrId = array();
+        foreach ($dataResult as $key => $value) {
+            $arrView[$key][] = $value['wil'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['estate'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['est'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['wil'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['wil'];
+            $arrId[$key][] = '-';
+            foreach ($bulan as $key2 => $data) {
+                if (is_array($value[$data])) {
+                    $inc = 0;
+                    foreach ($value[$data] as $key3 => $val) {
+                        $arrView[$key][] = $val;
+                        $arrId[$key][] = $key3;
+                        $inc++;
+                    }
+                } else {
+                    $arrView[$key][] = '-';
+                    $arrId[$key][] = 0;
+                }
+                $arrView[$key][] = $value['skor_bulan_' . $data];
+                $arrId[$key][] = '-';
+            }
+            $arrView[$key][] = $value['skor_tahunan'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['status'];
+            $arrId[$key][] = '-';
+            $arrView[$key][] = $value['rank'];
+            $arrId[$key][] = '-';
+        }
+
+        // dd($arrId);
+        // dd($arrView);
+        $arrHeader = array();
+        $arrHeader = ['WILAYAH', 'ESTATE', 'KODE', 'KTU', 'EM'];
+        if (empty($resultCount)) {
+            foreach ($bulan as $key => $value) {
+                $resultCount[$value] = 1;
+            }
+        }
+
         foreach ($resultCount as $key => $value) {
 
             if ($value > 1) {
