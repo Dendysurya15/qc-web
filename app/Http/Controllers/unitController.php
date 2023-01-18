@@ -586,10 +586,20 @@ class unitController extends Controller
         }
         array_push($arrHeader, 'SKOR', 'STATUS', 'RANK');
 
+        $countRes = array();
+        $inc2 = 0;
+        foreach ($resultCount as $key => $value) {
+            $countRes[$inc2] = $value;
+            $inc2++;
+        }
+
         $arrResult['arrView'] = $arrView;
         $arrResult['arrId'] = $arrId;
         $arrResult['arrHeader'] = $arrHeader;
         $arrResult['arrMonth'] = $bulan;
+        $arrResult['arrCount'] = $countRes;
+        $arrResult['arrReg'] = $regional;
+
         echo json_encode($arrResult);
         exit();
     }

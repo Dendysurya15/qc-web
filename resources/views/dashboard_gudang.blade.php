@@ -140,7 +140,7 @@
 
                 <div class="card table_wrapper">
 
-                    <table id="tableData" class="table table-stripped" class="display" style="width:100%">
+                    <table id="tableData" class="table table-bordered text-center" class="display" style="width:100%">
                         <tbody id="list" class="list">
                         </tbody>
                     </table>
@@ -196,33 +196,97 @@
             success: function(result) {
                 var result = JSON.parse(result);
 
-
-
                 // $('#tableData').dataTable().fnClearTable();
                 //delete thead
                 document.getElementById("tableData").deleteTHead();
 
                 var arrHeader = Object.entries(result['arrHeader'])
                 var arrMonth = Object.entries(result['arrMonth'])
+                var arrCount = Object.entries(result['arrCount'])
+                var arrReg = Object.entries(result['arrReg'])
 
                 var rowHeader = '['
                 for (let i = 0; i < arrHeader.length; i++) {
                     rowHeader += '"' + result['arrHeader'][i] + '",'
                 }
-
-
                 rowHeader = rowHeader.substring(0, rowHeader.length - 1)
                 rowHeader += ']'
 
+                var rowMonth = '['
+                for (let i = 0; i < arrMonth.length; i++) {
+                    rowMonth += '"' + result['arrMonth'][i] + '",'
+                }
+                rowMonth = rowMonth.substring(0, rowMonth.length - 1)
+                rowMonth += ']'
+
+                var rowCount = '['
+                for (let i = 0; i < arrCount.length; i++) {
+                    rowCount += result['arrCount'][i] + ','
+                }
+                rowCount = rowCount.substring(0, rowCount.length - 1)
+                rowCount += ']'
+
+                var rowReg = '['
+                for (let i = 0; i < arrReg.length; i++) {
+                    rowReg += result['arrReg'][i] + ','
+                }
+                rowReg = rowReg.substring(0, rowReg.length - 1)
+                rowReg += ']'
+
                 var parserowHeader = JSON.parse(rowHeader)
+                var parserowMonth = JSON.parse(rowMonth)
+                var parserowCount = JSON.parse(rowCount)
+                var parserowReg = JSON.parse(rowReg)
 
                 var thead = document.createElement('thead');
                 var table = document.getElementById('tableData')
-                table.appendChild(thead);
+                // table.appendChild(thead);
 
-                for (var i = 0; i < parserowHeader.length; i++) {
-                    thead.appendChild(document.createElement("th")).
-                    appendChild(document.createTextNode(parserowHeader[i]));
+                // thead.appendChild(document.createElement("tr")).appenChild(createTextNode('OKE'));
+                // for (var i = 0; i < parserowHeader.length; i++) {
+                //     thead.appendChild(document.createElement("th")).
+                //     appendChild(document.createTextNode(parserowHeader[i]));
+                // }
+
+                var header = table.createTHead();
+                var row = header.insertRow();
+                var row2 = header.insertRow();
+                var row3 = header.insertRow();
+
+                for (let i = 0; i < 1; i++) {
+                    var cell3 = row.insertCell(i);
+                    cell3.innerHTML = "<b>SUMMARY SCORE GUDANG REGIONAL - " + parserowReg[0] + "</b>";
+                    cell3.colSpan = parserowHeader.length;
+                }
+
+                let k = 1;
+                for (let j = 0; j < 1; j++) {
+                    var cell2 = row2.insertCell(j);
+                    cell2.innerHTML = "<b>BULAN</b>";
+                    cell2.colSpan = 5;
+                }
+
+                for (let i = 0; i < parserowMonth.length; i++) {
+                    var cell2 = row2.insertCell(k);
+                    cell2.innerHTML = "<b>" + parserowMonth[i] + "</b>";
+                    cell2.colSpan = parserowCount[i] + 1;
+                    cell2.style.textAlign = "center";
+                    k++;
+                }
+
+                let m = 13;
+                var last = parserowHeader.slice(-3);
+                for (let i = 0; i < last.length; i++) {
+                    var cell3 = row2.insertCell(m);
+                    cell3.innerHTML = "<b>" + last[i] + "</b>";
+                    cell3.rowSpan = 2;
+                    cell3.style.textAlign = "center";
+                    m++;
+                }
+
+                for (let i = 0; i < parserowHeader.length - 3; i++) {
+                    var cell = row3.insertCell(i);
+                    cell.innerHTML = "<b>" + parserowHeader[i] + "</b>";
                 }
 
                 // var yourTable = document.querySelector('table'); // select your table
@@ -315,7 +379,8 @@
                             }
 
                             var item_element = document.createElement('td')
-                            item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + dt + ' </a>'
+                            // item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + dt + ' </a>'
+                            item_element.innerHTML = dt
                             tr.appendChild(item_element);
                         } else if (childArrId[j][1] != '-') {
                             var item_element = document.createElement('td')
