@@ -330,7 +330,10 @@ class unitController extends Controller
             // dd($year);
             $queryPerEstate = DB::table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
-                ->where('unit', $value['id'])
+                ->where(function ($query) use ($value) {
+                    $query->where('unit', '=', $value['id'])
+                        ->orWhere('unit', '=', $value['est']);
+                })
                 ->whereYear('tanggal', $year)
                 ->get();
 
@@ -619,11 +622,14 @@ class unitController extends Controller
 
         foreach ($queryEstate as $value) {
 
+            // dd($value);
             $queryPerEstate = DB::table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where('unit', $value['id'])
+                ->orWhere('unit', $value['est'])
                 ->whereYear('tanggal', '2022')
                 ->get();
+
 
             if ($queryPerEstate->first() != '') {
 
@@ -772,7 +778,10 @@ class unitController extends Controller
         // dd($total_column);
 
         $total_column_bulan = $total_column + 12;
-        array_multisort(array_column($dataResult, 'skor_tahunan'), SORT_DESC, $dataResult);
+        $arrCol = array_column($dataResult, 'skor_tahunan');
+
+
+        array_multisort($arrCol, SORT_DESC, $dataResult);
         $inc = 1;
         foreach ($dataResult as $key => $value) {
             foreach ($value as $key2 => $data) {
@@ -1021,7 +1030,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
             }
-            // dd($dataResult);
+            dd($dataResult);
             //khusus untuk menghitung record setiap bulan per estate
             // dd($countDataPerEstate);
             foreach ($bulan as $key => $value) {
