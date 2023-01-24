@@ -368,6 +368,7 @@ class unitController extends Controller
 
         $dataResult = array();
         $countDataPerEstate = array();
+        $bulanKe = Carbon::now()->month;
         foreach ($dataRaw as $key => $value) {
             if ($value != 'kosong') {
                 $total_skor = 0;
@@ -405,7 +406,8 @@ class unitController extends Controller
                     $total_bulan = $total_bulan + $skor;
                     $inc_bulan++;
                 }
-                $skor_tahunan = round($total_bulan / $inc_bulan, 2);
+                $skor_tahunan = round($total_bulan / $bulanKe, 2);
+
                 $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
                 if ($skor_tahunan >= 95) {
                     $dataResult[$key]['status'] = 'Excellent';
@@ -463,6 +465,8 @@ class unitController extends Controller
                 $dataResult[$key]['status'] = 'Poor';
             }
         }
+
+        // dd($dataResult);
         //khusus untuk menghitung record setiap bulan per estate
         // dd($countDataPerEstate);
         $resultCountMax = array();
@@ -529,6 +533,8 @@ class unitController extends Controller
                 }
             }
         }
+
+        // dd($dataResult);
 
         $arrView = array();
         $arrId = array();
@@ -1030,7 +1036,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
             }
-            dd($dataResult);
+            // dd($dataResult);
             //khusus untuk menghitung record setiap bulan per estate
             // dd($countDataPerEstate);
             foreach ($bulan as $key => $value) {

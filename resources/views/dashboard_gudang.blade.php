@@ -22,6 +22,27 @@
         white-space: nowrap;
     }
 
+    .Good {
+        background-color: green;
+        color: white;
+    }
+
+    .Satisfactory {
+        background-color: yellow;
+    }
+
+    .Excellent {
+        background-color: lightskyblue;
+    }
+
+    .Fair {
+        background-color: orange;
+    }
+
+    .Poor {
+        background-color: red
+    }
+
     .pagenumbers {
 
         margin-top: 30px;
@@ -365,20 +386,35 @@
 
                     tr.setAttribute("id", "testing" + childArrView[0]);
 
-                    // childArrView.forEach(element => {
-
-
                     for (let j = 0; j < childArrView.length; j++) {
-
-                        // var item = 'item' + arrResult[i][0]
-
                         if (childArrView[j][1] == '-') {
-                            // console.log(childArrId);
                             if (childArrView[j][1] == '-') {
                                 var dt = '0'
                             }
 
                             var item_element = document.createElement('td')
+                            
+                            // switch (childArrView[j][1]) {
+                            //     case 'EXCELLENT':
+                                    
+                            //         item_element.setAttribute('class','excelent')
+                            //         break;
+                            //     case 'Good':
+                            //     item_element.setAttribute('class','good')
+                            //         break;
+                            //     case 'Satisfactory':
+                            //     item_element.setAttribute('class','satisfactory')
+                            //         break;
+                            //     case 'Fair':
+                            //     item_element.setAttribute('class','fair')
+                            //         break;
+                            //     case 'Poor':
+                            //     item_element.setAttribute('class','poor')
+                            //         break;
+                            
+                            //     default:
+                            //         break;
+                            // }
                             // item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + dt + ' </a>'
                             item_element.innerHTML = dt
                             tr.appendChild(item_element);
@@ -388,15 +424,35 @@
                             tr.appendChild(item_element);
                         } else {
                             var item = childArrView[j][1]
+
+                           
+                         
+                           
                             var item_element = 'item_element' + arrResult[i][0]
 
                             var item_element = document.createElement('td')
+                          
+                            if(item == 'Excellent'){
+                                item_element.setAttribute("class", "Excellent" );
+                            }
+                            else if(item == 'Good'){
+                                item_element.setAttribute("class", "Good" );
+                            }
+                            else if(item == 'Satisfactory'){
+                                item_element.setAttribute("class", "Satisfactory" );
+                            }
+                            else if(item == 'Fair'){
+                                item_element.setAttribute("class", "Fair" );
+                            }
+                            else if(item == 'Poor'){
+                                item_element.setAttribute("class", "Poor" );
+                            }
+                           
                             item_element.innerText = item
-
                             tr.appendChild(item_element);
                         }
 
-
+                        
                     }
                     // });
                     list_element.appendChild(tr)
