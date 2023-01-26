@@ -12,7 +12,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('img/CBI-logo.png') }}">
 
     <link href="{{asset('fontawesome6/css/all.css')}}" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="stylesheet" href="{{ asset('css/ionicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -74,13 +74,15 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="hover"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a class="nav-link">Selamat datang </a>
+                    <a class="nav-link">Selamat datang, {{ session('user_name') }} </a>
                 </li>
             </ul>
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a class="nav-link"></a>
+                    <a class="nav-link">
+                        {{-- {{ session('user_name') }} --}}
+                    </a>
                 </li>
             </ul>
         </nav>
@@ -110,7 +112,7 @@
 
                         <li class="nav-item">
                             <!-- uses solid style -->
-                            <a href="{{ asset('/dashboard_sidak_tph') }}" class="nav-link">
+                            <a href="{{ asset('/dashboardtph') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file"></i>
                                 <p>
                                     QC Sidak TPH
@@ -136,12 +138,17 @@
                         </li> --}}
 
                         <li class="nav-item fixed-bottom mb-3" heig style="position: absolute;">
-                            <a href="{{ asset('/logout') }}" class="nav-link ">
+                            <a href="{{ route('logout') }}" class="nav-link"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="nav-icon fa fa-sign-out-alt"></i>
                                 <p>
                                     Logout
                                 </p>
                             </a>
+
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
                         </li>
 
 

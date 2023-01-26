@@ -22,7 +22,7 @@ class unitController extends Controller
 
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        $queryEstate = DB::table('estate')
+        $queryEstate = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $regional)
@@ -35,7 +35,7 @@ class unitController extends Controller
         foreach ($queryEstate as $value) {
 
             // dd($year);
-            $queryPerEstate = DB::table('qc_gudang')
+            $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where('unit', $value['id'])
                 ->whereYear('tanggal', $year)
@@ -123,7 +123,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
 
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -146,7 +146,7 @@ class unitController extends Controller
                     $dataResult[$key][$value] = 0;
                     $dataResult[$key]['skor_bulan_' . $value] = 0;
                 }
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -315,7 +315,7 @@ class unitController extends Controller
 
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        $queryEstate = DB::table('estate')
+        $queryEstate = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $regional)
@@ -328,7 +328,7 @@ class unitController extends Controller
         foreach ($queryEstate as $value) {
 
             // dd($year);
-            $queryPerEstate = DB::table('qc_gudang')
+            $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where(function ($query) use ($value) {
                     $query->where('unit', '=', $value['id'])
@@ -421,7 +421,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
 
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -444,7 +444,7 @@ class unitController extends Controller
                     $dataResult[$key][$value] = 0;
                     $dataResult[$key]['skor_bulan_' . $value] = 0;
                 }
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -616,7 +616,7 @@ class unitController extends Controller
     {
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        $queryEstate = DB::table('estate')
+        $queryEstate = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', 1)
@@ -629,7 +629,7 @@ class unitController extends Controller
         foreach ($queryEstate as $value) {
 
             // dd($value);
-            $queryPerEstate = DB::table('qc_gudang')
+            $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where('unit', $value['id'])
                 ->orWhere('unit', $value['est'])
@@ -717,7 +717,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
 
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -735,7 +735,7 @@ class unitController extends Controller
                     $dataResult[$key][$value] = 0;
                     $dataResult[$key]['skor_bulan_' . $value] = 0;
                 }
-                $estateQuery = DB::table('estate')
+                $estateQuery = DB::connection('mysql2')->table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -1111,19 +1111,19 @@ class unitController extends Controller
         //     ->where('estate.est', $est)
         //     ->first();
 
-        $query = DB::table('qc_gudang')
+        $query = DB::connection('mysql2')->table('qc_gudang')
             ->select('qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
             ->where('qc_gudang.id', '=', $id)
             ->first();
 
         $unit = $query->unit;
 
-        $estate = DB::table('estate')
+        $estate = DB::connection('mysql2')->table('estate')
             ->where('estate.id', '=', $unit)
             ->orWhere('estate.est', '=', $unit)
             ->first();
 
-        $pekerja = DB::table('pekerja')
+        $pekerja = DB::connection('mysql2')->table('pekerja')
             ->select('pekerja.*',  'estate.nama as nama_estate', 'estate.est')
             ->join('estate', 'estate.id', '=', 'pekerja.unit')
             ->where('unit', '=', $unit)
@@ -1251,20 +1251,20 @@ class unitController extends Controller
         //     ->where('qc_gudang.id', '=', $id)
         //     ->first();
 
-        $query = DB::table('qc_gudang')
+        $query = DB::connection('mysql2')->table('qc_gudang')
             ->select('qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
             ->where('qc_gudang.id', '=', $id)
             ->first();
 
         $unit = $query->unit;
 
-        $estate = DB::table('estate')
+        $estate = DB::connection('mysql2')->table('estate')
             ->where('estate.id', '=', $unit)
             ->orWhere('estate.est', '=', $unit)
             ->first();
 
 
-        $pekerja = DB::table('pekerja')
+        $pekerja = DB::connection('mysql2')->table('pekerja')
             ->select('pekerja.*',  'estate.nama as nama_estate', 'estate.est')
             ->join('estate', 'estate.id', '=', 'pekerja.unit')
             ->where('unit', '=', $unit)
@@ -1390,7 +1390,7 @@ class unitController extends Controller
 
     public function hapusRecord($id)
     {
-        DB::table('qc_gudang')->delete($id);
+        DB::connection('mysql2')->table('qc_gudang')->delete($id);
         return redirect()->route('dashboard_gudang');
     }
 }
