@@ -30,4 +30,5 @@ Route::post('/update', [unitController::class, 'update']);
 Route::get('/hapus/{id}', [unitController::class, 'hapus']);
 Route::get('detailInspeksi/{id}', [unitController::class, 'detailInspeksi'])->name('detailInspeksi');
 Route::get('/qc', [unitController::class, 'load_qc_gudang'])->name('qc');
+Route::get('/hapusRecord/{id}', [unitController::class, 'hapusRecord'])->name('hapusRecord');
 Route::get('/cetakpdf/{id}', [unitController::class, 'cetakpdf']);

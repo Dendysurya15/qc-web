@@ -1244,12 +1244,42 @@ class unitController extends Controller
     {
 
 
-        $query =  DB::table('qc_gudang')
-            ->select('estate.*', 'pekerja.nama as nama_ktu', 'qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
-            ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
-            ->join('pekerja', 'pekerja.unit', '=', 'qc_gudang.unit')
+        // $query =  DB::table('qc_gudang')
+        //     ->select('estate.*', 'pekerja.nama as nama_ktu', 'qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
+        //     ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
+        //     ->join('pekerja', 'pekerja.unit', '=', 'qc_gudang.unit')
+        //     ->where('qc_gudang.id', '=', $id)
+        //     ->first();
+
+        $query = DB::table('qc_gudang')
+            ->select('qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
             ->where('qc_gudang.id', '=', $id)
             ->first();
+
+        $unit = $query->unit;
+
+        $estate = DB::table('estate')
+            ->where('estate.id', '=', $unit)
+            ->orWhere('estate.est', '=', $unit)
+            ->first();
+
+
+        $pekerja = DB::table('pekerja')
+            ->select('pekerja.*',  'estate.nama as nama_estate', 'estate.est')
+            ->join('estate', 'estate.id', '=', 'pekerja.unit')
+            ->where('unit', '=', $unit)
+            ->orWhere('est', '=', $unit)
+            ->first();
+
+        // dd($pekerja);
+        if ($pekerja != null) {
+            $query->nama_ktu = $pekerja->nama;
+        } else {
+            $query->nama_ktu = '-';
+        }
+
+        $query->nama = $estate->nama;
+        $query->est = $estate->est;
 
         if ($query->foto_kesesuaian_ppro != null) {
             if (str_contains($query->foto_kesesuaian_ppro, ';')) {
@@ -1356,5 +1386,11 @@ class unitController extends Controller
 
         $filename = 'QC-gudang-' . $query->name_format . '-' . $query->est . '.pdf';
         return $pdf->stream($filename);
+    }
+
+    public function hapusRecord($id)
+    {
+        DB::table('qc_gudang')->delete($id);
+        return redirect()->route('dashboard_gudang');
     }
 }
