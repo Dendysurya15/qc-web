@@ -264,15 +264,15 @@ class SidaktphController extends Controller
                                     }
 
                                     // $jum_blok = count(float)($listBlokPerAfd);
-                                    $jum_blok = (float)count($listBlokPerAfd);
+                                    $jum_blok = count($listBlokPerAfd);
 
-                                    $sum_bt_tph += (float)$value3['bt_tph'];
-                                    $sum_bt_jalan += (float)$value3['bt_jalan'];
-                                    $sum_bt_bin += (float)$value3['bt_bin'];
+                                    $sum_bt_tph += $value3['bt_tph'];
+                                    $sum_bt_jalan += $value3['bt_jalan'];
+                                    $sum_bt_bin += $value3['bt_bin'];
 
-                                    $sum_jum_karung += (float)$value3['jum_karung'];
-                                    $sum_buah_tinggal += (float)$value3['buah_tinggal'];
-                                    $sum_restan_unreported += (float)$value3['restan_unreported'];
+                                    $sum_jum_karung += $value3['jum_karung'];
+                                    $sum_buah_tinggal += $value3['buah_tinggal'];
+                                    $sum_restan_unreported += $value3['restan_unreported'];
                                 }
                             }
                             //change value 3to float type
@@ -614,15 +614,28 @@ class SidaktphController extends Controller
                     $inc = 0;
                     foreach ($value as $key2 => $value2) {
                         foreach ($value2 as $key3 => $value3) {
+                            $list_all_will[$key][$inc]['est_afd'] = $key2 . '_' . $key3;
                             $list_all_will[$key][$inc]['est'] = $key2;
                             $list_all_will[$key][$inc]['afd'] = $key3;
                             $list_all_will[$key][$inc]['skor'] = $value3['skore_akhir'];
                             $list_all_will[$key][$inc]['nama'] = '-';
-                            $list_all_will[$key][$inc]['rank'] = '-';
                             $inc++;
                         }
                     }
                 }
+
+                foreach ($list_all_will as $key => $value) {
+                    array_multisort(array_column($list_all_will[$key], 'skor'), SORT_DESC, $list_all_will[$key]);
+                    $rank = 1;
+                    foreach ($value as $key1 => $value1) {
+                        foreach ($value1 as $key2 => $value2) {
+                            $list_all_will[$key][$key1]['rank'] = $rank;
+                        }
+                        $rank++;
+                    }
+                    array_multisort(array_column($list_all_will[$key], 'est_afd'), SORT_ASC, $list_all_will[$key]);
+                }
+
                 // $list_all_will = array();
                 // foreach ($dataSkorAkhirPerWil as $key => $value) {
                 //     $inc = 0;
@@ -659,12 +672,21 @@ class SidaktphController extends Controller
                         $list_all_est[$key][$inc]['skor'] = $value2['skor_akhir'];
                         $list_all_est[$key][$inc]['EM'] = 'EM';
                         $list_all_est[$key][$inc]['nama'] = '-';
-                        $list_all_est[$key][$inc]['rank'] = '-';
                         $inc++;
                     }
                 }
 
-                // dd($list_all_est);
+                foreach ($list_all_est as $key => $value) {
+                    array_multisort(array_column($list_all_est[$key], 'skor'), SORT_DESC, $list_all_est[$key]);
+                    $rank = 1;
+                    foreach ($value as $key1 => $value1) {
+                        foreach ($value1 as $key2 => $value2) {
+                            $list_all_est[$key][$key1]['rank'] = $rank;
+                        }
+                        $rank++;
+                    }
+                    array_multisort(array_column($list_all_est[$key], 'est'), SORT_ASC, $list_all_est[$key]);
+                }
                 // dd($list_all_est);
 
                 //untuk chart!!!
