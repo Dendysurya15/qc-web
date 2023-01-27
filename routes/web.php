@@ -33,6 +33,7 @@ Route::post('/getBtTph', [SidaktphController::class, 'getBtTph'])->name('getBtTp
 Route::post('/getKrTph', [SidaktphController::class, 'getKrTph'])->name('getKrTph');
 Route::post('/getBHtgl', [SidaktphController::class, 'getBHtgl'])->name('getBHtgl');
 Route::post('/exportPDF', [SidaktphController::class, 'exportPDF'])->name('exportPDF');
+// Route::get('/404', [SidaktphController::class, 'notfound'])->name('404');
 Route::post('/getDataByYear', [unitController::class, 'getDataByYear'])->name('getDataByYear');
 
 Route::get('/tambah', [unitController::class, 'tambah']);

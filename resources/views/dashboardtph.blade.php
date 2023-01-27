@@ -21,47 +21,29 @@
 <div class="content-wrapper">
 
   <div class="d-flex justify-content-center">
-    <h1>Sidak Pemeriksaan TPH Regional-I</h1>
+    <div class="row mt-3 text-uppercase">
+      <h1>Sidak Pemeriksaan TPH Regional-I</h1>
+    </div>
   </div>
 
-  <div class="d-flex justify-content-end head" id="head">
-    <form action="{{route('dashboardtph')}}" method="get" class="d-flex justify-contend-end">
+  <div class="d-flex justify-content-end head mt-2" id="head">
+    <form action="{{route('dashboardtph')}}" method="get" class="d-flex justify-contend-end mr-3">
       {{ csrf_field() }}
-      {{-- <div class="row pb-3 m-3">
-        <input type="month" id="dateToday" name="dateToday" class="form-control" onchange="cari()" class="p-3">
-      </div> --}}
-      <div class="row pb-3 m-3">
-
-        <input type="week" name="dateWeek" id="dateWeek" value="{{ date('Y').'-W'.date('W') }}">
-        {{-- <label for="dateWeek"><i class="bi bi-calendar2-week"></i>Minggu</label> --}}
-      </div>
-
+      <input type="week" name="dateWeek" id="dateWeek" value="{{ date('Y').'-W'.date('W') }}">
     </form>
-    <div class="row pb-3 m-3">
 
+    <div class="row mr-2">
       <button id="btnShow" class="btn btn-primary"><i class="bi bi-arrow-counterclockwise"></i>Show</button>
     </div>
-    <div class=" row pb-3 m-3">
 
-      {{-- <form action="{{route('exportPDF')}}" method="POST">
-        {{ csrf_field() }}
-        <input type="hidden" id="startWeek" name="start" value="">
-        <input type="hidden" id="lastWeek" name="last" value="">
-        <button class="btn btn-primary" id="btnExport"> <i class="fa fa-file-pdf"></i>Download PDF</button>
-      </form> --}}
-
-
-      <form action="{{route('exportPDF')}}" method="POST" id="myForm">
-        {{ csrf_field() }}
-        <input type="hidden" id="startWeek" name="start" value="">
-        <input type="hidden" id="lastWeek" name="last" value="">
-        <input type="hidden" name="chartData" id="chartInputData">
-        <button type="submit" class="btn btn-primary" id="btnExport" onclick="openInNewTab()"> <i
-            class="fa fa-file-pdf"></i>Download
-          PDF</button>
-      </form>
-
-    </div>
+    <form action="{{route('exportPDF')}}" method="POST" id="myForm" class="mr-2">
+      {{ csrf_field() }}
+      <input type="hidden" id="startWeek" name="start" value="">
+      <input type="hidden" id="lastWeek" name="last" value="">
+      <input type="hidden" name="chartData" id="chartInputData">
+      <button type="submit" class="btn btn-primary" id="btnExport" formtarget="_blank"> <i class="fa fa-file-pdf"></i>
+        Download PDF</button>
+    </form>
   </div>
 
   {{-- Data untuk Table --}}
@@ -294,8 +276,13 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-   
-///membuat temp data value 0 untuk chart ketika ganti tanggal tidak ada data
+    var mybutton = document.getElementById("btnExport");
+    mybutton.disabled = true;
+    setTimeout(function() {
+        mybutton.disabled = false;
+    }, 1500);
+
+    ///membuat temp data value 0 untuk chart ketika ganti tanggal tidak ada data
     var list_estate = <?php echo json_encode($list_estate); ?>;
     var list_wilayah = <?php echo json_encode($list_wilayah); ?>;
     // console.log(list_wilayah)
@@ -470,6 +457,11 @@ var will = {
       $('#tbody3').empty()
 
       getDataTph()
+      var mybutton = document.getElementById("btnExport");
+      mybutton.disabled = true;
+      setTimeout(function() {
+          mybutton.disabled = false;
+      }, 1500);
     }
 
       function getDataTph () {
@@ -1313,15 +1305,4 @@ function chartBtTph(categoryEst,
  
 }
 //export ke pdf
-
-
-function openInNewTab() {
-    var form = document.getElementById("myForm");
-    form.target = "_blank";
-    form.submit();
-  }
-
-
-
-
 </script>
