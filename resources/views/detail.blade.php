@@ -6,9 +6,21 @@
                     class="nav-icon fa-solid fa-arrow-left "></i></a>
             <a href="/cetakpdf/{{ $data->id }}" class=" btn btn-primary mb-3 mt-3"><i class="fa-solid fa-file-pdf"></i>
                 Unduh File</a>
+
+            <?php
+
+            if (session('user_name') == 'Dennis Irawan') {
+                ?>
             <a onclick="return confirm('Anda yakin untuk mengahpus record ini?')" href="/hapusRecord/{{ $data->id }}"
                 class=" btn btn-danger mb-3 mt-3"><i class="fa-solid fa-trash"></i>
                 Hapus Record</a>
+            <?php
+            }
+                ?>
+
+
+
+
             <div class="card">
                 <div class="card-body">
 

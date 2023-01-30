@@ -305,7 +305,7 @@ class unitController extends Controller
             ->select("sidak_tph.*")
             ->get();
 
-        return view('dashboard_sidak_tph');
+        return view('dashboard_sidak_tph', ['test' => 'naiss']);
     }
 
     public function getDataByYear(Request $request)
@@ -545,10 +545,10 @@ class unitController extends Controller
             $arrId[$key][] = '-';
             $arrView[$key][] = $value['est'];
             $arrId[$key][] = '-';
-            $arrView[$key][] = $value['wil'];
-            $arrId[$key][] = '-';
-            $arrView[$key][] = $value['wil'];
-            $arrId[$key][] = '-';
+            // $arrView[$key][] = $value['wil'];
+            // $arrId[$key][] = '-';
+            // $arrView[$key][] = $value['wil'];
+            // $arrId[$key][] = '-';
             foreach ($bulan as $key2 => $data) {
                 if (is_array($value[$data])) {
                     $inc = 0;
@@ -575,7 +575,7 @@ class unitController extends Controller
         // dd($arrId);
         // dd($arrView);
         $arrHeader = array();
-        $arrHeader = ['WILAYAH', 'ESTATE', 'KODE', 'KTU', 'EM'];
+        $arrHeader = ['WILAYAH', 'ESTATE', 'KODE'];
         if (empty($resultCount)) {
             foreach ($bulan as $key => $value) {
                 $resultCount[$value] = 1;

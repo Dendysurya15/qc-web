@@ -26,6 +26,10 @@ Route::post('logout', [loginController::class, 'logout'])->name('logout');
 Route::get('/index', [unitController::class, 'index']);
 Route::get('/dashboard_gudang', [unitController::class, 'dashboard_gudang'])->name('dashboard_gudang');
 Route::get('/dashboardtph', [SidaktphController::class, 'index'])->name('dashboardtph');
+Route::get('/listAsisten', [SidaktphController::class, 'listAsisten'])->name('listAsisten');
+Route::post('/tambahAsisten', [SidaktphController::class, 'tambahAsisten'])->name('tambahAsisten');
+Route::post('/perbaruiAsisten', [SidaktphController::class, 'perbaruiAsisten'])->name('perbaruiAsisten');
+Route::post('/hapusAsisten', [SidaktphController::class, 'hapusAsisten'])->name('hapusAsisten');
 Route::post('/getData', [SidaktphController::class, 'getData'])->name('getData');
 Route::post('/dashboardtph', [SidaktphController::class, 'chart'])->name('chart');
 

@@ -117,20 +117,6 @@
         left: 10%;
         background-color: white;
     }
-
-    td:nth-child(4),
-    th:nth-child(4) {
-        position: sticky;
-        left: 13%;
-        background-color: white;
-    }
-
-    td:nth-child(5),
-    th:nth-child(5) {
-        position: sticky;
-        left: 15.5%;
-        background-color: white;
-    }
 </style>
 <div class="content-wrapper">
     <section class="content">
@@ -141,9 +127,9 @@
                 {{csrf_field()}}
 
                 <select name="" class="form-control" id="regionalData">
-                    <option value="1" selected>Regional 1</option>
-                    <option value="2">Regional 2</option>
-                    <option value="3">Regional 3</option>
+                    <option value="1" selected>Regional I</option>
+                    <option value="2">Regional II</option>
+                    <option value="3">Regional III</option>
                 </select>
             </div>
             <div class="col-2">
@@ -275,8 +261,16 @@
                 var row3 = header.insertRow();
 
                 for (let i = 0; i < 1; i++) {
+                    reg = ''
                     var cell3 = row.insertCell(i);
-                    cell3.innerHTML = "<b>SUMMARY SCORE GUDANG REGIONAL - " + parserowReg[0] + "</b>";
+                    if (parserowReg[0] == 1) {
+                        reg = 'I'
+                    }else if(parserowReg[0] == 2){
+                        reg = 'II'
+                    }else if(parserowReg[0] == 3){
+                        reg = 'III'
+                    }
+                    cell3.innerHTML = "<b>SUMMARY SCORE GUDANG REGIONAL - " + reg + "</b>";
                     cell3.colSpan = parserowHeader.length;
                 }
 
@@ -284,7 +278,7 @@
                 for (let j = 0; j < 1; j++) {
                     var cell2 = row2.insertCell(j);
                     cell2.innerHTML = "<b>BULAN</b>";
-                    cell2.colSpan = 5;
+                    cell2.colSpan = 3;
                 }
 
                 for (let i = 0; i < parserowMonth.length; i++) {

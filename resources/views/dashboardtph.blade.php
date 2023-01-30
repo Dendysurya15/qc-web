@@ -19,7 +19,6 @@
 </style>
 
 <div class="content-wrapper">
-
   <div class="d-flex justify-content-center">
     <div class="row mt-3 text-uppercase">
       <h1>Sidak Pemeriksaan TPH Regional-I</h1>
@@ -44,6 +43,10 @@
       <button type="submit" class="btn btn-primary" id="btnExport" formtarget="_blank"> <i class="fa fa-file-pdf"></i>
         Download PDF</button>
     </form>
+
+    @if (session('user_name') == 'Dennis Irawan')
+    <a href="{{ route('listAsisten') }}" class="btn btn-success mr-2">List Asisten</a>
+    @endif
   </div>
 
   {{-- Data untuk Table --}}
@@ -263,8 +266,6 @@
         </div>
       </div>
     </div><br>
-
-
 </div>
 
 </section>
@@ -343,6 +344,10 @@
             curve: 'smooth'
             },
             xaxis: {
+            labels: {
+              rotate: -50,
+              rotateAlways: true
+            },
             type: '',
             categories: estateJson
         }
@@ -441,10 +446,6 @@ var will = {
     var lastWeekCon = new Date(convertLastWeek);
     let lastWeekData = JSON.stringify(lastWeekCon)
     lastWeek = lastWeekData.slice(1,11) 
-
-
-    document.getElementById('startWeek').value = firstWeek
-    document.getElementById('lastWeek').value = lastWeek
 });
 
  
@@ -499,6 +500,9 @@ var will = {
       var lastWeekCon = new Date(convertLastWeek);
       let lastWeekData = JSON.stringify(lastWeekCon)
       lastWeek = lastWeekData.slice(1,11) 
+
+      document.getElementById('startWeek').value = firstWeek;
+      document.getElementById('lastWeek').value = lastWeek;
 
       // console.log(firstWeek)
         $.ajax({
@@ -1177,7 +1181,7 @@ var will = {
 
                 
 
-                  itemElement1.classList.add("text-center")
+        itemElement1.classList.add("text-center")
         itemElement2.classList.add("text-center")
         itemElement3.classList.add("text-center")
         itemElement4.classList.add("text-center")

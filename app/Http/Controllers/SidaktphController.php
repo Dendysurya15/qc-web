@@ -78,9 +78,132 @@ class SidaktphController extends Controller
         $queryWill = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->pluck('nama');
         return view(
             'dashboardtph',
-            ['list_estate' => $queryEst],
-            ['list_wilayah' => $queryWill],
+            ['list_estate' => $queryEst, 'list_wilayah' => $queryWill],
         );
+    }
+
+    public function listAsisten(Request $request)
+    {
+        $query = DB::connection('mysql2')->table('asisten_qc')
+            ->select('asisten_qc.*')
+            ->whereIn('estate.wil', [1, 2, 3])
+            ->join('estate', 'estate.est', '=', 'asisten_qc.est')
+            ->get();
+
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+        $queryAfd = DB::connection('mysql2')->table('afdeling')->select('nama')->groupBy('nama')->get();
+
+        return view('listAsisten', ['asisten' => $query, 'estate' => $queryEst, 'afdeling' => $queryAfd]);
+    }
+
+    public function tambahAsisten(Request $request)
+    {
+        $query = DB::connection('mysql2')->table('asisten_qc')
+            ->where('est', $request->input('est'))
+            ->where('afd', $request->input('afd'))
+            ->first();
+
+        if (empty($query)) {
+            DB::connection('mysql2')->table('asisten_qc')->insert([
+                'nama' => $request->input('nama'),
+                'est' => $request->input('est'),
+                'afd' => $request->input('afd')
+            ]);
+
+            return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil ditambahkan!');
+        } else {
+            return redirect()->route('listAsisten')->with('error', 'Gagal ditambahkan, asisten dengan Estate dan Afdeling tersebut sudah ada!');
+        }
+    }
+
+    public function perbaruiAsisten(Request $request)
+    {
+
+        $est = $request->input('est');
+        $afd = $request->input('afd');
+        $nama = $request->input('nama');
+        $id = $request->input('id');
+
+        $query = DB::connection('mysql2')->table('asisten_qc')
+            ->where('id', $id)
+            ->first();
+
+
+        // dd($est, $query->est);
+
+        if ($query->nama != $nama && $query->est == $est && $query->afd == $afd) {
+            DB::connection('mysql2')->table('asisten_qc')->where('id', $request->input('id'))
+                ->update([
+                    'nama' => $request->input('nama'),
+                    'est' => $request->input('est'),
+                    'afd' => $request->input('afd')
+                ]);
+
+            return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil diperbarui!');
+        } else if ($est != $query->est) {
+            $queryWill2 = DB::connection('mysql2')->table('asisten_qc')
+                ->where('est', $est)
+                ->where('afd', $afd)
+                ->first();
+
+            if (empty($queryWill2)) {
+                DB::connection('mysql2')->table('asisten_qc')->where('id', $request->input('id'))
+                    ->update([
+                        'nama' => $request->input('nama'),
+                        'est' => $request->input('est'),
+                        'afd' => $request->input('afd')
+                    ]);
+
+                return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil diperbarui!');
+            } else {
+                return redirect()->route('listAsisten')->with('error', 'Gagal diperbarui, asisten dengan Estate dan Afdeling tersebut sudah ada!');
+            }
+        } else if ($afd != $query->afd) {
+            $queryWill2 = DB::connection('mysql2')->table('asisten_qc')
+                ->where('est', $est)
+                ->where('afd', $afd)
+                ->first();
+
+            if (empty($queryWill2)) {
+                DB::connection('mysql2')->table('asisten_qc')->where('id', $request->input('id'))
+                    ->update([
+                        'nama' => $request->input('nama'),
+                        'est' => $request->input('est'),
+                        'afd' => $request->input('afd')
+                    ]);
+
+                return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil diperbarui!');
+            } else {
+                return redirect()->route('listAsisten')->with('error', 'Gagal diperbarui, asisten dengan Estate dan Afdeling tersebut sudah ada!');
+            }
+        } else {
+            return redirect()->route('listAsisten')->with('error', 'Gagal diperbarui, asisten dengan Estate dan Afdeling tersebut sudah ada!');
+        }
+
+        // $query = DB::connection('mysql2')->table('asisten_qc')
+        //     ->where('est', $request->input('est'))
+        //     ->where('afd', $request->input('afd'))
+        //     ->first();
+
+        // // dd($query);
+        // if (empty($query)) {
+        //     DB::connection('mysql2')->table('asisten_qc')->where('id', $request->input('id'))
+        //         ->update([
+        //             'nama' => $request->input('nama'),
+        //             'est' => $request->input('est'),
+        //             'afd' => $request->input('afd')
+        //         ]);
+
+        //     return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil diperbarui!');
+        // } else {
+        //     return redirect()->route('listAsisten')->with('error', 'Gagal diperbarui, asisten dengan Estate dan Afdeling tersebut sudah ada!');
+        // }
+    }
+
+    public function hapusAsisten(Request $request)
+    {
+        DB::connection('mysql2')->table('asisten_qc')->where('id', $request->input('id'))->delete();
+        return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil dihapus!');
     }
 
     // chart ajax brondolan tinggal dan pencarian berdasarkan minggu
@@ -154,12 +277,14 @@ class SidaktphController extends Controller
         //     ->get();
         $queryAFD = DB::connection('mysql2')->Table('sidak_tph')
             ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
-            ->whereIn('estate.wil', [1])
+            ->whereIn('estate.wil', [1, 2, 3])
             ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
             ->whereBetween('sidak_tph.datetime', [$firstWeek, $lastWeek])
             // ->where('sidak_tph.datetime', 'LIKE', '%' . $request->$firstDate . '%')
             ->get();
         // dd($queryAFD);
+        $queryAsisten =  DB::connection('mysql2')->Table('asisten_qc')->get();
+
         $dataAfdEst = array();
 
         $querySidak = DB::connection('mysql2')->table('sidak_tph')
@@ -175,7 +300,7 @@ class SidaktphController extends Controller
 
 
         if (!empty($query && $queryAFD && $querySidak)) {
-            $queryGroup = $query->groupBy(function ($item) {
+            $queryGroup = $queryAFD->groupBy(function ($item) {
                 return $item->est;
             });
             // dd($queryGroup);
@@ -618,7 +743,14 @@ class SidaktphController extends Controller
                             $list_all_will[$key][$inc]['est'] = $key2;
                             $list_all_will[$key][$inc]['afd'] = $key3;
                             $list_all_will[$key][$inc]['skor'] = $value3['skore_akhir'];
-                            $list_all_will[$key][$inc]['nama'] = '-';
+                            foreach ($queryAsisten as $key4 => $value4) {
+                                if ($value4->est == $key2 && $value4->afd == $key3) {
+                                    $list_all_will[$key][$inc]['nama'] = $value4->nama;
+                                }
+                            }
+                            if (empty($list_all_will[$key][$inc]['nama'])) {
+                                $list_all_will[$key][$inc]['nama'] = '-';
+                            }
                             $inc++;
                         }
                     }
@@ -635,6 +767,8 @@ class SidaktphController extends Controller
                     }
                     array_multisort(array_column($list_all_will[$key], 'est_afd'), SORT_ASC, $list_all_will[$key]);
                 }
+
+                // dd($list_all_will);
 
                 // $list_all_will = array();
                 // foreach ($dataSkorAkhirPerWil as $key => $value) {
@@ -671,7 +805,14 @@ class SidaktphController extends Controller
                         $list_all_est[$key][$inc]['est'] = $key2;
                         $list_all_est[$key][$inc]['skor'] = $value2['skor_akhir'];
                         $list_all_est[$key][$inc]['EM'] = 'EM';
-                        $list_all_est[$key][$inc]['nama'] = '-';
+                        foreach ($queryAsisten as $key4 => $value4) {
+                            if ($value4->est == $key2 && $value4->afd == 'EM') {
+                                $list_all_est[$key][$inc]['nama'] = $value4->nama;
+                            }
+                        }
+                        if (empty($list_all_est[$key][$inc]['nama'])) {
+                            $list_all_est[$key][$inc]['nama'] = '-';
+                        }
                         $inc++;
                     }
                 }
