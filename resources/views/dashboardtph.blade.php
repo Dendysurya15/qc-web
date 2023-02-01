@@ -16,6 +16,14 @@
     width: 100%;
     font-size: 14px;
   }
+
+  a {
+    color: black;
+  }
+
+  a:hover {
+    color: rgb(0, 255, 0);
+  }
 </style>
 
 <div class="content-wrapper">
@@ -832,7 +840,12 @@ var will = {
                       itemElement1.innerText  = item1
                       itemElement2.innerText  = item2
                       itemElement3.innerText  = item3
-                      itemElement4.innerText  = item4
+                      
+                      if (item4 != 0) {    
+                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                      }else{
+                        itemElement4.innerText  = item4
+                      }
                       itemElement5.innerText  = item5
 
                   tr.appendChild(itemElement1)
@@ -988,7 +1001,13 @@ var will = {
                   itemElement1.innerText  = item1
                   itemElement2.innerText  = item2
                   itemElement3.innerText  = item3
-                  itemElement4.innerText  = item4
+                  // itemElement4.innerText  = item4
+                  // itemElement4.innerHTML = '<a href="detaiSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                  if (item4 != 0) {    
+                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                      }else{
+                        itemElement4.innerText  = item4
+                      }
                   itemElement5.innerText  = item5
 
                   tr.appendChild(itemElement1)
@@ -1144,7 +1163,13 @@ var will = {
                   itemElement1.innerText  = item1
                   itemElement2.innerText  = item2
                   itemElement3.innerText  = item3
-                  itemElement4.innerText  = item4
+                  // itemElement4.innerText  = item4
+                  // itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                  if (item4 != 0) {    
+                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                      }else{
+                        itemElement4.innerText  = item4
+                      }
                   itemElement5.innerText  = item5
 
                   tr.appendChild(itemElement1)

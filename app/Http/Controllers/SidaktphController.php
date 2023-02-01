@@ -1553,4 +1553,187 @@ class SidaktphController extends Controller
 
         return view('404');
     }
+
+
+    public function detailSidakTph($est, $afd, $start, $last)
+    {
+        $query = DB::connection('mysql2')->Table('sidak_tph')
+            ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
+            ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
+            ->where('sidak_tph.est', $est)
+            ->where('sidak_tph.afd', $afd)
+            ->whereBetween('sidak_tph.datetime', [$start, $last])
+            ->get();
+
+        $query = $query->groupBy(function ($item) {
+            return $item->blok;
+        });
+
+        // dd($query);
+        $datas = array();
+        $img = array();
+        foreach ($query as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $value2) {
+                $datas[] = $value2;
+                if (!empty($value2->foto_temuan)) {
+                    $img[$inc]['foto'] = $value2->foto_temuan;
+                    $img[$inc]['title'] = $value2->est . ' ' .  $value2->afd . ' - ' . $value2->blok;
+                    $inc++;
+                }
+            }
+        }
+
+
+        // dd($img);
+
+        return view('detailSidakTPH', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last, 'data' => $datas, 'img' => $img]);
+    }
+
+    public function getPlotLine(Request $request)
+    {
+        $afd = $request->get('afd');
+        $est = $request->get('est');
+        $start = $request->get('start');
+        $last = $request->get('last');
+
+        $query = DB::connection('mysql2')->Table('sidak_tph')
+            ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
+            ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
+            ->where('sidak_tph.est', $est)
+            ->where('sidak_tph.afd', $afd)
+            ->whereBetween('sidak_tph.datetime', [$start, $last])
+            ->get();
+
+        $query = $query->groupBy(function ($item) {
+            return $item->blok;
+        });
+
+        $datas = array();
+        $img = array();
+        foreach ($query as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $datas[] = $value2;
+                if (!empty($value2->foto_temuan)) {
+                    $img[] = $value2->foto_temuan;
+                }
+            }
+        }
+
+        $plotTitik = array();
+        $plotMarker = array();
+        $inc = 0;
+
+        foreach ($datas as $key => $value) {
+
+
+            if (!empty($value->lat)) {
+                $plotTitik[] =  '[' . $value->lon . ',' . $value->lat     . ']';
+                $plotMarker[$inc]['latln'] =  '[' . $value->lat   . ',' . $value->lon . ']';
+                $plotMarker[$inc]['notph'] = $value->no_tph;
+                $plotMarker[$inc]['blok'] = $value->blok;
+            }
+            $inc++;
+        }
+
+        // dd($plotMarker);
+
+        $list_blok = array();
+        foreach ($datas as $key => $value) {
+            $list_blok[$est][] = $value->blok;
+        }
+
+        $blokPerEstate = array();
+        $estateQuery = DB::connection('mysql2')->Table('estate')
+            ->join('afdeling', 'afdeling.estate', 'estate.id')
+            ->where('est', $est)->get();
+
+        $listIdAfd = array();
+        // dd($estateQuery);
+
+        foreach ($estateQuery as $key => $value) {
+
+            $blokPerEstate[$est][$value->nama] =  DB::connection('mysql2')->Table('blok')
+                // ->join('blok', 'blok.afdeling', 'afdeling.id')
+                // ->where('afdeling.estate', $value->id)->get();
+                ->where('afdeling', $value->id)->pluck('nama', 'id');
+            $listIdAfd[] = $value->id;
+        }
+
+        // dd($blokPerEstate);
+
+
+        $result_list_blok = array();
+        foreach ($list_blok as $key => $value) {
+            foreach ($value as $key2 => $data) {
+                if (strlen($data) == 5) {
+                    $result_list_blok[$key][$data] = substr($data, 0, -2);
+                }
+                if (strlen($data) == 6) {
+                    $sliced = substr_replace($data, '', 1, 1);
+                    $result_list_blok[$key][$data] = substr($sliced, 0, -2);
+                }
+            }
+        }
+
+        $result_list_all_blok = array();
+        foreach ($blokPerEstate as $key2 => $value) {
+            foreach ($value as $key3 => $afd) {
+                foreach ($afd as $key4 => $data) {
+                    if (strlen($data) == 4) {
+                        $result_list_all_blok[$key2][] = substr_replace($data, '', 1, 1);
+                    }
+                }
+            }
+        }
+
+        // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
+        $result_blok = array();
+        if (array_key_exists($est, $result_list_all_blok)) {
+            $query = array_unique($result_list_all_blok[$est]);
+            $result_blok[$est] = array_intersect($result_list_blok[$est], $query);
+        }
+
+
+        //get lat lang dan key $result_blok atau semua list_blok
+
+        $blokLatLn = array();
+
+        foreach ($result_blok as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $data) {
+                $newData = substr_replace($data, '0', 1, 0);
+                $query = '';
+                $query = DB::connection('mysql2')->table('blok')
+                    ->select('blok.*')
+                    ->where('blok.nama', $newData)
+                    ->whereIn('blok.afdeling', $listIdAfd)
+                    ->get();
+
+                $latln = '';
+                foreach ($query as $key3 => $val) {
+
+                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                }
+
+                $estate = DB::connection('mysql2')->table('estate')
+                    ->select('estate.*')
+                    ->where('estate.est', $est)
+                    ->first();
+
+                $nama_estate = $estate->nama;
+
+                $blokLatLn[$inc]['blok'] = $key2;
+                $blokLatLn[$inc]['estate'] = $nama_estate;
+                $blokLatLn[$inc]['latln'] = rtrim($latln, ',');
+                $inc++;
+            }
+        }
+
+        // dd($plotTitik);
+        $plot['plot'] = $plotTitik;
+        $plot['marker'] = $plotMarker;
+        $plot['blok'] = $blokLatLn;
+        echo json_encode($plot);
+    }
 }
