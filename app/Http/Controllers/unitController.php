@@ -467,8 +467,78 @@ class unitController extends Controller
         }
 
         // dd($dataResult);
+
+        $bulanKey = $bulanKe - 1;
+
+        foreach ($dataResult as $key => $value) {
+
+            //foreach dibawah ini untuk menhgitung banyaknya loop yang harus digunakan untuk membagi data
+            foreach ($bulan as $key2 => $value2) {
+                $incTotalBulan = 1;
+                foreach ($dataResult as $key3 => $value3) {
+                    if (is_array($value3[$value2])) {
+                        $incTotalBulan++;
+                    }
+                }
+            }
+            //end foreach
+
+            $sum_skor = 0;
+            for ($i = 0; $i < $incTotalBulan; $i++) {
+                $sum_skor += $value['skor_bulan_' . $bulan[$i]];
+            }
+
+            if ($value['skor_bulan_' . $bulan[$incTotalBulan - 1]] != 0) {
+                $skor_tahunan = round($sum_skor  / ($incTotalBulan), 2);
+                $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                if ($skor_tahunan >= 95) {
+                    $dataResult[$key]['status'] = 'Excellent';
+                } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                    $dataResult[$key]['status'] = 'Good';
+                } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                    $dataResult[$key]['status'] = 'Satisfactory';
+                } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                    $dataResult[$key]['status'] = 'Fair';
+                } else if ($skor_tahunan < 65) {
+                    $dataResult[$key]['status'] = 'Poor';
+                }
+            } else {
+                if ($bulan[$bulanKe] == 'January' || $bulan[$bulanKe] == 'December') {
+                    $divided = $bulan[$bulanKe] == 'January' ? 1 : 12;
+                    $skor_tahunan = round($sum_skor  / $divided, 2);
+                    $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                    if ($skor_tahunan >= 95) {
+                        $dataResult[$key]['status'] = 'Excellent';
+                    } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                        $dataResult[$key]['status'] = 'Good';
+                    } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                        $dataResult[$key]['status'] = 'Satisfactory';
+                    } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                        $dataResult[$key]['status'] = 'Fair';
+                    } else if ($skor_tahunan < 65) {
+                        $dataResult[$key]['status'] = 'Poor';
+                    }
+                } else {
+                    $skor_tahunan = round($sum_skor  / ($incTotalBulan - 1), 2);
+                    $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                    if ($skor_tahunan >= 95) {
+                        $dataResult[$key]['status'] = 'Excellent';
+                    } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                        $dataResult[$key]['status'] = 'Good';
+                    } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                        $dataResult[$key]['status'] = 'Satisfactory';
+                    } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                        $dataResult[$key]['status'] = 'Fair';
+                    } else if ($skor_tahunan < 65) {
+                        $dataResult[$key]['status'] = 'Poor';
+                    }
+                }
+            }
+        }
+        // dd($dataResult);
+
         //khusus untuk menghitung record setiap bulan per estate
-        // dd($countDataPerEstate);
+
         $resultCountMax = array();
         foreach ($bulan as $key => $value) {
             foreach ($countDataPerEstate as $key2 => $val) {
@@ -608,6 +678,8 @@ class unitController extends Controller
         $arrResult['arrMonth'] = $bulan;
         $arrResult['arrCount'] = $countRes;
         $arrResult['arrReg'] = $regional;
+
+
 
         echo json_encode($arrResult);
         exit();
@@ -820,6 +892,8 @@ class unitController extends Controller
         }
 
 
+        // dd($dataResult);
+
 
         // foreach ($dataResult as $key => $value) {
         //     foreach ($resultCount as $key2 => $data) {
@@ -854,6 +928,7 @@ class unitController extends Controller
 
         // dd($dataResult);
         $bulanJson = json_encode($bulan);
+        // dd($resultCountJson);
 
         return view('dashboard_gudang', ['dataResult' => $dataResult, 'resultCount' => $resultCount, 'bulanJson' => $bulanJson, 'bulan' => $bulan, 'total_column_bulan' => $total_column_bulan, 'resultCountJson' => $resultCountJson]);
     }

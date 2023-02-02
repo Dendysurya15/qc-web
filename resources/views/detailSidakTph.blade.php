@@ -162,7 +162,7 @@
         // console.log(plotResult)
 
         // console.log(blokResult)
-        drawPlot(plotResult)
+        // drawPlot(plotResult)
         drawBlok(blokResult)
 
 
@@ -276,6 +276,7 @@ getPlotStr += '"features"'
 getPlotStr += ":"
 getPlotStr += '['
 
+// console.log(blok)
 for (let i = 0; i < blok.length; i++) {
             getPlotStr += '{"type"'
             getPlotStr += ":"

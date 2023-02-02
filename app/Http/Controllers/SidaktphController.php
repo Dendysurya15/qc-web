@@ -1673,8 +1673,13 @@ class SidaktphController extends Controller
                     $sliced = substr_replace($data, '', 1, 1);
                     $result_list_blok[$key][$data] = substr($sliced, 0, -2);
                 }
+                if (strlen($data) == 3) {
+                    $result_list_blok[$key][$data] = $data;
+                }
             }
         }
+        // dd($result_list_blok);
+
 
         $result_list_all_blok = array();
         foreach ($blokPerEstate as $key2 => $value) {
@@ -1686,6 +1691,8 @@ class SidaktphController extends Controller
                 }
             }
         }
+
+        // dd($result_list_all_blok);
 
         // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
         $result_blok = array();
@@ -1730,7 +1737,7 @@ class SidaktphController extends Controller
             }
         }
 
-        // dd($plotTitik);
+        // dd($plotMarker);
         $plot['plot'] = $plotTitik;
         $plot['marker'] = $plotMarker;
         $plot['blok'] = $blokLatLn;
