@@ -639,7 +639,15 @@ class SidaktphController extends Controller
                         $skor_restan_akhir = 0;
                     }
 
+
                     $skoreTotal = $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
+
+                    if ($skoreTotal == 100) {
+                        if ($skor_tph == 0 && $skor_karung == 0 && $skor_buah == 0 && $skor_restan == 0) {
+                            $skoreTotal = 0;
+                        }
+                    }
+
                     $dataSkorAwaltest[$key]['tph'] = $skor_tph_akhir;
                     $dataSkorAwaltest[$key]['karung'] = $skor_karung_akhir;
                     $dataSkorAwaltest[$key]['buah_tinggal'] = $skor_buah_akhir;
