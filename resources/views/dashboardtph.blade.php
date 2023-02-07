@@ -27,6 +27,7 @@
 </style>
 
 <div class="content-wrapper">
+
   <div class="d-flex justify-content-center">
     <div class="row mt-3 text-uppercase">
       <h1>Sidak Pemeriksaan TPH Regional-I</h1>
@@ -36,6 +37,8 @@
   <div class="d-flex justify-content-end head mt-2" id="head">
     <form action="{{route('dashboardtph')}}" method="get" class="d-flex justify-contend-end mr-3">
       {{ csrf_field() }}
+      <input type="hidden" id="startWeek" name="start" value="">
+      <input type="hidden" id="lastWeek" name="last" value="">
       <input type="week" name="dateWeek" id="dateWeek" value="{{ date('Y').'-W'.date('W') }}">
     </form>
 
@@ -43,14 +46,8 @@
       <button id="btnShow" class="btn btn-primary"><i class="bi bi-arrow-counterclockwise"></i>Show</button>
     </div>
 
-    <form action="{{route('exportPDF')}}" method="POST" id="myForm" class="mr-2">
-      {{ csrf_field() }}
-      <input type="hidden" id="startWeek" name="start" value="">
-      <input type="hidden" id="lastWeek" name="last" value="">
-      <input type="hidden" name="chartData" id="chartInputData">
-      <button type="submit" class="btn btn-primary" id="btnExport" formtarget="_blank"> <i class="fa fa-file-pdf"></i>
-        Download PDF</button>
-    </form>
+    <button class="btn btn-primary mr-2" disabled><i class="fa fa-file-pdf"></i> Download
+      PDF</button>
 
     @if (session('user_name') == 'Dennis Irawan')
     <a href="{{ route('listAsisten') }}" class="btn btn-success mr-2">List Asisten</a>
@@ -288,6 +285,8 @@
         </div>
       </div>
     </div><br>
+
+
 </div>
 
 </section>
@@ -299,12 +298,6 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
-    var mybutton = document.getElementById("btnExport");
-    mybutton.disabled = true;
-    setTimeout(function() {
-        mybutton.disabled = false;
-    }, 1500);
-
     ///membuat temp data value 0 untuk chart ketika ganti tanggal tidak ada data
     var list_estate = <?php echo json_encode($list_estate); ?>;
     var list_wilayah = <?php echo json_encode($list_wilayah); ?>;
@@ -367,8 +360,8 @@
             },
             xaxis: {
             labels: {
-              rotate: -50,
-              rotateAlways: true
+                rotate: -50,
+                rotateAlways: true,
             },
             type: '',
             categories: estateJson
@@ -468,6 +461,10 @@ var will = {
     var lastWeekCon = new Date(convertLastWeek);
     let lastWeekData = JSON.stringify(lastWeekCon)
     lastWeek = lastWeekData.slice(1,11) 
+
+
+    document.getElementById('startWeek').value = firstWeek
+    document.getElementById('lastWeek').value = lastWeek
 });
 
  
@@ -480,11 +477,6 @@ var will = {
       $('#tbody3').empty()
 
       getDataTph()
-      var mybutton = document.getElementById("btnExport");
-      mybutton.disabled = true;
-      setTimeout(function() {
-          mybutton.disabled = false;
-      }, 1500);
     }
 
       function getDataTph () {
@@ -497,6 +489,14 @@ var will = {
       const year = weekData.substring(0, 4);
       const week = weekData.substring(6, 8);
 
+      <?php 
+      $dateYM = date("Y-m");?>
+
+      const url = 'https://srs-ssms.com/sidak_tph/STPH-' + '<?=$dateYM;?>' + '-Week' + week + '-Reg1.pdf';
+
+      
+      console.log(url)
+            
       const date = new Date(year, 0, 1);
       const date2 = new Date(year, 0, 1);
 
@@ -522,9 +522,6 @@ var will = {
       var lastWeekCon = new Date(convertLastWeek);
       let lastWeekData = JSON.stringify(lastWeekCon)
       lastWeek = lastWeekData.slice(1,11) 
-
-      document.getElementById('startWeek').value = firstWeek;
-      document.getElementById('lastWeek').value = lastWeek;
 
       // console.log(firstWeek)
         $.ajax({
@@ -564,13 +561,7 @@ var will = {
               will_btt.updateSeries([{
                 name: 'Brondolan Tinggal di TPH',
                 data: [0, 0 , 0]
-              }]).then(() => {
-                window.setTimeout(function() {
-                    will_btt.dataURI().then((uri) => {
-                      document.getElementById('chartInputData').value = '<div><img src="'+Object.values(uri)+'"></div>';
-                    })
-                  }, 1000) 
-                })
+              }])
 
               renderChartKarungWil.updateSeries([{
                 name: 'Karung Tinggal di TPH',
@@ -763,13 +754,7 @@ var will = {
             will_btt.updateSeries([{
               name: 'Brondolan Tinggal di TPH',
               data: arrayvalBtTphWilJson
-            }]).then(() => {
-              window.setTimeout(function() {
-                  will_btt.dataURI().then((uri) => {
-                    document.getElementById('chartInputData').value = '<div><img src="'+Object.values(uri)+'"></div>';
-                  })
-                }, 1000) 
-              })
+            }])
 
             renderChartKarungWil.updateSeries([{
               name: 'Karung Tinggal di TPH',
@@ -856,8 +841,8 @@ var will = {
                       itemElement1.innerText  = item1
                       itemElement2.innerText  = item2
                       itemElement3.innerText  = item3
-                      
-                      if (item4 != 0) {    
+                    //   itemElement4.innerText  = item4
+                    if (item4 != 0) {    
                         itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
                       }else{
                         itemElement4.innerText  = item4
@@ -1017,9 +1002,8 @@ var will = {
                   itemElement1.innerText  = item1
                   itemElement2.innerText  = item2
                   itemElement3.innerText  = item3
-                  // itemElement4.innerText  = item4
-                  // itemElement4.innerHTML = '<a href="detaiSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                  if (item4 != 0) {    
+                //   itemElement4.innerText  = item4
+                    if (item4 != 0) {    
                         itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
                       }else{
                         itemElement4.innerText  = item4
@@ -1103,6 +1087,11 @@ var will = {
                       itemElement2.innerText  = item2
                       itemElement3.innerText  = item3
                       itemElement4.innerText  = item4
+                    // if (item4 != 0) {    
+                    //     itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+                    //   }else{
+                    //     itemElement4.innerText  = item4
+                    //   }
                       itemElement5.innerText  = item5
 
                   tr.appendChild(itemElement1)
@@ -1179,9 +1168,8 @@ var will = {
                   itemElement1.innerText  = item1
                   itemElement2.innerText  = item2
                   itemElement3.innerText  = item3
-                  // itemElement4.innerText  = item4
-                  // itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                  if (item4 != 0) {    
+                //   itemElement4.innerText  = item4
+                if (item4 != 0) {    
                         itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
                       }else{
                         itemElement4.innerText  = item4
@@ -1222,7 +1210,7 @@ var will = {
 
                 
 
-        itemElement1.classList.add("text-center")
+                  itemElement1.classList.add("text-center")
         itemElement2.classList.add("text-center")
         itemElement3.classList.add("text-center")
         itemElement4.classList.add("text-center")
