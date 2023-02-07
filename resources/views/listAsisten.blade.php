@@ -75,6 +75,18 @@
                                                     <label for="message-text" class="col-form-label">Estate</label>
                                                     <select name="est" class="form-control" required>
                                                         <option value="" disabled selected>SILAKAN PILIH</option>
+                                                        <option @if ($value->est == 'REG-I') selected @endif
+                                                            value="REG-I">REG-I
+                                                        </option>
+                                                        <option @if ($value->est == 'WIL-I') selected @endif
+                                                            value="WIL-I">WIL-I
+                                                        </option>
+                                                        <option @if ($value->est == 'WIL-II') selected @endif
+                                                            value="WIL-II">WIL-II
+                                                        </option>
+                                                        <option @if ($value->est == 'WIL-III') selected @endif
+                                                            value="WIL-III">WIL-III
+                                                        </option>
                                                         @foreach ($estate as $value1)
                                                         <option @if ($value->est == $value1->est) selected @endif
                                                             value="{{$value1->est}}">{{$value1->est}}</option>
@@ -85,6 +97,10 @@
                                                     <label for="message-text" class="col-form-label">Afdeling</label>
                                                     <select name="afd" class="form-control" required>
                                                         <option value="" disabled selected>SILAKAN PILIH</option>
+                                                        <option @if ($value->afd == 'RH') selected @endif value="RH">RH
+                                                        </option>
+                                                        <option @if ($value->afd == 'GM') selected @endif value="GM">GM
+                                                        </option>
                                                         <option @if ($value->afd == 'EM') selected @endif value="EM">EM
                                                         </option>
                                                         @foreach ($afdeling as $value1)
@@ -130,6 +146,10 @@
                         <label for="message-text" class="col-form-label">Estate</label>
                         <select name="est" class="form-control" required>
                             <option value="" disabled selected>SILAKAN PILIH</option>
+                            <option value="REG-I">REG-I</option>
+                            <option value="WIL-I">WIL-I</option>
+                            <option value="WIL-II">WIL-II</option>
+                            <option value="WIL-III">WIL-III</option>
                             @foreach ($estate as $value)
                             <option value="{{$value->est}}">{{$value->est}}</option>
                             @endforeach
@@ -139,6 +159,8 @@
                         <label for="message-text" class="col-form-label">Afdeling</label>
                         <select name="afd" class="form-control" required>
                             <option value="" disabled selected>SILAKAN PILIH</option>
+                            <option value="RH">RH</option>
+                            <option value="GM">GM</option>
                             <option value="EM">EM</option>
                             @foreach ($afdeling as $value)
                             <option value="{{$value->nama}}">{{$value->nama}}</option>

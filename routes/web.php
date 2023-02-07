@@ -32,6 +32,7 @@ Route::post('/perbaruiAsisten', [SidaktphController::class, 'perbaruiAsisten'])-
 Route::post('/hapusAsisten', [SidaktphController::class, 'hapusAsisten'])->name('hapusAsisten');
 Route::post('/getData', [SidaktphController::class, 'getData'])->name('getData');
 Route::post('/dashboardtph', [SidaktphController::class, 'chart'])->name('chart');
+Route::post('/downloadPDF', [SidaktphController::class, 'downloadPDF'])->name('downloadPDF');
 
 Route::post('/getBtTph', [SidaktphController::class, 'getBtTph'])->name('getBtTph');
 Route::post('/getKrTph', [SidaktphController::class, 'getKrTph'])->name('getKrTph');

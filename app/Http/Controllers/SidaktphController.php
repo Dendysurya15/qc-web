@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as DomPDFPDF;
+use Illuminate\Support\Arr;
+use Nette\Utils\DateTime;
+use Termwind\Components\Dd;
 
 class SidaktphController extends Controller
 {
-
     //
     public $search;
     public function index(Request $request)
@@ -78,7 +84,8 @@ class SidaktphController extends Controller
         $queryWill = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->pluck('nama');
         return view(
             'dashboardtph',
-            ['list_estate' => $queryEst, 'list_wilayah' => $queryWill],
+            ['list_estate' => $queryEst],
+            ['list_wilayah' => $queryWill],
         );
     }
 
@@ -86,8 +93,8 @@ class SidaktphController extends Controller
     {
         $query = DB::connection('mysql2')->table('asisten_qc')
             ->select('asisten_qc.*')
-            ->whereIn('estate.wil', [1, 2, 3])
-            ->join('estate', 'estate.est', '=', 'asisten_qc.est')
+            // ->whereIn('estate.wil', [1, 2, 3])
+            // ->join('estate', 'estate.est', '=', 'asisten_qc.est')
             ->get();
 
         $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
@@ -206,11 +213,28 @@ class SidaktphController extends Controller
         return redirect()->route('listAsisten')->with('status', 'Data asisten berhasil dihapus!');
     }
 
+    public function downloadPDF(Request $request)
+    {
+        $url = $request->get('url');
+        $arrView = array();
+        $file_headers = @get_headers($url);
+        if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+            $arrView['status'] = '404';
+            $arrView['url'] = $url;
+        } else {
+            $arrView['status'] = '200';
+            $arrView['url'] = $url;
+        }
+        echo json_encode($arrView);
+        exit();
+    }
+
     // chart ajax brondolan tinggal dan pencarian berdasarkan minggu
     public function getBtTph(Request $request)
     {
-        $queryWill = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->get();;
-        // dd($queryWill);
+        $queryWill = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->get();
+        $queryReg = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->pluck('regional');
+
         // dapatkan data estate dari table estate dengan wilayah 1 , 2 , 3
         $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
         // dd($queryEst);
@@ -284,14 +308,6 @@ class SidaktphController extends Controller
             ->get();
         // dd($queryAFD);
         $queryAsisten =  DB::connection('mysql2')->Table('asisten_qc')->get();
-        $queryAsistenGM =  DB::connection('mysql2')->Table('asisten_qc')->where('afd', 'GM')->get();
-
-        $inc = 1;
-        foreach ($queryAsistenGM as $key => $value) {
-            $value->wil = $inc;
-            $inc++;
-        }
-        $queryAsistenGM = json_decode($queryAsistenGM, true);
 
         $dataAfdEst = array();
 
@@ -498,6 +514,8 @@ class SidaktphController extends Controller
                             }
                             $skoreTotal = $skor_brd_akhir + $skor_kr_akhir + $skor_buahtgl_akhir + $skor_restan_akhir;
 
+
+
                             $dataSkorAwal[$key][$key2]['karung_tes'] = $sum_all_karung;
                             $dataSkorAwal[$key][$key2]['tph_test'] = $sum_all;
                             $dataSkorAwal[$key][$key2]['buah_test'] = $sum_all_bt_tgl;
@@ -647,7 +665,6 @@ class SidaktphController extends Controller
                         $skor_restan_akhir = 0;
                     }
 
-
                     $skoreTotal = $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
 
                     if ($skoreTotal == 100) {
@@ -655,7 +672,10 @@ class SidaktphController extends Controller
                             $skoreTotal = 0;
                         }
                     }
-
+                    // $dataSkorAwaltest[$key]['tot_tph'] = $sum_all_tph;
+                    // $dataSkorAwaltest[$key]['tot_karung'] = $sum_all_karung;
+                    // $dataSkorAwaltest[$key]['tot_buah'] = $sum_all_buah;
+                    // $dataSkorAwaltest[$key]['tot_restant'] = $sum_all_restant;
                     $dataSkorAwaltest[$key]['total_estate_brondol'] = $sum_all_tph;
                     $dataSkorAwaltest[$key]['total_estate_karung'] = $sum_all_karung;
                     $dataSkorAwaltest[$key]['total_estate_buah_tinggal'] = $sum_all_buah;
@@ -731,7 +751,7 @@ class SidaktphController extends Controller
                 }
 
                 //menambahkan nilai rank ketia semua total skor sudah di uritkan
-
+                $test = array();
                 $listRank = array();
                 foreach ($dataSkorAkhirPerWil as $key => $value) {
                     // create an array to store the skore_akhir values
@@ -748,6 +768,7 @@ class SidaktphController extends Controller
                         foreach ($value2 as $key3 => $value3) {
                             $rank = array_search($value3['skore_akhir'], $skore_akhir_values) + 1;
                             $dataSkorAkhirPerWil[$key][$key2][$key3]['rank'] = $rank;
+                            $test[$key][] = $value3['skore_akhir'];
                         }
                     }
                 }
@@ -775,67 +796,6 @@ class SidaktphController extends Controller
                     }
                 }
 
-                foreach ($list_all_will as $key => $value) {
-                    array_multisort(array_column($list_all_will[$key], 'skor'), SORT_DESC, $list_all_will[$key]);
-                    $rank = 1;
-                    foreach ($value as $key1 => $value1) {
-                        foreach ($value1 as $key2 => $value2) {
-                            $list_all_will[$key][$key1]['rank'] = $rank;
-                        }
-                        $rank++;
-                    }
-                    array_multisort(array_column($list_all_will[$key], 'est_afd'), SORT_ASC, $list_all_will[$key]);
-                }
-
-                // dd($list_all_will);
-
-                // $list_all_will = array();
-                // foreach ($dataSkorAkhirPerWil as $key => $value) {
-                //     $inc = 0;
-                //     foreach ($value as $key2 => $value2) {
-                //         foreach ($value2 as $key3 => $value3) {
-                //             $list_all_will[$key][$inc]['est'] = $key2;
-                //             $list_all_will[$key][$inc]['afd'] = $key3;
-                //             $list_all_will[$key][$inc]['skor'] = $value3['skore_akhir'];
-                //             $list_all_will[$key][$inc]['nama'] = '-';
-                //             $list_all_will[$key][$inc]['rank'] = '-';
-                //             $inc++;
-                //         }
-                //     }
-                // }
-
-                // foreach ($list_all_will as $key1 => $value1) {
-                //     $filtered_subarray = array_filter($value1, function ($element) {
-                //         return $element['skor'] != '-';
-                //     });
-                //     $rank = 1;
-                //     foreach ($filtered_subarray as $key2 => $value2) {
-                //         $filtered_subarray[$key2]['rank'] = $rank;
-                //         $rank++;
-                //     }
-                //     $list_all_will[$key1] = $filtered_subarray;
-                // }
-
-
-                $list_all_est = array();
-                foreach ($dataSkorAkhirPerWilEst as $key => $value) {
-                    $inc = 0;
-                    foreach ($value as $key2 => $value2) {
-                        $list_all_est[$key][$inc]['est'] = $key2;
-                        $list_all_est[$key][$inc]['skor'] = $value2['skor_akhir'];
-                        $list_all_est[$key][$inc]['EM'] = 'EM';
-                        foreach ($queryAsisten as $key4 => $value4) {
-                            if ($value4->est == $key2 && $value4->afd == 'EM') {
-                                $list_all_est[$key][$inc]['nama'] = $value4->nama;
-                            }
-                        }
-                        if (empty($list_all_est[$key][$inc]['nama'])) {
-                            $list_all_est[$key][$inc]['nama'] = '-';
-                        }
-                        $inc++;
-                    }
-                }
-
                 $skor_gm_wil = array();
                 foreach ($dataSkorAkhirPerWilEst as $key => $value) {
                     $sum_est_brondol = 0;
@@ -848,13 +808,19 @@ class SidaktphController extends Controller
                         $sum_est_karung += $value2['total_estate_karung'];
                         $sum_est_buah_tinggal += $value2['total_estate_buah_tinggal'];
                         $sum_est_restan_tinggal += $value2['total_estate_restan_tinggal'];
-                        $sum_blok += $value2['total_blokokok'];
+
+                        if ($value2['total_blokokok'] != 0) {
+                            $sum_blok += $value2['total_blokokok'];
+                        } else {
+                            $sum_blok = 1;
+                        }
                     }
 
                     $skor_total_brondol = round($sum_est_brondol / $sum_blok, 2);
                     $skor_total_karung = round($sum_est_karung / $sum_blok, 2);
                     $skor_total_buah_tinggal = round($sum_est_buah_tinggal / $sum_blok, 2);
                     $skor_total_restan_tinggal = round($sum_est_restan_tinggal / $sum_blok, 2);
+
 
                     $skor_tph_akhir = 0;
                     if ($skor_total_brondol <= 18) {
@@ -944,18 +910,23 @@ class SidaktphController extends Controller
                     $skor_gm_wil[$key]['blok'] = $sum_blok;
                     $skor_gm_wil[$key]['skor'] = $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
 
-                    if (count($queryAsistenGM) != 0) {
-                        foreach ($queryAsistenGM as $key4 => $value4) {
-                            if ($key == $value4['wil']) {
-                                $skor_gm_wil[$key]['nama'] = $value4['nama'];
-                            }
-                        }
+                    if ($key == 1) {
+                        $estWil = 'WIL-I';
+                    } else if ($key == 2) {
+                        $estWil = 'WIL-II';
                     } else {
+                        $estWil = 'WIL-III';
+                    }
+
+                    foreach ($queryAsisten as $key5 => $value5) {
+                        if ($value5->est == $estWil && $value5->afd == 'GM') {
+                            $skor_gm_wil[$key]['nama'] = $value4->nama;
+                        }
+                    }
+                    if (empty($skor_gm_wil[$key]['nama'])) {
                         $skor_gm_wil[$key]['nama'] = '-';
                     }
                 }
-
-                // dd($skor_gm_wil);
 
                 $sum_wil_blok = 0;
                 $sum_wil_brondolan = 0;
@@ -1057,7 +1028,83 @@ class SidaktphController extends Controller
                     $skor_restan_akhir = 0;
                 }
 
-                $skor_rh =  $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
+                $skor_rh = array();
+                foreach ($queryReg as $key => $value) {
+                    if ($value == 1) {
+                        $est = 'REG-I';
+                    } else if ($value == 2) {
+                        $est = 'REG-II';
+                    } else {
+                        $est = 'REG-III';
+                    }
+                    foreach ($queryAsisten as $key2 => $value2) {
+                        if ($value2->est == $est && $value2->afd == 'RH') {
+                            $skor_rh[$value]['nama'] = $value2->nama;
+                        }
+                    }
+                    if (empty($skor_rh[$value]['nama'])) {
+                        $skor_rh[$value]['nama'] = '-';
+                    }
+                    $skor_rh[$value]['skor'] =  $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
+                }
+
+                foreach ($list_all_will as $key => $value) {
+                    array_multisort(array_column($list_all_will[$key], 'skor'), SORT_DESC, $list_all_will[$key]);
+                    $rank = 1;
+                    foreach ($value as $key1 => $value1) {
+                        foreach ($value1 as $key2 => $value2) {
+                            $list_all_will[$key][$key1]['rank'] = $rank;
+                        }
+                        $rank++;
+                    }
+                    array_multisort(array_column($list_all_will[$key], 'est_afd'), SORT_ASC, $list_all_will[$key]);
+                }
+                // $list_all_will = array();
+                // foreach ($dataSkorAkhirPerWil as $key => $value) {
+                //     $inc = 0;
+                //     foreach ($value as $key2 => $value2) {
+                //         foreach ($value2 as $key3 => $value3) {
+                //             $list_all_will[$key][$inc]['est'] = $key2;
+                //             $list_all_will[$key][$inc]['afd'] = $key3;
+                //             $list_all_will[$key][$inc]['skor'] = $value3['skore_akhir'];
+                //             $list_all_will[$key][$inc]['nama'] = '-';
+                //             $list_all_will[$key][$inc]['rank'] = '-';
+                //             $inc++;
+                //         }
+                //     }
+                // }
+
+                // foreach ($list_all_will as $key1 => $value1) {
+                //     $filtered_subarray = array_filter($value1, function ($element) {
+                //         return $element['skor'] != '-';
+                //     });
+                //     $rank = 1;
+                //     foreach ($filtered_subarray as $key2 => $value2) {
+                //         $filtered_subarray[$key2]['rank'] = $rank;
+                //         $rank++;
+                //     }
+                //     $list_all_will[$key1] = $filtered_subarray;
+                // }
+
+
+                $list_all_est = array();
+                foreach ($dataSkorAkhirPerWilEst as $key => $value) {
+                    $inc = 0;
+                    foreach ($value as $key2 => $value2) {
+                        $list_all_est[$key][$inc]['est'] = $key2;
+                        $list_all_est[$key][$inc]['skor'] = $value2['skor_akhir'];
+                        $list_all_est[$key][$inc]['EM'] = 'EM';
+                        foreach ($queryAsisten as $key4 => $value4) {
+                            if ($value4->est == $key2 && $value4->afd == 'EM') {
+                                $list_all_est[$key][$inc]['nama'] = $value4->nama;
+                            }
+                        }
+                        if (empty($list_all_est[$key][$inc]['nama'])) {
+                            $list_all_est[$key][$inc]['nama'] = '-';
+                        }
+                        $inc++;
+                    }
+                }
 
                 foreach ($list_all_est as $key => $value) {
                     array_multisort(array_column($list_all_est[$key], 'skor'), SORT_DESC, $list_all_est[$key]);
@@ -1070,6 +1117,8 @@ class SidaktphController extends Controller
                     }
                     array_multisort(array_column($list_all_est[$key], 'est'), SORT_ASC, $list_all_est[$key]);
                 }
+
+                // dd($list_all_est);
                 // dd($list_all_est);
 
                 //untuk chart!!!
@@ -1140,12 +1189,15 @@ class SidaktphController extends Controller
                     return $item->wil;
                 });
 
+                // dd($queryGroupWil);
                 foreach ($queryGroupWil as $key => $value) {
                     $sum_bt_tph = 0;
                     foreach ($value as $key2 => $val) {
                         $sum_bt_tph += $val->bt_tph;
                     }
-                    $arrBtTPHperWil[$key] = round($sum_bt_tph / $skor_gm_wil[$key]['blok'], 2);
+                    if ($key == 1 || $key == 2 || $key == 3) {
+                        $arrBtTPHperWil[$key] = round($sum_bt_tph / $skor_gm_wil[$key]['blok'], 2);
+                    }
                 }
 
                 //sebelum di masukan ke aray harus looping karung berisi brondolan untuk mengambil datanya 2 lapis
@@ -1154,7 +1206,9 @@ class SidaktphController extends Controller
                     foreach ($value as $key2 => $vale) {
                         $sum_jum_karung += $vale->jum_karung;
                     }
-                    $arrKRestWil[$key] = round($sum_jum_karung / $skor_gm_wil[$key]['blok'], 2);
+                    if ($key == 1 || $key == 2 || $key == 3) {
+                        $arrKRestWil[$key] = round($sum_jum_karung / $skor_gm_wil[$key]['blok'], 2);
+                    }
                 }
                 //looping buah tinggal 
                 foreach ($queryGroupWil as $key => $value) {
@@ -1162,14 +1216,18 @@ class SidaktphController extends Controller
                     foreach ($value as $key2 => $val2) {
                         $sum_buah_tinggal += $val2->buah_tinggal;
                     }
-                    $arrBHestWil[$key] = round($sum_buah_tinggal / $skor_gm_wil[$key]['blok'], 2);
+                    if ($key == 1 || $key == 2 || $key == 3) {
+                        $arrBHestWil[$key] = round($sum_buah_tinggal / $skor_gm_wil[$key]['blok'], 2);
+                    }
                 }
                 foreach ($queryGroupWil as $key => $value) {
                     $sum_restan_unreported = 0;
                     foreach ($value as $key2 => $val3) {
                         $sum_restan_unreported += $val3->restan_unreported;
                     }
-                    $arrRestWill[$key] = round($sum_restan_unreported / $skor_gm_wil[$key]['blok'], 2);
+                    if ($key == 1 || $key == 2 || $key == 3) {
+                        $arrRestWill[$key] = round($sum_restan_unreported / $skor_gm_wil[$key]['blok'], 2);
+                    }
                 }
             }
             // dd($arrBtTPHperWil, $arrKRestWil, $arrBHestWil, $arrRestWill);
@@ -1192,7 +1250,7 @@ class SidaktphController extends Controller
             $arrView['list_all_wil'] = $list_all_will;
             $arrView['list_all_est'] = $list_all_est;
             $arrView['list_skor_gm'] = $skor_gm_wil;
-            $arrView['skor_rh'] = $skor_rh;
+            $arrView['list_skor_rh'] = $skor_rh;
             // $arrView['karung'] = $dataSkorAwalKr;
             // $arrView['buah'] = $dataSkorAwalBuah;
             // // dd($queryEst);
@@ -1797,7 +1855,6 @@ class SidaktphController extends Controller
         return view('404');
     }
 
-
     public function detailSidakTph($est, $afd, $start, $last)
     {
         $query = DB::connection('mysql2')->Table('sidak_tph')
@@ -1921,8 +1978,6 @@ class SidaktphController extends Controller
                 }
             }
         }
-        // dd($result_list_blok);
-
 
         $result_list_all_blok = array();
         foreach ($blokPerEstate as $key2 => $value) {
@@ -1934,8 +1989,6 @@ class SidaktphController extends Controller
                 }
             }
         }
-
-        // dd($result_list_all_blok);
 
         // //bandingkan list blok query dan list all blok dan get hanya blok yang cocok
         $result_blok = array();
@@ -1980,7 +2033,7 @@ class SidaktphController extends Controller
             }
         }
 
-        // dd($plotMarker);
+        // dd($plotTitik);
         $plot['plot'] = $plotTitik;
         $plot['marker'] = $plotMarker;
         $plot['blok'] = $blokLatLn;

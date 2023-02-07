@@ -42,11 +42,9 @@
       <input type="week" name="dateWeek" id="dateWeek" value="{{ date('Y').'-W'.date('W') }}">
     </form>
 
-    <div class="row mr-2">
-      <button id="btnShow" class="btn btn-primary"><i class="bi bi-arrow-counterclockwise"></i>Show</button>
-    </div>
+    <button id="btnShow" class="btn btn-primary mr-2"><i class="bi bi-arrow-counterclockwise"></i>Show</button>
 
-    <button class="btn btn-primary mr-2" disabled><i class="fa fa-file-pdf"></i> Download
+    <button class="btn btn-primary mr-2" id="btnExport"><i class="fa fa-file-pdf"></i> Download
       PDF</button>
 
     @if (session('user_name') == 'Dennis Irawan')
@@ -208,13 +206,13 @@
 
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Grafik Sidak TPH berdasarkan Estate</h3>
+      <h3>Sidak TPH berdasarkan Estate</h3>
     </div>
     {{-- chart bag 1 --}}
     <div class="row" id="chart">
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Brondolan Tinggal (Brondol / Blok)</h5>
+          <h5>Brondolan/Blok Tinggal DI TPH</h5>
         </div>
         <div class="card-body pb-5">
           <div id="bttinggal"></div>
@@ -222,7 +220,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Karung Berisi Brondolan (Karung / Blok)</h5>
+          <h5>Karung/Blok berisi Brondolan</h5>
         </div>
         <div class="card-body pb-5">
           <div id="karung"></div>
@@ -230,7 +228,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Buah Tinggal (Janjang / Blok)</h5>
+          <h5>Buah/Blok tinggal TPH</h5>
         </div>
         <div class="card-body pb-5">
           <div id="btt_tgl"></div>
@@ -238,7 +236,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Restan Tidak Dilaporkan (Janjang / Blok)/h5>
+          <h5>Restan/Blok Tidak Dilaporkan</h5>
         </div>
         <div class="card-body pb-5">
           <div id="rst_none"></div>
@@ -247,7 +245,7 @@
     </div><br>
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Grafik Sidak TPH berdasarkan Wilayah</h3>
+      <h3>Sidak TPH berdasarkan Wilayah</h3>
     </div>
 
     {{-- chart bg 2 --}}
@@ -298,6 +296,7 @@
 
 <script type="text/javascript">
   $(document).ready(function () {
+
     ///membuat temp data value 0 untuk chart ketika ganti tanggal tidak ada data
     var list_estate = <?php echo json_encode($list_estate); ?>;
     var list_wilayah = <?php echo json_encode($list_wilayah); ?>;
@@ -475,8 +474,52 @@ var will = {
       $('#tbody1').empty()
       $('#tbody2').empty()
       $('#tbody3').empty()
-
+      $('#tbodySkorRH').empty()
+      
       getDataTph()
+    }
+
+    let parseDates = (inp) => {
+      let year = parseInt(inp.slice(0,4), 10);
+      let week = parseInt(inp.slice(6), 10);
+      let day = (1 + (week - 1) * 7);
+      let dayOffset = new Date(year, 0, 1).getDay();
+      dayOffset--;
+      let days = [];
+      for (let i = 0; i < 1; i++)
+        days.push(new Date(year, 0, day - dayOffset + i));
+      return days;
+    }
+
+    document.getElementById('btnExport').onclick = function(){
+      var _token = $('input[name="_token"]').val();
+
+      var weekData = document.getElementById('dateWeek').value
+      
+      const week = weekData.substring(6, 8);
+      const year = weekData.substring(0, 4);
+
+      const monthNumber = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+      let dates = parseDates(weekData)[0];
+      var month = monthNumber[dates.getMonth()];
+
+      const url = 'https://srs-ssms.com/sidak_tph/STPH-' + year + '-' + month + '-Week' + week + '-Reg1.pdf';
+      
+      $.ajax({
+        url:"{{ route('downloadPDF') }}",
+        method:"POST",
+        data:{ url:url, _token:_token},
+        success:function(result)
+        {
+          var parseResult = JSON.parse(result)
+          if (parseResult['status'] == 200) {
+            window.open(parseResult['url'],'_blank');
+          } else {
+            alert('FILE PDF BELUM TERSEDIA!');
+            // window.location = "/dashboardtph";
+          }
+        }
+      });
     }
 
       function getDataTph () {
@@ -489,14 +532,6 @@ var will = {
       const year = weekData.substring(0, 4);
       const week = weekData.substring(6, 8);
 
-      <?php 
-      $dateYM = date("Y-m");?>
-
-      const url = 'https://srs-ssms.com/sidak_tph/STPH-' + '<?=$dateYM;?>' + '-Week' + week + '-Reg1.pdf';
-
-      
-      console.log(url)
-            
       const date = new Date(year, 0, 1);
       const date2 = new Date(year, 0, 1);
 
@@ -605,9 +640,9 @@ var will = {
               //list untuk table di parse ke json
         
               var list_all_wil = Object.entries(parseResult['list_all_wil']) 
-              var list_all_est = Object.entries(parseResult['list_all_est']) 
-              var list_skor_gm = Object.entries(parseResult['list_skor_gm']) 
-              var skor_rh = parseResult['skor_rh']
+              var list_all_est = Object.entries(parseResult['list_all_est'])
+               var list_skor_gm = Object.entries(parseResult['list_skor_gm']) 
+               var list_skor_rh = Object.entries(parseResult['list_skor_rh']) 
 
             
 
@@ -755,7 +790,7 @@ var will = {
               name: 'Brondolan Tinggal di TPH',
               data: arrayvalBtTphWilJson
             }])
-
+            
             renderChartKarungWil.updateSeries([{
               name: 'Karung Tinggal di TPH',
               data: arrayvalKRtglWilJson
@@ -1104,7 +1139,7 @@ var will = {
                 // }
               });
 
-           
+
 
       ///table wil 3
       var arrTbody3 = list_all_wil[2][1]
@@ -1266,7 +1301,7 @@ var will = {
                 // }
               });
 
-              var inc = 0;
+var inc = 0;
               for (let i = 1; i <= 3; i++) {  
                 var tbody = document.getElementById('tbody' + i);
               
@@ -1351,13 +1386,21 @@ var will = {
                   inc++
               }
 
-              // console.log(skor_rh)
               tbodySkorRH = document.getElementById('tbodySkorRH')
+
+              var reg = ''
+              if (list_skor_rh[0][0] == 1) {
+                reg = 'REG I'
+              } else if (list_skor_rh[0][0] == 2) {
+                reg = 'REG II'
+              } else {
+                reg = 'REG III'
+              }
                 tr = document.createElement('tr')
-                  let item1 = 'REG I'
-                  let item2 = 'RH - 1'
-                  let item3 = 'AKHMAD FAISYAL'
-                  let item4 = skor_rh
+                  let item1 = reg
+                  let item2 = 'RH - ' + list_skor_rh[0][0]
+                  let item3 = list_skor_rh[0][1]['nama']
+                  let item4 = list_skor_rh[0][1]['skor']
                 
                   let itemElement1 = document.createElement('td')
                   let itemElement2 = document.createElement('td')
@@ -1415,7 +1458,6 @@ var will = {
 
 
                   tbodySkorRH.appendChild(tr)
-
 
       
     //end table
