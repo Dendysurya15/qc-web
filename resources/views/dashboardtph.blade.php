@@ -189,7 +189,21 @@
       </div>
 
     </div>
+    <div class="card">
+      <div class="card-body">
+        <table class=" table table-hover table-bordered table-sm table-light border-dark">
+          {{-- <thead>
+            <tr>
+              <th>test</th>
+            </tr>
+          </thead> --}}
+          <tbody class="text-center" id="tbodySkorRH">
 
+          </tbody>
+        </table>
+      </div>
+
+    </div>
   </section>
 
   {{-- Data untuk chart --}}
@@ -197,13 +211,13 @@
 
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Sidak TPH berdasarkan Estate</h3>
+      <h3>Grafik Sidak TPH berdasarkan Estate</h3>
     </div>
     {{-- chart bag 1 --}}
     <div class="row" id="chart">
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Brondolan/Blok Tinggal DI TPH</h5>
+          <h5>Brondolan Tinggal (Brondol / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="bttinggal"></div>
@@ -211,7 +225,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Karung/Blok berisi Brondolan</h5>
+          <h5>Karung Berisi Brondolan (Karung / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="karung"></div>
@@ -219,7 +233,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Buah/Blok tinggal TPH</h5>
+          <h5>Buah Tinggal (Janjang / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="btt_tgl"></div>
@@ -227,7 +241,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Restan/Blok Tidak Dilaporkan</h5>
+          <h5>Restan Tidak Dilaporkan (Janjang / Blok)/h5>
         </div>
         <div class="card-body pb-5">
           <div id="rst_none"></div>
@@ -236,7 +250,7 @@
     </div><br>
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Sidak TPH berdasarkan Wilayah</h3>
+      <h3>Grafik Sidak TPH berdasarkan Wilayah</h3>
     </div>
 
     {{-- chart bg 2 --}}
@@ -601,6 +615,8 @@ var will = {
         
               var list_all_wil = Object.entries(parseResult['list_all_wil']) 
               var list_all_est = Object.entries(parseResult['list_all_est']) 
+              var list_skor_gm = Object.entries(parseResult['list_skor_gm']) 
+              var skor_rh = parseResult['skor_rh']
 
             
 
@@ -1099,7 +1115,7 @@ var will = {
                 // }
               });
 
-
+           
 
       ///table wil 3
       var arrTbody3 = list_all_wil[2][1]
@@ -1261,6 +1277,156 @@ var will = {
                   tbody1.appendChild(tr)
                 // }
               });
+
+              var inc = 0;
+              for (let i = 1; i <= 3; i++) {  
+                var tbody = document.getElementById('tbody' + i);
+              
+               var wil = ''
+               if(i == 1){
+                 wil = 'I'
+               }else if(i == 2){
+                wil = 'II'
+               }else{
+                 wil = 'III'
+               }
+
+                tr = document.createElement('tr')
+                  let item1 = 'WIL-' + wil
+                  let item2 = 'GM'
+                  let item3 = list_skor_gm[inc][1]['nama']
+                  let item4 = list_skor_gm[inc][1]['skor']
+                  let item5 = ''
+                  
+
+                  let itemElement1 = document.createElement('td')
+                  let itemElement2 = document.createElement('td')
+                  let itemElement3 = document.createElement('td')
+                  let itemElement4 = document.createElement('td')
+                  let itemElement5 = document.createElement('td')
+
+                
+
+                  itemElement1.classList.add("text-center")
+                  itemElement2.classList.add("text-center")
+                  itemElement3.classList.add("text-center")
+                  itemElement4.classList.add("text-center")
+                  itemElement5.classList.add("text-center")
+
+
+                  itemElement1.style.backgroundColor = "#fff4cc";
+                  itemElement2.style.backgroundColor = "#fff4cc";
+                  itemElement3.style.backgroundColor = "#fff4cc";
+                  if (item4 >= 95) {
+                              itemElement4.style.backgroundColor = "#609cd4";
+                  } else if (item4 >= 85 && item4 < 95) {
+                    itemElement4.style.backgroundColor = "#08b454";
+                  } else if (item4 >= 75 && item4 < 85) {
+                    itemElement4.style.backgroundColor = "#fffc04";
+                  } else if (item4 >= 65 && item4 < 75) {
+                      itemElement4.style.backgroundColor = "#ffc404";
+                  } else {
+                      itemElement4.style.backgroundColor = "red";
+                  }
+
+                  if(itemElement4.style.backgroundColor === "#609cd4"){
+                  itemElement4.style.color = "white";
+              }
+              else if(itemElement4.style.backgroundColor === "#08b454"){
+                  itemElement4.style.color = "white";
+              }
+              else if(itemElement4.style.backgroundColor === "#fffc04"){
+                  itemElement4.style.color = "black";
+              }
+              else if(itemElement4.style.backgroundColor === "#ffc404"){
+                  itemElement4.style.color = "black";
+              }
+              else if(itemElement4.style.backgroundColor === "red"){
+                  itemElement4.style.color = "white";
+              }
+
+
+                      itemElement4.innerText = item4;
+                      itemElement1.innerText  = item1
+                      itemElement2.innerText  = item2
+                      itemElement3.innerText  = item3
+                      itemElement4.innerText  = item4
+                      itemElement5.innerText  = item5
+
+                  tr.appendChild(itemElement1)
+                  tr.appendChild(itemElement2)
+                  tr.appendChild(itemElement3)
+                  tr.appendChild(itemElement4)
+                  tr.appendChild(itemElement5)
+
+                  tbody.appendChild(tr)
+                  inc++
+              }
+
+              // console.log(skor_rh)
+              tbodySkorRH = document.getElementById('tbodySkorRH')
+                tr = document.createElement('tr')
+                  let item1 = 'REG I'
+                  let item2 = 'RH - 1'
+                  let item3 = 'AKHMAD FAISYAL'
+                  let item4 = skor_rh
+                
+                  let itemElement1 = document.createElement('td')
+                  let itemElement2 = document.createElement('td')
+                  let itemElement3 = document.createElement('td')
+                  let itemElement4 = document.createElement('td')
+            
+                  itemElement1.classList.add("text-center")
+                  itemElement2.classList.add("text-center")
+                  itemElement3.classList.add("text-center")
+                  itemElement4.classList.add("text-center")
+               
+                  itemElement1.style.backgroundColor = "#e8ecdc";
+                  itemElement2.style.backgroundColor = "#e8ecdc";
+                  itemElement3.style.backgroundColor = "#e8ecdc";
+                  if (item4 >= 95) {
+                              itemElement4.style.backgroundColor = "#609cd4";
+                  } else if (item4 >= 85 && item4 < 95) {
+                    itemElement4.style.backgroundColor = "#08b454";
+                  } else if (item4 >= 75 && item4 < 85) {
+                    itemElement4.style.backgroundColor = "#fffc04";
+                  } else if (item4 >= 65 && item4 < 75) {
+                      itemElement4.style.backgroundColor = "#ffc404";
+                  } else {
+                      itemElement4.style.backgroundColor = "red";
+                  }
+
+                  if(itemElement4.style.backgroundColor === "#609cd4"){
+                  itemElement4.style.color = "white";
+              }
+              else if(itemElement4.style.backgroundColor === "#08b454"){
+                  itemElement4.style.color = "white";
+              }
+              else if(itemElement4.style.backgroundColor === "#fffc04"){
+                  itemElement4.style.color = "black";
+              }
+              else if(itemElement4.style.backgroundColor === "#ffc404"){
+                  itemElement4.style.color = "black";
+              }
+              else if(itemElement4.style.backgroundColor === "red"){
+                  itemElement4.style.color = "white";
+              }
+
+
+                      itemElement4.innerText = item4;
+                      itemElement1.innerText  = item1
+                      itemElement2.innerText  = item2
+                      itemElement3.innerText  = item3
+                 
+               
+
+                  tr.appendChild(itemElement1)
+                  tr.appendChild(itemElement2)
+                  tr.appendChild(itemElement3)
+                  tr.appendChild(itemElement4)
+
+
+                  tbodySkorRH.appendChild(tr)
 
 
       
