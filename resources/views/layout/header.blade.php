@@ -134,6 +134,16 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <!-- uses solid style -->
+                            <a href="{{ asset('/dashboard_inspeksi') }}" class="nav-link">
+                                <i class="nav-icon fa-solid fa-file"></i>
+                                <p>
+                                    QC Inspeksi
+                                </p>
+                            </a>
+                        </li>
+
                         {{-- <li class="nav-item">
                             <a href="{{ asset('/field-inspection') }}" class="nav-link">
                                 <i class="nav-icon fa fa-book"></i>

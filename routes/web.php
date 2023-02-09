@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\SidaktphController;
 use App\Http\Controllers\unitController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\SidaktphController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TesExportController;
+use App\Http\Controllers\inspectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,3 +55,8 @@ Route::get('/qc', [unitController::class, 'load_qc_gudang'])->name('qc');
 Route::get('/hapusRecord/{id}', [unitController::class, 'hapusRecord'])->name('hapusRecord');
 Route::get('/cetakpdf/{id}', [unitController::class, 'cetakpdf']);
 // });
+
+Route::get('/dashboard_inspeksi', [inspectController::class, 'dashboard_inspeksi'])->name('dashboard_inspeksi');
+// Route::post('/filter', [inspectController::class, 'filter']);
+
+Route::get('/filter', [inspectController::class, 'filter'])->name('filter');
