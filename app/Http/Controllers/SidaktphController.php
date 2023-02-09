@@ -1877,17 +1877,21 @@ class SidaktphController extends Controller
             foreach ($value as $key2 => $value2) {
                 $datas[] = $value2;
                 if (!empty($value2->foto_temuan)) {
-                    $img[$inc]['foto'] = $value2->foto_temuan;
-                    $img[$inc]['title'] = $value2->est . ' ' .  $value2->afd . ' - ' . $value2->blok;
+                    $img[$key][$inc]['foto'] = $value2->foto_temuan;
+                    $img[$key][$inc]['title'] = $value2->est . ' ' .  $value2->afd . ' - ' . $value2->blok;
                     $inc++;
                 }
             }
         }
 
+        $imgNew = array();
+        foreach ($img as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $imgNew[] = $value2;
+            }
+        }
 
-        // dd($img);
-
-        return view('detailSidakTPH', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last, 'data' => $datas, 'img' => $img]);
+        return view('detailSidakTPH', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last, 'data' => $datas, 'img' => $imgNew]);
     }
 
     public function getPlotLine(Request $request)
@@ -1936,6 +1940,7 @@ class SidaktphController extends Controller
                 $plotMarker[$inc]['jum_karung'] = $value->jum_karung;
                 $plotMarker[$inc]['buah_tinggal'] = $value->buah_tinggal;
                 $plotMarker[$inc]['restan_unreported'] = $value->restan_unreported;
+                $plotMarker[$inc]['jam'] = Carbon::parse($value->datetime)->format('H:i');
             }
             $inc++;
         }
