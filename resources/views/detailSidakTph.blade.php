@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
 @include('layout/header')
 <style>
     .label-bidang {
@@ -5,6 +6,10 @@
         color: white;
         text-align: center;
         opacity: 0.6;
+    }
+
+    .popup_image {
+        cursor: pointer;
     }
 
     table,
@@ -94,7 +99,8 @@
                         @if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found')
                         @else
                         <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/sidak_tph/{{$item['foto']}}"
-                            class="img-fluid" alt="">
+                            class="img-fluid  popup_image" alt="">
+                        <input type="hidden" value="{{$item['title']}}" id="titleImg">
                         <p class="text-center mt-3" style="font-weight: bold">{{$item['title']}}</p>
 
                         @endif
@@ -114,7 +120,22 @@
 </div>
 @include('layout/footer')
 
+<script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
 <script>
+    $(document).ready(function() {
+
+$(".popup_image").on('click', function() {
+
+    var titleImg = document.getElementById('titleImg').value
+  w2popup.open({
+    title: titleImg,
+    body: '<div class="w2ui-centered" ><img src="' + $(this).attr('src') + '" ></img></div>',
+    width         : 1280,       // width of the popup
+    height        : 720    // height of the popup
+  });
+});
+
+});
     $(document).ready(function () {
         $('#listSidakTPH').DataTable();
     });
@@ -187,11 +208,9 @@
 
         // console.log(markerResult)
         for (let i = 0; i < markerResult.length; i++) {
-
-    //     // for (let j = 0; j < markerResult[i][1].length; j++) {
             let numberIcon = new L.Icon({
-            iconUrl: "https://raw.githubusercontent.com/sheiun/leaflet-color-number-markers/main/dist/img/blue/marker-icon-2x-blue-" + i + ".png",
-            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],
@@ -202,8 +221,54 @@
   "<div> <span style='font-weight:bold'>Nomor TPH : </span>"+ markerResult[i][1]['notph']+"</div>" +
   "<div ><span style='font-weight:bold'>Blok </span>: "+markerResult[i][1]['blok']+"</div>" ;
 
+  if (markerResult[i][1]['brondol_tinggal'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Brondol Tinggal </span>: "+markerResult[i][1]['brondol_tinggal']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  } 
+  if (markerResult[i][1]['jum_karung'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Karung Tinggal </span>: "+markerResult[i][1]['jum_karung']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
+  if (markerResult[i][1]['buah_tinggal'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Buah Tinggal </span>: "+markerResult[i][1]['buah_tinggal']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
+  if (markerResult[i][1]['restan_unreported'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Restan Tidak Dilaporkan </span>: "+markerResult[i][1]['restan_unreported']+"</div>" ;
+    
+    numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
+
         L.marker(JSON.parse(markerResult[i][1]['latln']), {
-            // icon: numberIcon
+            icon: numberIcon
         }).addTo(map).bindPopup(template, popupOptions)
     .openPopup();
 

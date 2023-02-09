@@ -1932,6 +1932,10 @@ class SidaktphController extends Controller
                 $plotMarker[$inc]['latln'] =  '[' . $value->lat   . ',' . $value->lon . ']';
                 $plotMarker[$inc]['notph'] = $value->no_tph;
                 $plotMarker[$inc]['blok'] = $value->blok;
+                $plotMarker[$inc]['brondol_tinggal'] = $value->bt_tph + $value->bt_jalan + $value->bt_bin;
+                $plotMarker[$inc]['jum_karung'] = $value->jum_karung;
+                $plotMarker[$inc]['buah_tinggal'] = $value->buah_tinggal;
+                $plotMarker[$inc]['restan_unreported'] = $value->restan_unreported;
             }
             $inc++;
         }
