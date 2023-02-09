@@ -519,6 +519,10 @@ class unitController extends Controller
                         $dataResult[$key]['status'] = 'Poor';
                     }
                 } else {
+
+                    if ($incTotalBulan == 1) {
+                        $incTotalBulan = 2;
+                    }
                     $skor_tahunan = round($sum_skor  / ($incTotalBulan - 1), 2);
                     $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
                     if ($skor_tahunan >= 95) {
