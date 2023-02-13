@@ -13,6 +13,35 @@ class inspectController extends Controller
     public function dashboard_inspeksi(Request $request)
     {
 
+        // $dummy_array = [];
+        // $sum = 0;
+
+
+        // for ($i = 0; $i < 7; $i++) {
+        //     $dummy_array[$i] = rand(0, 30);
+        //     $sum += $dummy_array[$i];
+        // }
+        // $targetSum = 125;
+        // if ($sum >= $targetSum) {
+        //     $difference = $sum - $targetSum;
+        //     $randomIndex = array_rand($dummy_array);
+        //     $dummy_array[$randomIndex] -= $difference;
+        // } else {
+        //     $difference = $targetSum - $sum;
+        //     $randomIndex = array_rand($dummy_array);
+        //     $dummy_array[$randomIndex] += $difference;
+        // }
+
+        // echo "tph baris = " . count($dummy_array) . "\n";
+
+        // echo "[";
+        // for ($i = 0; $i < count($dummy_array); $i++) {
+        //     echo $dummy_array[$i];
+        //     if ($i < count($dummy_array) - 1) {
+        //         echo ",";
+        //     }
+        // }
+        // echo "]";
 
         $getDate = date('Y-m');
 
@@ -997,20 +1026,148 @@ class inspectController extends Controller
             ) //buat mengambil data di estate db dan willayah db
             ->join('estate', 'estate.id', '=', 'afdeling.estate') //kemudian di join untuk mengambil est perwilayah
             ->get();
-        $queryMtAncak = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*")
+        $queryMTancakTab1 = DB::connection('mysql2')->table('mutu_ancak')
+            ->select(
+                "mutu_ancak.*",
+                DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan')
+            )
             ->where('datetime', 'like', '%' . $getDate . '%')
-            // ->where('datetime', 'like', '%' . "2023-02" . '%')
-
-            // ->whereBetween('sidak_tph.datetime', ['2023-01-23', '202-12-25'])
             ->get();
+        $queryMTancakTab1 = $queryMTancakTab1->groupBy(['estate', 'afdeling']);
+
+        $queryMTBuahTab1 = DB::connection('mysql2')->table('mutu_buah')
+            ->select(
+                "mutu_buah.*",
+                DB::raw('DATE_FORMAT(mutu_buah.datetime, "%M") as bulan')
+            )
+            ->where('datetime', 'like', '%' . $getDate . '%')
+            ->get();
+        $queryMTBuahTab1 = $queryMTBuahTab1->groupBy(['estate', 'afdeling']);
+
+        $queryMTTransportTab1 = DB::connection('mysql2')->table('mutu_transport')
+            ->select(
+                "mutu_transport.*",
+                DB::raw('DATE_FORMAT(mutu_transport.datetime, "%M") as bulan')
+            )
+            ->where('datetime', 'like', '%' . $getDate . '%')
+            ->get();
+        $queryMTTransportTab1 = $queryMTTransportTab1->groupBy(['estate', 'afdeling']);
 
 
-        $queryMtAncak = json_decode($queryMtAncak, true);
+        $queryMTancakTab1 = json_decode($queryMTancakTab1, true);
+        $queryMTBuahTab1 = json_decode($queryMTBuahTab1, true);
+        $queryMTTransportTab1 = json_decode($queryMTTransportTab1, true);
         $queryAfd = json_decode($queryAfd, true);
         $queryEste = json_decode($queryEste, true);
         $queryWill = json_decode($queryWill, true);
 
+        // dd($queryMTancakTab1);
+
+        //data untuk perbaikan table utama
+        //menentukan nilai untuk est>afd>mt ancak
+        $mtAncakBulanTab1 = array();
+        foreach ($queryMTancakTab1 as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                // dd($value2);
+                foreach ($value2 as $key3 => $value3) {
+                    $month = date('F', strtotime($value3['datetime']));
+                    $mtAncakBulanTab1[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        //menentukan nilai untuk est>afd>mt buah
+        $mtBuahBulanTab1 = array();
+        foreach ($queryMTBuahTab1 as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                // dd($value2);
+                foreach ($value2 as $key3 => $value3) {
+                    $month = date('F', strtotime($value3['datetime']));
+                    $mtBuahBulanTab1[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        //menentukan nilai untuk est>afd>mt tranport
+        $mtTransportBulanTab1 = array();
+        foreach ($queryMTTransportTab1 as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+
+                foreach ($value2 as $key3 => $value3) {
+                    $month = date('F', strtotime($value3['datetime']));
+                    $mtTransportBulanTab1[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        // dd($mtTransportBulanTab1);
+
+        //membuat nilai defaul untuk menampilkan smua estate dan afdeling dengan nilai 0 untuk mt ancak
+        $defMTancakBul = array();
+        foreach ($queryEste as $est) {
+            foreach ($est as $val) {
+                foreach ($queryAfd as $afd) {
+                    if ($val['est'] == $afd['est']) {
+                        $defMTancakBul[$val['est']][$afd['nama']][] = 0;
+                    }
+                }
+            }
+        }
+        //membuat nilai defaul untuk menampilkan smua estate dan afdeling dengan nilai 0 untuk mt buah
+        $defMTbuahBul = array();
+        foreach ($queryEste as $est) {
+            foreach ($est as $val) {
+                foreach ($queryAfd as $afd) {
+                    if ($val['est'] == $afd['est']) {
+                        $defMTbuahBul[$val['est']][$afd['nama']][] = 0;
+                    }
+                }
+            }
+        }
+
+        //membuat nilai defaul untuk menampilkan smua estate dan afdeling dengan nilai 0 untuk mt ancak
+        $defMTTransportBul = array();
+        foreach ($queryEste as $est) {
+            foreach ($est as $val) {
+                foreach ($queryAfd as $afd) {
+                    if ($val['est'] == $afd['est']) {
+                        $defMTTransportBul[$val['est']][$afd['nama']][] = 0;
+                    }
+                }
+            }
+        }
+        // dd($defMTTransportBul);
+        // dd($defMTancakBul);
+        // menimpa nilai default dengan value mutu ancak yang ada isinya sehingga yang tidak ada value menjadi 0
+        foreach ($defMTancakBul as $key => $value) {
+            foreach ($value as $key1 => $value1) {
+                foreach ($value1 as $key2 => $value2) {
+                    if (!is_array($value2)) {
+                        $value2 = array();
+                    }
+                    foreach ($mtAncakBulanTab1 as $ley => $val) {
+                        if ($ley == $key) {
+                            foreach ($val as $ley1 => $val1) {
+                                if ($ley1 == $key1) {
+                                    foreach ($val1 as $ley2 => $val2) {
+                                        if (is_array($val2)) {
+                                            $defMTancakBul[$key][$key1][$key2] = array_merge($value2, $val2);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // dd($defMTbuahBul);
+
+
+
+
+
+
+
+
+        //end untuk nanti di cut
         $dataAfdEst = array();
         // menyimpan array nested dari  wil -> est -> afd
         foreach ($queryEste as $key => $value) {
@@ -1022,11 +1179,8 @@ class inspectController extends Controller
                     if ($value2['est'] == $value3['est']) {
                         foreach ($queryMtAncak as $key4 => $value4) {
                             // dd($value4);
-                            if (($value2['est'] == $value4['estate']) && $value3['nama'] == $value4['afdeling']) {
-                                $dataAfdEst[$est][$afd][] = $value4;
-                            } else {
-                                $dataAfdEst[$est][$afd]['null'] = 0;
-                            }
+
+                            $dataAfdEst[$est][$afd]['null'] = 0;
                         }
                     }
                 }
@@ -1427,18 +1581,7 @@ class inspectController extends Controller
 
         // dd($dataPerWil, $TotalperEstate);
         // dd($TotalperEstate);
-        // $dummy_array = [];
-        // for ($i = 0; $i < 10; $i++) {
-        //     $dummy_array[] = rand(0, 1);
-        // }
-        // echo "[";
-        // for ($i = 0; $i < count($dummy_array); $i++) {
-        //     echo $dummy_array[$i];
-        //     if ($i < count($dummy_array) - 1) {
-        //         echo ",";
-        //     }
-        // }
-        // echo "]";
+
 
 
 
@@ -1503,6 +1646,7 @@ class inspectController extends Controller
         // dd($buahPerwil);
 
         //testing uuntk perhitungan jangan lupa dihapus 
+        // Untuk table perhitungan berdasarkan tahun dashbouard utama
         $querySidak = DB::connection('mysql2')->table('mutu_transport')
             ->select("mutu_transport.*")
             // ->where('datetime', 'like', '%' . $getDate . '%')
@@ -1519,11 +1663,12 @@ class inspectController extends Controller
         $querytahun = DB::connection('mysql2')->table('mutu_ancak')
             ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
             // ->whereYear('datetime', '2023')
-            ->whereYear('datetime', '2023')
+            // ->where('datetime', 'like', '%' . $getDate . '%')
+            ->where('datetime', 'like', '%' . "2023-01" . '%')
+            // ->whereYear('datetime', $year)
             ->get();
         $querytahun = $querytahun->groupBy(['estate', 'afdeling']);
         $querytahun = json_decode($querytahun, true);
-        // dd($querytahun);
         //mutu buah
         $queryMTbuah = DB::connection('mysql2')->table('mutu_buah')
             ->select(
@@ -1531,7 +1676,7 @@ class inspectController extends Controller
                 DB::raw('DATE_FORMAT(mutu_buah.datetime, "%M") as bulan'),
                 DB::raw('DATE_FORMAT(mutu_buah.datetime, "%Y") as tahun')
             )
-            ->whereYear('datetime', '2023')
+            ->where('datetime', 'like', '%' . "2023-02" . '%')
             ->get();
         $queryMTbuah = $queryMTbuah->groupBy(['estate', 'afdeling']);
         $queryMTbuah = json_decode($queryMTbuah, true);
@@ -1543,7 +1688,8 @@ class inspectController extends Controller
                 DB::raw('DATE_FORMAT(mutu_transport.datetime, "%M") as bulan'),
                 DB::raw('DATE_FORMAT(mutu_transport.datetime, "%Y") as tahun')
             )
-            ->whereYear('datetime', '2023')
+            ->where('datetime', 'like', '%' . "2023-02" . '%')
+            // ->whereYear('datetime', $year)
             ->get();
         $queryMTtrans = $queryMTtrans->groupBy(['estate', 'afdeling']);
         $queryMTtrans = json_decode($queryMTtrans, true);
@@ -1568,7 +1714,1697 @@ class inspectController extends Controller
 
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        //membuat nilai untuk mutu buah berdasarkan afdeling perbulan
+        //membuat array estate -> bulan -> afdeling
+        //mutu Trans mengambil nilai
+        $dataMTTrans = array();
+        foreach ($queryMTtrans as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    $dataMTTrans[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        //membuat nilai default mutu Trans
+        $defaultMtTrans = array();
+        foreach ($queryEste as $est) {
+            foreach ($queryAfd as $afd) {
+                if ($est['est'] == $afd['est']) {
+                    $defaultMtTrans[$est['est']][$afd['nama']]['null'] = 0;
+                }
+            }
+        }
+        //mutu buah mengambil nilai
+        $dataMTBuah = array();
+        foreach ($queryMTbuah as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    $dataMTBuah[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        //membuat nilai default mutu buah
+        $defaultMTbuah = array();
+        foreach ($queryEste as $est) {
+            foreach ($queryAfd as $afd) {
+                if ($est['est'] == $afd['est']) {
+                    $defaultMTbuah[$est['est']][$afd['nama']]['null'] = 0;
+                }
+            }
+        }
+        // dd($defaultMTbuah, $dataMTBuah);
+        // mutu ancak
+        $dataPerBulan = array();
+        foreach ($querytahun as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    $dataPerBulan[$key][$key2][$key3] = $value3;
+                }
+            }
+        }
+        $defaultNew = array();
+        foreach ($queryEste as $est) {
+            foreach ($queryAfd as $afd) {
+                if ($est['est'] == $afd['est']) {
+                    $defaultNew[$est['est']][$afd['nama']]['null'] = 0;
+                }
+            }
+        }
+        // menimpa mutu Ancak nilai default dengan nilaiyang ada
+        $mutuAncakMerge = array();
+        foreach ($defaultMtTrans as $estKey => $afdArray) {
+            foreach ($afdArray as $afdKey => $afdValue) {
+                if (array_key_exists($estKey, $dataMTTrans)) {
+                    if (array_key_exists($afdKey, $dataMTTrans[$estKey])) {
+                        if (!empty($dataMTTrans[$estKey][$afdKey])) {
+                            $mutuAncakMerge[$estKey][$afdKey] = $dataMTTrans[$estKey][$afdKey];
+                        } else {
+                            $mutuAncakMerge[$estKey][$afdKey] = $afdValue;
+                        }
+                    } else {
+                        $mutuAncakMerge[$estKey][$afdKey] = $afdValue;
+                    }
+                } else {
+                    $mutuAncakMerge[$estKey][$afdKey] = $afdValue;
+                }
+            }
+        }
+        // dd($mutuAncakMerge);
+        // menimpa mutu buah nilai default dengan nilaiyang ada
+        $mutuBuahMerge = array();
+        foreach ($defaultMTbuah as $estKey => $afdArray) {
+            foreach ($afdArray as $afdKey => $afdValue) {
+                if (array_key_exists($estKey, $dataMTBuah)) {
+                    if (array_key_exists($afdKey, $dataMTBuah[$estKey])) {
+                        if (!empty($dataMTBuah[$estKey][$afdKey])) {
+                            $mutuBuahMerge[$estKey][$afdKey] = $dataMTBuah[$estKey][$afdKey];
+                        } else {
+                            $mutuBuahMerge[$estKey][$afdKey] = $afdValue;
+                        }
+                    } else {
+                        $mutuBuahMerge[$estKey][$afdKey] = $afdValue;
+                    }
+                } else {
+                    $mutuBuahMerge[$estKey][$afdKey] = $afdValue;
+                }
+            }
+        }
+        // dd($mutuBuahMerge);
+        // menimpa mutu ancak nilai default dengan nilaiyang ada
+        $mergedData = array();
+        foreach ($defaultNew as $estKey => $afdArray) {
+            foreach ($afdArray as $afdKey => $afdValue) {
+                if (array_key_exists($estKey, $dataPerBulan)) {
+                    if (array_key_exists($afdKey, $dataPerBulan[$estKey])) {
+                        if (!empty($dataPerBulan[$estKey][$afdKey])) {
+                            $mergedData[$estKey][$afdKey] = $dataPerBulan[$estKey][$afdKey];
+                        } else {
+                            $mergedData[$estKey][$afdKey] = $afdValue;
+                        }
+                    } else {
+                        $mergedData[$estKey][$afdKey] = $afdValue;
+                    }
+                } else {
+                    $mergedData[$estKey][$afdKey] = $afdValue;
+                }
+            }
+        }
+        // dd($mergedData);
+        // //membuat data mutu ancak berdasarakan wilayah 1,2,3
+        $mtancakWIltab1 = array();
+        foreach ($queryEste as $key => $value) {
+            foreach ($mergedData as $key2 => $value2) {
+                if ($value['est'] == $key2) {
+                    $mtancakWIltab1[$value['wil']][$key2] = array_merge($mtancakWIltab1[$value['wil']][$key2] ?? [], $value2);
+                }
+            }
+        }
+        $mtBuahWIltab1 = array();
+        foreach ($queryEste as $key => $value) {
+            foreach ($mutuBuahMerge as $key2 => $value2) {
+                if ($value['est'] == $key2) {
+                    $mtBuahWIltab1[$value['wil']][$key2] = array_merge($mtBuahWIltab1[$value['wil']][$key2] ?? [], $value2);
+                }
+            }
+        }
+
+        $mtTransWiltab1 = array();
+        foreach ($queryEste as $key => $value) {
+            foreach ($mutuAncakMerge as $key2 => $value2) {
+                if ($value['est'] == $key2) {
+                    $mtTransWiltab1[$value['wil']][$key2] = array_merge($mtTransWiltab1[$value['wil']][$key2] ?? [], $value2);
+                }
+            }
+        }
+
+        // dd($mtTransWiltab1);
+        //perhitungan untuk mutu trans perwilaya,estate dan afd
+        $mtTranstab1Wil = array();
+        foreach ($mtTransWiltab1 as $key => $value) if (!empty($value)) {
+            $dataBLokWil = 0;
+            $sum_btWil = 0;
+            $sum_rstWil = 0;
+            foreach ($value as $key1 => $value1) if (!empty($value1)) {
+                $dataBLokEst = 0;
+                $sum_btEst = 0;
+                $sum_rstEst = 0;
+                foreach ($value1 as $key2 => $value2) if (!empty($value2)) {
+                    $sum_bt = 0;
+                    $sum_rst = 0;
+                    $brdPertph = 0;
+                    $buahPerTPH = 0;
+                    $totalSkor = 0;
+                    $dataBLok = 0;
+                    $listBlokPerAfd = array();
+                    foreach ($value2 as $key3 => $value3) if (is_array($value3)) {
+
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
+                        }
+                        $dataBLok = count($listBlokPerAfd);
+                        $sum_bt += $value3['bt'];
+                        $sum_rst += $value3['rst'];
+                    }
+
+                    if ($dataBLok != 0) {
+                        $brdPertph = round($sum_bt / $dataBLok, 2);
+                    } else {
+                        $brdPertph = 0;
+                    }
+                    if ($dataBLok != 0) {
+                        $buahPerTPH = round($sum_rst / $dataBLok, 2);
+                    } else {
+                        $buahPerTPH = 0;
+                    }
+
+
+
+                    //menghitung skor butir
+                    $skor_brdPertph = 0;
+                    if ($brdPertph <= 3) {
+                        $skor_brdPertph = 10;
+                    } else if ($brdPertph >= 3 && $brdPertph <= 5) {
+                        $skor_brdPertph = 8;
+                    } else if ($brdPertph >= 5 && $brdPertph <= 7) {
+                        $skor_brdPertph = 6;
+                    } else if ($brdPertph >= 7 && $brdPertph <= 9) {
+                        $skor_brdPertph = 4;
+                    } else if ($brdPertph >= 9 && $brdPertph <= 11) {
+                        $skor_brdPertph = 2;
+                    } else if ($brdPertph >= 11) {
+                        $skor_brdPertph = 0;
+                    }
+                    //menghitung Skor Restant
+                    $skor_buahPerTPH = 0;
+                    if ($buahPerTPH <= 0.0) {
+                        $skor_buahPerTPH = 10;
+                    } else if ($buahPerTPH >= 0.0 && $buahPerTPH <= 0.5) {
+                        $skor_buahPerTPH = 8;
+                    } else if ($buahPerTPH >= 0.5 && $buahPerTPH <= 1) {
+                        $skor_buahPerTPH = 6;
+                    } else if ($buahPerTPH >= 1.0 && $buahPerTPH <= 1.5) {
+                        $skor_buahPerTPH = 4;
+                    } else if ($buahPerTPH >= 1.5 && $buahPerTPH <= 2.0) {
+                        $skor_buahPerTPH = 2;
+                    } else if ($buahPerTPH >= 2.0 && $buahPerTPH <= 2.5) {
+                        $skor_buahPerTPH = 0;
+                    } else if ($buahPerTPH >= 2.5 && $buahPerTPH <= 3.0) {
+                        $skor_buahPerTPH = 2;
+                    } else if ($buahPerTPH >= 3.0 && $buahPerTPH <= 3.5) {
+                        $skor_buahPerTPH = 4;
+                    } else if ($buahPerTPH >= 3.5 && $buahPerTPH <= 4.0) {
+                        $skor_buahPerTPH = 6;
+                    } else if ($buahPerTPH >= 4.0) {
+                        $skor_buahPerTPH = 8;
+                    }
+
+                    $totalSkor = $skor_buahPerTPH + $skor_brdPertph;
+
+                    $mtTranstab1Wil[$key][$key1][$key2]['tph_sample'] = $dataBLok;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_brd'] = $sum_bt;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_brd/TPH'] = $brdPertph;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_buah'] = $sum_rst;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_buahPerTPH'] = $buahPerTPH;
+                    $mtTranstab1Wil[$key][$key1][$key2]['skor_brdPertph'] = $skor_brdPertph;
+                    $mtTranstab1Wil[$key][$key1][$key2]['skor_buahPerTPH'] = $skor_buahPerTPH;
+                    $mtTranstab1Wil[$key][$key1][$key2]['totalSkor'] = $totalSkor;
+
+                    //PERHITUNGAN PERESTATE
+                    $dataBLokEst += $dataBLok;
+                    $sum_btEst += $sum_bt;
+                    $sum_rstEst += $sum_rst;
+
+                    if ($dataBLokEst != 0) {
+                        $brdPertphEst = round($sum_btEst / $dataBLokEst, 2);
+                    } else {
+                        $brdPertphEst = 0;
+                    }
+                    if ($dataBLokEst != 0) {
+                        $buahPerTPHEst = round($sum_rstEst / $dataBLokEst, 2);
+                    } else {
+                        $buahPerTPHEst = 0;
+                    }
+
+                    //menghitung skor butir
+                    $skor_brdPertphEst = 0;
+                    if ($brdPertphEst <= 3) {
+                        $skor_brdPertphEst = 10;
+                    } else if ($brdPertphEst >= 3 && $brdPertphEst <= 5) {
+                        $skor_brdPertphEst = 8;
+                    } else if ($brdPertphEst >= 5 && $brdPertphEst <= 7) {
+                        $skor_brdPertphEst = 6;
+                    } else if ($brdPertphEst >= 7 && $brdPertphEst <= 9) {
+                        $skor_brdPertphEst = 4;
+                    } else if ($brdPertphEst >= 9 && $brdPertphEst <= 11) {
+                        $skor_brdPertphEst = 2;
+                    } else if ($brdPertphEst >= 11) {
+                        $skor_brdPertphEst = 0;
+                    }
+                    //menghitung Skor Restant
+                    $skor_buahPerTPHEst = 0;
+                    if ($buahPerTPHEst <= 0.0) {
+                        $skor_buahPerTPHEst = 10;
+                    } else if ($buahPerTPHEst >= 0.0 && $buahPerTPHEst <= 0.5) {
+                        $skor_buahPerTPHEst = 8;
+                    } else if ($buahPerTPHEst >= 0.5 && $buahPerTPHEst <= 1) {
+                        $skor_buahPerTPHEst = 6;
+                    } else if ($buahPerTPHEst >= 1.0 && $buahPerTPHEst <= 1.5) {
+                        $skor_buahPerTPHEst = 4;
+                    } else if ($buahPerTPHEst >= 1.5 && $buahPerTPHEst <= 2.0) {
+                        $skor_buahPerTPHEst = 2;
+                    } else if ($buahPerTPHEst >= 2.0 && $buahPerTPHEst <= 2.5) {
+                        $skor_buahPerTPHEst = 0;
+                    } else if ($buahPerTPHEst >= 2.5 && $buahPerTPHEst <= 3.0) {
+                        $skor_buahPerTPHEst = 2;
+                    } else if ($buahPerTPHEst >= 3.0 && $buahPerTPHEst <= 3.5) {
+                        $skor_buahPerTPHEst = 4;
+                    } else if ($buahPerTPHEst >= 3.5 && $buahPerTPHEst <= 4.0) {
+                        $skor_buahPerTPHEst = 6;
+                    } else if ($buahPerTPHEst >= 4.0) {
+                        $skor_buahPerTPHEst = 8;
+                    }
+
+                    $totalSkorEst = $skor_brdPertphEst + $skor_buahPerTPHEst;
+                } else {
+                    $mtTranstab1Wil[$key][$key1][$key2]['tph_sample'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_brd'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_brd/TPH'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_buah'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['total_buahPerTPH'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['skor_brdPertph'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['skor_buahPerTPH'] = 0;
+                    $mtTranstab1Wil[$key][$key1][$key2]['totalSkor'] = 0;
+                }
+
+                $mtTranstab1Wil[$key][$key1]['tph_sample'] = $dataBLokEst;
+                $mtTranstab1Wil[$key][$key1]['total_brd'] = $sum_btEst;
+                $mtTranstab1Wil[$key][$key1]['total_brd/TPH'] = $brdPertphEst;
+                $mtTranstab1Wil[$key][$key1]['total_buah'] = $sum_rstEst;
+                $mtTranstab1Wil[$key][$key1]['total_buahPerTPH'] = $buahPerTPHEst;
+                $mtTranstab1Wil[$key][$key1]['skor_brdPertph'] = $skor_brdPertphEst;
+                $mtTranstab1Wil[$key][$key1]['skor_buahPerTPH'] = $skor_buahPerTPHEst;
+                $mtTranstab1Wil[$key][$key1]['totalSkor'] = $totalSkorEst;
+
+                //perhitungan per wil
+                $dataBLokWil += $dataBLokEst;
+                $sum_btWil += $sum_btEst;
+                $sum_rstWil += $sum_rstEst;
+
+                if ($dataBLokWil != 0) {
+                    $brdPertphWil = round($sum_btWil / $dataBLokWil, 2);
+                } else {
+                    $brdPertphWil = 0;
+                }
+                if ($dataBLokWil != 0) {
+                    $buahPerTPHWil = round($sum_rstWil / $dataBLokWil, 2);
+                } else {
+                    $buahPerTPHWil = 0;
+                }
+
+                //menghitung skor butir
+                $skor_brdPertphWil = 0;
+                if ($brdPertphWil <= 3) {
+                    $skor_brdPertphWil = 10;
+                } else if ($brdPertphWil >= 3 && $brdPertphWil <= 5) {
+                    $skor_brdPertphWil = 8;
+                } else if ($brdPertphWil >= 5 && $brdPertphWil <= 7) {
+                    $skor_brdPertphWil = 6;
+                } else if ($brdPertphWil >= 7 && $brdPertphWil <= 9) {
+                    $skor_brdPertphWil = 4;
+                } else if ($brdPertphWil >= 9 && $brdPertphWil <= 11) {
+                    $skor_brdPertphWil = 2;
+                } else if ($brdPertphWil >= 11) {
+                    $skor_brdPertphWil = 0;
+                }
+                //menghitung Skor RWilant
+                $skor_buahPerTPHWil = 0;
+                if ($buahPerTPHWil <= 0.0) {
+                    $skor_buahPerTPHWil = 10;
+                } else if ($buahPerTPHWil >= 0.0 && $buahPerTPHWil <= 0.5) {
+                    $skor_buahPerTPHWil = 8;
+                } else if ($buahPerTPHWil >= 0.5 && $buahPerTPHWil <= 1) {
+                    $skor_buahPerTPHWil = 6;
+                } else if ($buahPerTPHWil >= 1.0 && $buahPerTPHWil <= 1.5) {
+                    $skor_buahPerTPHWil = 4;
+                } else if ($buahPerTPHWil >= 1.5 && $buahPerTPHWil <= 2.0) {
+                    $skor_buahPerTPHWil = 2;
+                } else if ($buahPerTPHWil >= 2.0 && $buahPerTPHWil <= 2.5) {
+                    $skor_buahPerTPHWil = 0;
+                } else if ($buahPerTPHWil >= 2.5 && $buahPerTPHWil <= 3.0) {
+                    $skor_buahPerTPHWil = 2;
+                } else if ($buahPerTPHWil >= 3.0 && $buahPerTPHWil <= 3.5) {
+                    $skor_buahPerTPHWil = 4;
+                } else if ($buahPerTPHWil >= 3.5 && $buahPerTPHWil <= 4.0) {
+                    $skor_buahPerTPHWil = 6;
+                } else if ($buahPerTPHWil >= 4.0) {
+                    $skor_buahPerTPHWil = 8;
+                }
+
+                $totalSkorWil = $skor_brdPertphWil + $skor_buahPerTPHWil;
+            } else {
+                $mtTranstab1Wil[$key][$key1]['tph_sample'] = 0;
+                $mtTranstab1Wil[$key][$key1]['total_brd'] = 0;
+                $mtTranstab1Wil[$key][$key1]['total_brd/TPH'] = 0;
+                $mtTranstab1Wil[$key][$key1]['total_buah'] = 0;
+                $mtTranstab1Wil[$key][$key1]['total_buahPerTPH'] = 0;
+                $mtTranstab1Wil[$key][$key1]['skor_brdPertph'] = 0;
+                $mtTranstab1Wil[$key][$key1]['skor_buahPerTPH'] = 0;
+                $mtTranstab1Wil[$key][$key1]['totalSkor'] = 0;
+            }
+            $mtTranstab1Wil[$key]['tph_sample'] = $dataBLokWil;
+            $mtTranstab1Wil[$key]['total_brd'] = $sum_btWil;
+            $mtTranstab1Wil[$key]['total_brd/TPH'] = $brdPertphWil;
+            $mtTranstab1Wil[$key]['total_buah'] = $sum_rstWil;
+            $mtTranstab1Wil[$key]['total_buahPerTPH'] = $buahPerTPHWil;
+            $mtTranstab1Wil[$key]['skor_brdPertph'] = $skor_brdPertphWil;
+            $mtTranstab1Wil[$key]['skor_buahPerTPH'] = $skor_buahPerTPHWil;
+            $mtTranstab1Wil[$key]['totalSkor'] = $totalSkorWil;
+        } else {
+            $mtTranstab1Wil[$key]['tph_sample'] = 0;
+            $mtTranstab1Wil[$key]['total_brd'] = 0;
+            $mtTranstab1Wil[$key]['total_brd/TPH'] = 0;
+            $mtTranstab1Wil[$key]['total_buah'] = 0;
+            $mtTranstab1Wil[$key]['total_buahPerTPH'] = 0;
+            $mtTranstab1Wil[$key]['skor_brdPertph'] = 0;
+            $mtTranstab1Wil[$key]['skor_buahPerTPH'] = 0;
+            $mtTranstab1Wil[$key]['totalSkor'] = 0;
+        }
+        // dd($mtTranstab1Wil);
+        //perhitungan untuk mutu buah wilayah,estate dan afd
+        $mtBuahtab1Wil = array();
+        foreach ($mtBuahWIltab1 as $key => $value) if (is_array($value)) {
+            $jum_haWil = 0;
+            $sum_SamplejjgWil = 0;
+            $sum_bmtWil = 0;
+            $sum_bmkWil = 0;
+            $sum_overWil = 0;
+            $sum_abnorWil = 0;
+            $sum_kosongjjgWil = 0;
+            $sum_vcutWil = 0;
+            $sum_krWil = 0;
+            foreach ($value as $key1 => $value1) if (is_array($value1)) {
+                $jum_haEst  = 0;
+                $sum_SamplejjgEst = 0;
+                $sum_bmtEst = 0;
+                $sum_bmkEst = 0;
+                $sum_overEst = 0;
+                $sum_abnorEst = 0;
+                $sum_kosongjjgEst = 0;
+                $sum_vcutEst = 0;
+                $sum_krEst = 0;
+                foreach ($value1 as $key2 => $value2) if (is_array($value2)) {
+                    $sum_bmt = 0;
+                    $sum_bmk = 0;
+                    $sum_over = 0;
+                    $sum_Samplejjg = 0;
+                    $PerMth = 0;
+                    $PerMsk = 0;
+                    $PerOver = 0;
+                    $sum_abnor = 0;
+                    $sum_kosongjjg = 0;
+                    $Perkosongjjg = 0;
+                    $sum_vcut = 0;
+                    $PerVcut = 0;
+                    $PerAbr = 0;
+                    $sum_kr = 0;
+                    $total_kr = 0;
+                    $per_kr = 0;
+                    $totalSkor = 0;
+                    $jum_ha = 0;
+                    $listBlokPerAfd = array();
+                    foreach ($value2 as $key3 => $value3) if (is_array($value3)) {
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'], $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'];
+                        }
+                        $jum_ha = count($listBlokPerAfd);
+                        $sum_bmt += $value3['bmt'];
+                        $sum_bmk += $value3['bmk'];
+                        $sum_over += $value3['overripe'];
+                        $sum_kosongjjg += $value3['empty'];
+                        $sum_vcut += $value3['vcut'];
+                        $sum_kr += $value3['alas_br'];
+                        $sum_Samplejjg += $value3['jumlah_jjg'];
+                        $sum_abnor += $value3['abnormal'];
+                    }
+                    if ($sum_kr != 0) {
+                        $total_kr = round($jum_ha / $sum_kr, 2);
+                    } else {
+                        $total_kr = 0;
+                    }
+
+                    if ($sum_abnor != 0) {
+                        $PerMth = round(($sum_bmt / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    } else {
+                        $PerMth = 0;
+                    }
+                    if ($sum_abnor != 0) {
+                        $PerMsk = round(($sum_bmk / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    } else {
+                        $PerMsk = 0;
+                    }
+                    if ($sum_abnor != 0) {
+                        $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    } else {
+                        $PerOver = 0;
+                    }
+                    if ($sum_abnor != 0) {
+                        $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    } else {
+                        $Perkosongjjg = 0;
+                    }
+                    if ($sum_Samplejjg != 0) {
+                        $PerVcut = round(($sum_vcut / $sum_Samplejjg) * 100, 2);
+                    } else {
+                        $PerVcut = 0;
+                    }
+                    if ($sum_Samplejjg != 0) {
+                        $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
+                    } else {
+                        $PerAbr = 0;
+                    }
+
+                    $per_kr = round($total_kr * 100, 2);
+
+                    // skoring buah mentah
+                    $skor_PerMth = 0;
+                    if ($PerMth <= 1.0) {
+                        $skor_PerMth = 10;
+                    } else if ($PerMth >= 1.0 && $PerMth <= 2.0) {
+                        $skor_PerMth = 8;
+                    } else if ($PerMth >= 2.0 && $PerMth <= 3.0) {
+                        $skor_PerMth = 6;
+                    } else if ($PerMth >= 3.0 && $PerMth <= 4.0) {
+                        $skor_PerMth = 4;
+                    } else if ($PerMth >= 4.0 && $PerMth <= 5.0) {
+                        $skor_PerMth = 2;
+                    } else if ($PerMth >= 5.0) {
+                        $skor_PerMth = 0;
+                    }
+
+                    // skoring buah masak
+                    $skor_PerMsk = 0;
+                    if ($PerMsk <= 75.0) {
+                        $skor_PerMsk = 0;
+                    } else if ($PerMsk >= 75.0 && $PerMsk <= 80.0) {
+                        $skor_PerMsk = 1;
+                    } else if ($PerMsk >= 80.0 && $PerMsk <= 85.0) {
+                        $skor_PerMsk = 2;
+                    } else if ($PerMsk >= 85.0 && $PerMsk <= 90.0) {
+                        $skor_PerMsk = 3;
+                    } else if ($PerMsk >= 90.0 && $PerMsk <= 95.0) {
+                        $skor_PerMsk = 4;
+                    } else if ($PerMsk >= 95.0) {
+                        $skor_PerMsk = 5;
+                    }
+
+                    // skoring buah over
+                    $skor_PerOver = 0;
+                    if ($PerOver <= 2.0) {
+                        $skor_PerOver = 5;
+                    } else if ($PerOver >= 2.0 && $PerOver <= 4.0) {
+                        $skor_PerOver = 4;
+                    } else if ($PerOver >= 4.0 && $PerOver <= 6.0) {
+                        $skor_PerOver = 3;
+                    } else if ($PerOver >= 6.0 && $PerOver <= 8.0) {
+                        $skor_PerOver = 2;
+                    } else if ($PerOver >= 8.0 && $PerOver <= 10.0) {
+                        $skor_PerOver = 1;
+                    } else if ($PerOver >= 10.0) {
+                        $skor_PerOver = 0;
+                    }
+
+
+                    //skor janjang kosong
+                    $skor_Perkosongjjg = 0;
+                    if ($Perkosongjjg <= 1.0) {
+                        $skor_Perkosongjjg = 5;
+                    } else if ($Perkosongjjg >= 1.0 && $Perkosongjjg <= 2.0) {
+                        $skor_Perkosongjjg = 4;
+                    } else if ($Perkosongjjg >= 2.0 && $Perkosongjjg <= 3.0) {
+                        $skor_Perkosongjjg = 3;
+                    } else if ($Perkosongjjg >= 3.0 && $Perkosongjjg <= 4.0) {
+                        $skor_Perkosongjjg = 2;
+                    } else if ($Perkosongjjg >= 4.0 && $Perkosongjjg <= 5.0) {
+                        $skor_Perkosongjjg = 1;
+                    } else if ($Perkosongjjg >= 5.0) {
+                        $skor_Perkosongjjg = 0;
+                    }
+
+                    //skore Vcut
+                    $skor_PerVcut = 0;
+                    if ($PerVcut <= 2.0) {
+                        $skor_PerVcut = 5;
+                    } else if ($PerVcut >= 2.0 && $PerVcut <= 4.0) {
+                        $skor_PerVcut = 4;
+                    } else if ($PerVcut >= 4.0 && $PerVcut <= 6.0) {
+                        $skor_PerVcut = 3;
+                    } else if ($PerVcut >= 6.0 && $PerVcut <= 8.0) {
+                        $skor_PerVcut = 2;
+                    } else if ($PerVcut >= 8.0 && $PerVcut <= 10.0) {
+                        $skor_PerVcut = 1;
+                    } else if ($PerVcut >= 10.0) {
+                        $skor_PerVcut = 0;
+                    }
+
+                    // blum di cek skornya di bawah
+                    //skore PEnggunnan Brondolan
+                    $skor_PerAbr = 0;
+                    if ($PerAbr <= 75.0) {
+                        $skor_PerAbr = 0;
+                    } else if ($PerAbr >= 75.0 && $PerAbr <= 80.0) {
+                        $skor_PerAbr = 1;
+                    } else if ($PerAbr >= 80.0 && $PerAbr <= 85.0) {
+                        $skor_PerAbr = 2;
+                    } else if ($PerAbr >= 85.0 && $PerAbr <= 90.0) {
+                        $skor_PerAbr = 3;
+                    } else if ($PerAbr >= 90.0 && $PerAbr <= 95.0) {
+                        $skor_PerAbr = 4;
+                    } else if ($PerAbr >= 95.0) {
+                        $skor_PerAbr = 5;
+                    }
+
+                    $skor_per_kr = 0;
+                    if ($per_kr <= 60) {
+                        $skor_per_kr = 0;
+                    } else if ($per_kr >= 60 && $per_kr <= 70) {
+                        $skor_per_kr = 1;
+                    } else if ($per_kr >= 70 && $per_kr <= 80) {
+                        $skor_per_kr = 2;
+                    } else if ($per_kr >= 80 && $per_kr <= 90) {
+                        $skor_per_kr = 3;
+                    } else if ($per_kr >= 90 && $per_kr <= 100) {
+                        $skor_per_kr = 4;
+                    } else if ($per_kr >= 100) {
+                        $skor_per_kr = 5;
+                    }
+
+                    $totalSkor =  $skor_PerMth + $skor_PerMsk + $skor_PerOver +  $skor_Perkosongjjg + $skor_PerVcut + $skor_PerAbr +  $skor_per_kr;
+
+                    $mtBuahtab1Wil[$key][$key1][$key2]['tph_baris_blok'] = $jum_ha;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['sampleJJG_total'] = $sum_Samplejjg;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_mentah'] = $sum_bmt;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perMentah'] = $PerMth;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_masak'] = $sum_bmk;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perMasak'] = $PerMsk;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_over'] = $sum_over;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perOver'] = $PerOver;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_abnormal'] = $sum_abnor;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_jjgKosong'] = $sum_kosongjjg;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perKosongjjg'] = $Perkosongjjg;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_vcut'] = $sum_vcut;
+
+                    $mtBuahtab1Wil[$key][$key1][$key2]['jum_kr'] = $sum_kr;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_kr'] = $total_kr;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['persen_kr'] = $per_kr;
+
+                    // skoring
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_mentah'] = $skor_PerMth;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_masak'] = $skor_PerMsk;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_over'] = $skor_PerOver;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_jjgKosong'] = $skor_Perkosongjjg;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_vcut'] = $skor_PerVcut;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_abnormal'] = $skor_PerAbr;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_kr'] = $skor_per_kr;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['TOTAL_SKOR'] = $totalSkor;
+
+                    //perhitungan estate
+                    $jum_haEst += $jum_ha;
+                    $sum_SamplejjgEst += $sum_Samplejjg;
+                    $sum_bmtEst += $sum_bmt;
+                    $sum_bmkEst += $sum_bmk;
+                    $sum_overEst += $sum_over;
+                    $sum_abnorEst += $sum_abnor;
+                    $sum_kosongjjgEst += $sum_kosongjjg;
+                    $sum_vcutEst += $sum_vcut;
+                    $sum_krEst += $sum_kr;
+
+                    if ($sum_krEst != 0) {
+                        $total_krEst = round($jum_haEst / $sum_krEst, 2);
+                    } else {
+                        $total_krEst = 0;
+                    }
+
+                    if ($sum_abnorEst != 0) {
+                        $PerMthEst = round(($sum_bmtEst / ($sum_SamplejjgEst - $sum_abnorEst)) * 100, 2);
+                    } else {
+                        $PerMthEst = 0;
+                    }
+                    if ($sum_abnorEst != 0) {
+                        $PerMskEst = round(($sum_bmkEst / ($sum_SamplejjgEst - $sum_abnorEst)) * 100, 2);
+                    } else {
+                        $PerMskEst = 0;
+                    }
+                    if ($sum_abnorEst != 0) {
+                        $PerOverEst = round(($sum_overEst / ($sum_SamplejjgEst - $sum_abnorEst)) * 100, 2);
+                    } else {
+                        $PerOverEst = 0;
+                    }
+                    if ($sum_abnorEst != 0) {
+                        $PerkosongjjgEst = round(($sum_kosongjjgEst / ($sum_SamplejjgEst - $sum_abnorEst)) * 100, 2);
+                    } else {
+                        $PerkosongjjgEst = 0;
+                    }
+                    if ($sum_SamplejjgEst != 0) {
+                        $PerVcutest = round(($sum_vcutEst / $sum_SamplejjgEst) * 100, 2);
+                    } else {
+                        $PerVcutest = 0;
+                    }
+                    if ($sum_SamplejjgEst != 0) {
+                        $PerAbrest = round(($sum_abnorEst / $sum_SamplejjgEst) * 100, 2);
+                    } else {
+                        $PerAbrest = 0;
+                    }
+
+                    $per_krEst = round($total_krEst * 100, 2);
+
+                    // skoring buah mentah
+                    $skor_PerMthEst = 0;
+                    if ($PerMthEst <= 1.0) {
+                        $skor_PerMthEst = 10;
+                    } else if ($PerMthEst >= 1.0 && $PerMthEst <= 2.0) {
+                        $skor_PerMthEst = 8;
+                    } else if ($PerMthEst >= 2.0 && $PerMthEst <= 3.0) {
+                        $skor_PerMthEst = 6;
+                    } else if ($PerMthEst >= 3.0 && $PerMthEst <= 4.0) {
+                        $skor_PerMthEst = 4;
+                    } else if ($PerMthEst >= 4.0 && $PerMthEst <= 5.0) {
+                        $skor_PerMthEst = 2;
+                    } else if ($PerMthEst >= 5.0) {
+                        $skor_PerMthEst = 0;
+                    }
+
+                    // skoring buah masak
+                    $skor_PerMskEst = 0;
+                    if ($PerMskEst <= 75.0) {
+                        $skor_PerMskEst = 0;
+                    } else if ($PerMskEst >= 75.0 && $PerMskEst <= 80.0) {
+                        $skor_PerMskEst = 1;
+                    } else if ($PerMskEst >= 80.0 && $PerMskEst <= 85.0) {
+                        $skor_PerMskEst = 2;
+                    } else if ($PerMskEst >= 85.0 && $PerMskEst <= 90.0) {
+                        $skor_PerMskEst = 3;
+                    } else if ($PerMskEst >= 90.0 && $PerMskEst <= 95.0) {
+                        $skor_PerMskEst = 4;
+                    } else if ($PerMskEst >= 95.0) {
+                        $skor_PerMskEst = 5;
+                    }
+
+                    // skoring buah over
+                    $skor_PerOverEst = 0;
+                    if ($PerOverEst <= 2.0) {
+                        $skor_PerOverEst = 5;
+                    } else if ($PerOverEst >= 2.0 && $PerOverEst <= 4.0) {
+                        $skor_PerOverEst = 4;
+                    } else if ($PerOverEst >= 4.0 && $PerOverEst <= 6.0) {
+                        $skor_PerOverEst = 3;
+                    } else if ($PerOverEst >= 6.0 && $PerOverEst <= 8.0) {
+                        $skor_PerOverEst = 2;
+                    } else if ($PerOverEst >= 8.0 && $PerOverEst <= 10.0) {
+                        $skor_PerOverEst = 1;
+                    } else if ($PerOverEst >= 10.0) {
+                        $skor_PerOverEst = 0;
+                    }
+
+
+                    //skor janjang kosong
+                    $skor_PerkosongjjgEst = 0;
+                    if ($PerkosongjjgEst <= 1.0) {
+                        $skor_PerkosongjjgEst = 5;
+                    } else if ($PerkosongjjgEst >= 1.0 && $PerkosongjjgEst <= 2.0) {
+                        $skor_PerkosongjjgEst = 4;
+                    } else if ($PerkosongjjgEst >= 2.0 && $PerkosongjjgEst <= 3.0) {
+                        $skor_PerkosongjjgEst = 3;
+                    } else if ($PerkosongjjgEst >= 3.0 && $PerkosongjjgEst <= 4.0) {
+                        $skor_PerkosongjjgEst = 2;
+                    } else if ($PerkosongjjgEst >= 4.0 && $PerkosongjjgEst <= 5.0) {
+                        $skor_PerkosongjjgEst = 1;
+                    } else if ($PerkosongjjgEst >= 5.0) {
+                        $skor_PerkosongjjgEst = 0;
+                    }
+
+                    //skore Vcut
+                    $skor_PerVcutest = 0;
+                    if ($PerVcutest <= 2.0) {
+                        $skor_PerVcutest = 5;
+                    } else if ($PerVcutest >= 2.0 && $PerVcutest <= 4.0) {
+                        $skor_PerVcutest = 4;
+                    } else if ($PerVcutest >= 4.0 && $PerVcutest <= 6.0) {
+                        $skor_PerVcutest = 3;
+                    } else if ($PerVcutest >= 6.0 && $PerVcutest <= 8.0) {
+                        $skor_PerVcutest = 2;
+                    } else if ($PerVcutest >= 8.0 && $PerVcutest <= 10.0) {
+                        $skor_PerVcutest = 1;
+                    } else if ($PerVcutest >= 10.0) {
+                        $skor_PerVcutest = 0;
+                    }
+
+                    // blum di cek skornya di bawah
+                    //skore PEnggunnan Brondolan
+                    $skor_PerAbrest = 0;
+                    if ($PerAbrest <= 75.0) {
+                        $skor_PerAbrest = 0;
+                    } else if ($PerAbrest >= 75.0 && $PerAbrest <= 80.0) {
+                        $skor_PerAbrest = 1;
+                    } else if ($PerAbrest >= 80.0 && $PerAbrest <= 85.0) {
+                        $skor_PerAbrest = 2;
+                    } else if ($PerAbrest >= 85.0 && $PerAbrest <= 90.0) {
+                        $skor_PerAbrest = 3;
+                    } else if ($PerAbrest >= 90.0 && $PerAbrest <= 95.0) {
+                        $skor_PerAbrest = 4;
+                    } else if ($PerAbrest >= 95.0) {
+                        $skor_PerAbrest = 5;
+                    }
+
+                    $skor_per_krEst = 0;
+                    if ($per_krEst <= 60) {
+                        $skor_per_krEst = 0;
+                    } else if ($per_krEst >= 60 && $per_krEst <= 70) {
+                        $skor_per_krEst = 1;
+                    } else if ($per_krEst >= 70 && $per_krEst <= 80) {
+                        $skor_per_krEst = 2;
+                    } else if ($per_krEst >= 80 && $per_krEst <= 90) {
+                        $skor_per_krEst = 3;
+                    } else if ($per_krEst >= 90 && $per_krEst <= 100) {
+                        $skor_per_krEst = 4;
+                    } else if ($per_krEst >= 100) {
+                        $skor_per_krEst = 5;
+                    }
+
+                    $totalSkorEst =  $skor_PerMthEst + $skor_PerMskEst + $skor_PerOverEst +  $skor_PerkosongjjgEst + $skor_PerVcutest + $skor_PerAbrest +  $skor_per_krEst;
+                } else {
+                    $mtBuahtab1Wil[$key][$key1][$key2]['tph_baris_blok'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['sampleJJG_total'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_mentah'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perMentah'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_masak'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perMasak'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_over'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perOver'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_abnormal'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_jjgKosong'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_perKosongjjg'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_vcut'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['jum_kr'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['total_kr'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['persen_kr'] = 0;
+
+                    // skoring
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_mentah'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_masak'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_over'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_jjgKosong'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_vcut'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_abnormal'] = 0;;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['skor_kr'] = 0;
+                    $mtBuahtab1Wil[$key][$key1][$key2]['TOTAL_SKOR'] = 0;
+                }
+                $mtBuahtab1Wil[$key][$key1]['tph_baris_blok'] = $jum_haEst;
+                $mtBuahtab1Wil[$key][$key1]['sampleJJG_total'] = $sum_SamplejjgEst;
+                $mtBuahtab1Wil[$key][$key1]['total_mentah'] = $sum_bmtEst;
+                $mtBuahtab1Wil[$key][$key1]['total_perMentah'] = $PerMthEst;
+                $mtBuahtab1Wil[$key][$key1]['total_masak'] = $sum_bmkEst;
+                $mtBuahtab1Wil[$key][$key1]['total_perMasak'] = $PerMskEst;
+                $mtBuahtab1Wil[$key][$key1]['total_over'] = $sum_overEst;
+                $mtBuahtab1Wil[$key][$key1]['total_perOver'] = $PerOverEst;
+                $mtBuahtab1Wil[$key][$key1]['total_abnormal'] = $sum_abnorEst;
+                $mtBuahtab1Wil[$key][$key1]['total_perabnormal'] = $PerAbrest;
+                $mtBuahtab1Wil[$key][$key1]['total_jjgKosong'] = $sum_kosongjjgEst;
+                $mtBuahtab1Wil[$key][$key1]['total_perKosongjjg'] = $PerkosongjjgEst;
+                $mtBuahtab1Wil[$key][$key1]['total_vcut'] = $sum_vcutEst;
+                $mtBuahtab1Wil[$key][$key1]['jum_kr'] = $sum_krEst;
+                $mtBuahtab1Wil[$key][$key1]['total_kr'] = $total_krEst;
+                $mtBuahtab1Wil[$key][$key1]['persen_kr'] = $per_krEst;
+
+                // skoring
+                $mtBuahtab1Wil[$key][$key1]['skor_mentah'] = $skor_PerMthEst;
+                $mtBuahtab1Wil[$key][$key1]['skor_masak'] = $skor_PerMskEst;
+                $mtBuahtab1Wil[$key][$key1]['skor_over'] = $skor_PerOverEst;
+                $mtBuahtab1Wil[$key][$key1]['skor_jjgKosong'] = $skor_PerkosongjjgEst;
+                $mtBuahtab1Wil[$key][$key1]['skor_vcut'] = $skor_PerVcutest;
+                $mtBuahtab1Wil[$key][$key1]['skor_abnormal'] = $skor_PerAbrest;;
+                $mtBuahtab1Wil[$key][$key1]['skor_kr'] = $skor_per_krEst;
+                $mtBuahtab1Wil[$key][$key1]['TOTAL_SKOR'] = $totalSkorEst;
+
+                //hitung perwilayah
+                $jum_haWil += $jum_haEst;
+                $sum_SamplejjgWil += $sum_SamplejjgEst;
+                $sum_bmtWil += $sum_bmtEst;
+                $sum_bmkWil += $sum_bmkEst;
+                $sum_overWil += $sum_overEst;
+                $sum_abnorWil += $sum_abnorEst;
+                $sum_kosongjjgWil += $sum_kosongjjgEst;
+                $sum_vcutWil += $sum_vcutEst;
+                $sum_krWil += $sum_krEst;
+
+                if ($sum_krWil != 0) {
+                    $total_krWil = round($jum_haWil / $sum_krWil, 2);
+                } else {
+                    $total_krWil = 0;
+                }
+
+                if ($sum_abnorWil != 0) {
+                    $PerMthWil = round(($sum_bmtWil / ($sum_SamplejjgWil - $sum_abnorWil)) * 100, 2);
+                } else {
+                    $PerMthWil = 0;
+                }
+                if ($sum_abnorWil != 0) {
+                    $PerMskWil = round(($sum_bmkWil / ($sum_SamplejjgWil - $sum_abnorWil)) * 100, 2);
+                } else {
+                    $PerMskWil = 0;
+                }
+                if ($sum_abnorWil != 0) {
+                    $PerOverWil = round(($sum_overWil / ($sum_SamplejjgWil - $sum_abnorWil)) * 100, 2);
+                } else {
+                    $PerOverWil = 0;
+                }
+                if ($sum_abnorWil != 0) {
+                    $PerkosongjjgWil = round(($sum_kosongjjgWil / ($sum_SamplejjgWil - $sum_abnorWil)) * 100, 2);
+                } else {
+                    $PerkosongjjgWil = 0;
+                }
+                if ($sum_SamplejjgWil != 0) {
+                    $PerVcutWil = round(($sum_vcutWil / $sum_SamplejjgWil) * 100, 2);
+                } else {
+                    $PerVcutWil = 0;
+                }
+                if ($sum_SamplejjgWil != 0) {
+                    $PerAbrWil = round(($sum_abnorWil / $sum_SamplejjgWil) * 100, 2);
+                } else {
+                    $PerAbrWil = 0;
+                }
+
+                $per_krWil = round($total_krWil * 100, 2);
+
+                // skoring buah mentah
+                $skor_PerMthWil = 0;
+                if ($PerMthWil <= 1.0) {
+                    $skor_PerMthWil = 10;
+                } else if ($PerMthWil >= 1.0 && $PerMthWil <= 2.0) {
+                    $skor_PerMthWil = 8;
+                } else if ($PerMthWil >= 2.0 && $PerMthWil <= 3.0) {
+                    $skor_PerMthWil = 6;
+                } else if ($PerMthWil >= 3.0 && $PerMthWil <= 4.0) {
+                    $skor_PerMthWil = 4;
+                } else if ($PerMthWil >= 4.0 && $PerMthWil <= 5.0) {
+                    $skor_PerMthWil = 2;
+                } else if ($PerMthWil >= 5.0) {
+                    $skor_PerMthWil = 0;
+                }
+
+                // skoring buah masak
+                $skor_PerMskWil = 0;
+                if ($PerMskWil <= 75.0) {
+                    $skor_PerMskWil = 0;
+                } else if ($PerMskWil >= 75.0 && $PerMskWil <= 80.0) {
+                    $skor_PerMskWil = 1;
+                } else if ($PerMskWil >= 80.0 && $PerMskWil <= 85.0) {
+                    $skor_PerMskWil = 2;
+                } else if ($PerMskWil >= 85.0 && $PerMskWil <= 90.0) {
+                    $skor_PerMskWil = 3;
+                } else if ($PerMskWil >= 90.0 && $PerMskWil <= 95.0) {
+                    $skor_PerMskWil = 4;
+                } else if ($PerMskWil >= 95.0) {
+                    $skor_PerMskWil = 5;
+                }
+
+                // skoring buah over
+                $skor_PerOverWil = 0;
+                if ($PerOverWil <= 2.0) {
+                    $skor_PerOverWil = 5;
+                } else if ($PerOverWil >= 2.0 && $PerOverWil <= 4.0) {
+                    $skor_PerOverWil = 4;
+                } else if ($PerOverWil >= 4.0 && $PerOverWil <= 6.0) {
+                    $skor_PerOverWil = 3;
+                } else if ($PerOverWil >= 6.0 && $PerOverWil <= 8.0) {
+                    $skor_PerOverWil = 2;
+                } else if ($PerOverWil >= 8.0 && $PerOverWil <= 10.0) {
+                    $skor_PerOverWil = 1;
+                } else if ($PerOverWil >= 10.0) {
+                    $skor_PerOverWil = 0;
+                }
+
+
+                //skor janjang kosong
+                $skor_PerkosongjjgWil = 0;
+                if ($PerkosongjjgWil <= 1.0) {
+                    $skor_PerkosongjjgWil = 5;
+                } else if ($PerkosongjjgWil >= 1.0 && $PerkosongjjgWil <= 2.0) {
+                    $skor_PerkosongjjgWil = 4;
+                } else if ($PerkosongjjgWil >= 2.0 && $PerkosongjjgWil <= 3.0) {
+                    $skor_PerkosongjjgWil = 3;
+                } else if ($PerkosongjjgWil >= 3.0 && $PerkosongjjgWil <= 4.0) {
+                    $skor_PerkosongjjgWil = 2;
+                } else if ($PerkosongjjgWil >= 4.0 && $PerkosongjjgWil <= 5.0) {
+                    $skor_PerkosongjjgWil = 1;
+                } else if ($PerkosongjjgWil >= 5.0) {
+                    $skor_PerkosongjjgWil = 0;
+                }
+
+                //skore Vcut
+                $skor_PerVcutWil = 0;
+                if ($PerVcutWil <= 2.0) {
+                    $skor_PerVcutWil = 5;
+                } else if ($PerVcutWil >= 2.0 && $PerVcutWil <= 4.0) {
+                    $skor_PerVcutWil = 4;
+                } else if ($PerVcutWil >= 4.0 && $PerVcutWil <= 6.0) {
+                    $skor_PerVcutWil = 3;
+                } else if ($PerVcutWil >= 6.0 && $PerVcutWil <= 8.0) {
+                    $skor_PerVcutWil = 2;
+                } else if ($PerVcutWil >= 8.0 && $PerVcutWil <= 10.0) {
+                    $skor_PerVcutWil = 1;
+                } else if ($PerVcutWil >= 10.0) {
+                    $skor_PerVcutWil = 0;
+                }
+
+                // blum di cek skornya di bawah
+                //skore PEnggunnan Brondolan
+                $skor_PerAbrWil = 0;
+                if ($PerAbrWil <= 75.0) {
+                    $skor_PerAbrWil = 0;
+                } else if ($PerAbrWil >= 75.0 && $PerAbrWil <= 80.0) {
+                    $skor_PerAbrWil = 1;
+                } else if ($PerAbrWil >= 80.0 && $PerAbrWil <= 85.0) {
+                    $skor_PerAbrWil = 2;
+                } else if ($PerAbrWil >= 85.0 && $PerAbrWil <= 90.0) {
+                    $skor_PerAbrWil = 3;
+                } else if ($PerAbrWil >= 90.0 && $PerAbrWil <= 95.0) {
+                    $skor_PerAbrWil = 4;
+                } else if ($PerAbrWil >= 95.0) {
+                    $skor_PerAbrWil = 5;
+                }
+
+                $skor_per_krWil = 0;
+                if ($per_krWil <= 60) {
+                    $skor_per_krWil = 0;
+                } else if ($per_krWil >= 60 && $per_krWil <= 70) {
+                    $skor_per_krWil = 1;
+                } else if ($per_krWil >= 70 && $per_krWil <= 80) {
+                    $skor_per_krWil = 2;
+                } else if ($per_krWil >= 80 && $per_krWil <= 90) {
+                    $skor_per_krWil = 3;
+                } else if ($per_krWil >= 90 && $per_krWil <= 100) {
+                    $skor_per_krWil = 4;
+                } else if ($per_krWil >= 100) {
+                    $skor_per_krWil = 5;
+                }
+
+                $totalSkorWil =  $skor_PerMthWil + $skor_PerMskWil + $skor_PerOverWil +  $skor_PerkosongjjgWil + $skor_PerVcutWil + $skor_PerAbrWil +  $skor_per_krWil;
+            } else {
+                $mtBuahtab1Wil[$key][$key1]['tph_baris_blok'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['sampleJJG_total'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_mentah'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_perMentah'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_masak'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_perMasak'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_over'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_perOver'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_abnormal'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_perabnormal'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_jjgKosong'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_perKosongjjg'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_vcut'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['jum_kr'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['total_kr'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['persen_kr'] = 0;
+
+                // skoring
+                $mtBuahtab1Wil[$key][$key1]['skor_mentah'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['skor_masak'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['skor_over'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['skor_jjgKosong'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['skor_vcut'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['skor_abnormal'] = 0;;
+                $mtBuahtab1Wil[$key][$key1]['skor_kr'] = 0;
+                $mtBuahtab1Wil[$key][$key1]['TOTAL_SKOR'] = 0;
+            }
+            $mtBuahtab1Wil[$key]['tph_baris_blok'] = $jum_haWil;
+            $mtBuahtab1Wil[$key]['sampleJJG_total'] = $sum_SamplejjgWil;
+            $mtBuahtab1Wil[$key]['total_mentah'] = $sum_bmtWil;
+            $mtBuahtab1Wil[$key]['total_perMentah'] = $PerMthWil;
+            $mtBuahtab1Wil[$key]['total_masak'] = $sum_bmkWil;
+            $mtBuahtab1Wil[$key]['total_perMasak'] = $PerMskWil;
+            $mtBuahtab1Wil[$key]['total_over'] = $sum_overWil;
+            $mtBuahtab1Wil[$key]['total_perOver'] = $PerOverWil;
+            $mtBuahtab1Wil[$key]['total_abnormal'] = $sum_abnorWil;
+            $mtBuahtab1Wil[$key]['total_perabnormal'] = $PerAbrWil;
+            $mtBuahtab1Wil[$key]['total_jjgKosong'] = $sum_kosongjjgWil;
+            $mtBuahtab1Wil[$key]['total_perKosongjjg'] = $PerkosongjjgWil;
+            $mtBuahtab1Wil[$key]['total_vcut'] = $sum_vcutWil;
+            $mtBuahtab1Wil[$key]['jum_kr'] = $sum_krWil;
+            $mtBuahtab1Wil[$key]['total_kr'] = $total_krWil;
+            $mtBuahtab1Wil[$key]['persen_kr'] = $per_krWil;
+
+            // skoring
+            $mtBuahtab1Wil[$key]['skor_mentah'] = $skor_PerMthWil;
+            $mtBuahtab1Wil[$key]['skor_masak'] = $skor_PerMskWil;
+            $mtBuahtab1Wil[$key]['skor_over'] = $skor_PerOverWil;
+            $mtBuahtab1Wil[$key]['skor_jjgKosong'] = $skor_PerkosongjjgWil;
+            $mtBuahtab1Wil[$key]['skor_vcut'] = $skor_PerVcutWil;
+            $mtBuahtab1Wil[$key]['skor_abnormal'] = $skor_PerAbrWil;;
+            $mtBuahtab1Wil[$key]['skor_kr'] = $skor_per_krWil;
+            $mtBuahtab1Wil[$key]['TOTAL_SKOR'] = $totalSkorWil;
+        } else {
+            $mtBuahtab1Wil[$key]['tph_baris_blok'] = 0;
+            $mtBuahtab1Wil[$key]['sampleJJG_total'] = 0;
+            $mtBuahtab1Wil[$key]['total_mentah'] = 0;
+            $mtBuahtab1Wil[$key]['total_perMentah'] = 0;
+            $mtBuahtab1Wil[$key]['total_masak'] = 0;
+            $mtBuahtab1Wil[$key]['total_perMasak'] = 0;
+            $mtBuahtab1Wil[$key]['total_over'] = 0;
+            $mtBuahtab1Wil[$key]['total_perOver'] = 0;
+            $mtBuahtab1Wil[$key]['total_abnormal'] = 0;
+            $mtBuahtab1Wil[$key]['total_perabnormal'] = 0;
+            $mtBuahtab1Wil[$key]['total_jjgKosong'] = 0;
+            $mtBuahtab1Wil[$key]['total_perKosongjjg'] = 0;
+            $mtBuahtab1Wil[$key]['total_vcut'] = 0;
+            $mtBuahtab1Wil[$key]['jum_kr'] = 0;
+            $mtBuahtab1Wil[$key]['total_kr'] = 0;
+            $mtBuahtab1Wil[$key]['persen_kr'] = 0;
+
+            // skoring
+            $mtBuahtab1Wil[$key]['skor_mentah'] = 0;
+            $mtBuahtab1Wil[$key]['skor_masak'] = 0;
+            $mtBuahtab1Wil[$key]['skor_over'] = 0;
+            $mtBuahtab1Wil[$key]['skor_jjgKosong'] = 0;
+            $mtBuahtab1Wil[$key]['skor_vcut'] = 0;
+            $mtBuahtab1Wil[$key]['skor_abnormal'] = 0;
+            $mtBuahtab1Wil[$key]['skor_kr'] = 0;
+            $mtBuahtab1Wil[$key]['TOTAL_SKOR'] = 0;
+        }
+        // dd($mtBuahtab1Wil);
+        //  perhitungan untuk mutu ancak wilayah ,estate dan afd
+        $mtancaktab1Wil = array();
+        foreach ($mtancakWIltab1 as $key => $value) if (!empty($value)) {
+            $brdPerwil = 0;
+            $pokok_panenWil = 0;
+            $jum_haWil = 0;
+            $janjang_panenWil = 0;
+            $p_panenWil = 0;
+            $k_panenWil = 0;
+            $brtgl_panenWil = 0;
+            $akpWil = 0;
+            $totalPKTwil = 0;
+            $totalWil = 0;
+            foreach ($value as $key1 => $value1) if (!empty($value2)) {
+                $pokok_panenEst = 0;
+                $jum_haEst =  0;
+                $janjang_panenEst =  0;
+                $akpEst =  0;
+                $p_panenEst =  0;
+                $k_panenEst =  0;
+                $brtgl_panenEst = 0;
+                $skor_bTinggalEst =  0;
+                $brdPerjjgEst =  0;
+                $bhtsEST = 0;
+                $bhtm1EST = 0;
+                $bhtm2EST = 0;
+                $bhtm3EST = 0;
+                $pelepah_sEST = 0;
+
+                $skor_bhEst =  0;
+                $skor_brdPerjjgEst =  0;
+                $bhts_panenWil = 0;
+                $bhtm1_panenWil = 0;
+                $bhtm2_panenWil = 0;
+                $bhtm3_oanenWil = 0;
+                $sumBHWil = 0;
+                $sumPerBHWil = 0;
+                $pelepah_swil = 0;
+                foreach ($value1 as $key2 => $value2) if (!empty($value2)) {
+
+                    $akp = 0;
+                    $skor_bTinggal = 0;
+                    $brdPerjjg = 0;
+                    $pokok_panen = 0;
+                    $janjang_panen = 0;
+                    $p_panen = 0;
+                    $k_panen = 0;
+                    $bhts_panen  = 0;
+                    $bhtm1_panen  = 0;
+                    $bhtm2_panen  = 0;
+                    $bhtm3_oanen  = 0;
+                    $ttlSkorMA = 0;
+                    $listBlokPerAfd = array();
+                    $jum_ha = 0;
+                    $pelepah_s = 0;
+                    foreach ($value2 as $key3 => $value3) if (is_array($value3)) {
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
+                        }
+                        $jum_ha = count($listBlokPerAfd);
+
+                        $pokok_panen = json_decode($value3["pokok_dipanen"], true);
+                        $jajang_panen = json_decode($value3["jjg_dipanen"], true);
+                        $brtp = json_decode($value3["brtp"], true);
+                        $brtk = json_decode($value3["brtk"], true);
+                        $brtgl = json_decode($value3["brtgl"], true);
+
+                        $pokok_panen  = count($pokok_panen);
+                        $janjang_panen = array_sum($jajang_panen);
+                        $p_panen = array_sum($brtp);
+                        $k_panen = array_sum($brtk);
+                        $brtgl_panen = array_sum($brtgl);
+
+
+                        // $akp = ($janjang_panen / $pokok_panen) %
+                        $akp = ($janjang_panen / $pokok_panen) * 100;
+                        $skor_bTinggal = $p_panen + $k_panen + $brtgl_panen;
+                        $brdPerjjg = $skor_bTinggal / $pokok_panen;
+
+                        //skore PEnggunnan Brondolan
+                        $skor_brdPerjjg = 0;
+                        if ($brdPerjjg <= 1.0) {
+                            $skor_brdPerjjg = 20;
+                        } else if ($brdPerjjg >= 1.5 && $brdPerjjg <= 2.0) {
+                            $skor_brdPerjjg = 12;
+                        } else if ($brdPerjjg >= 2.0 && $brdPerjjg <= 2.5) {
+                            $skor_brdPerjjg = 8;
+                        } else if ($brdPerjjg >= 2.5 && $brdPerjjg <= 3.0) {
+                            $skor_brdPerjjg = 4;
+                        } else if ($brdPerjjg >= 3.0 && $brdPerjjg <= 3.5) {
+                            $skor_brdPerjjg = 0;
+                        } else if ($brdPerjjg >= 4.0 && $brdPerjjg <= 4.5) {
+                            $skor_brdPerjjg = 8;
+                        } else if ($brdPerjjg >=  4.5 && $brdPerjjg <= 5.0) {
+                            $skor_brdPerjjg = 12;
+                        } else if ($brdPerjjg >=  5.0) {
+                            $skor_brdPerjjg = 16;
+                        }
+
+                        // bagian buah tinggal
+                        $bhts = json_decode($value3["bhts"], true);
+                        $bhtm1 = json_decode($value3["bhtm1"], true);
+                        $bhtm2 = json_decode($value3["bhtm2"], true);
+                        $bhtm3 = json_decode($value3["bhtm3"], true);
+
+
+                        $bhts_panen = array_sum($bhts);
+                        $bhtm1_panen = array_sum($bhtm1);
+                        $bhtm2_panen = array_sum($bhtm2);
+                        $bhtm3_oanen = array_sum($bhtm3);
+
+                        $sumBH = $bhts_panen +  $bhtm1_panen +  $bhtm2_panen +  $bhtm3_oanen;
+
+                        $sumPerBH = $sumBH / ($janjang_panen + $sumBH) * 100;
+
+                        $skor_bh = 0;
+                        if ($sumPerBH <=  0.0) {
+                            $skor_bh = 20;
+                        } else if ($sumPerBH >=  0.0 && $sumPerBH <= 1.0) {
+                            $skor_bh = 18;
+                        } else if ($sumPerBH >= 1 && $sumPerBH <= 1.5) {
+                            $skor_bh = 16;
+                        } else if ($sumPerBH >= 1.5 && $sumPerBH <= 2.0) {
+                            $skor_bh = 12;
+                        } else if ($sumPerBH >= 2.0 && $sumPerBH <= 2.5) {
+                            $skor_bh = 8;
+                        } else if ($sumPerBH >= 2.5 && $sumPerBH <= 3.0) {
+                            $skor_bh = 4;
+                        } else if ($sumPerBH >= 3.0 && $sumPerBH <= 3.5) {
+                            $skor_bh = 0;
+                        } else if ($sumPerBH >=  3.5 && $sumPerBH <= 3.5) {
+                            $skor_bh = 0;
+                        } else if ($sumPerBH >= 3.5 && $sumPerBH <= 4.0) {
+                            $skor_bh = 4;
+                        } else if ($sumPerBH >= 4.0 && $sumPerBH <= 4.5) {
+                            $skor_bh = 8;
+                        } else if ($sumPerBH >= 4.5 && $sumPerBH <= 5.0) {
+                            $skor_bh = 12;
+                        } else if ($sumPerBH >= 5.0) {
+                            $skor_bh = 10;
+                        }
+                        // data untuk pelepah sengklek
+
+                        $ps = json_decode($value3["ps"], true);
+                        $pelepah_s = array_sum($ps);
+
+                        if ($pelepah_s != 0) {
+                            $perPl = ($pokok_panen / $pelepah_s) * 100;
+                        } else {
+                            $perPl = 0;
+                        }
+                        $skor_perPl = 0;
+                        if ($perPl <=  0.5) {
+                            $skor_perPl = 5;
+                        } else if ($perPl >=  0.5 && $perPl <= 1.0) {
+                            $skor_perPl = 4;
+                        } else if ($perPl >= 1.0 && $perPl <= 1.5) {
+                            $skor_perPl = 3;
+                        } else if ($perPl >= 1.5 && $perPl <= 2.0) {
+                            $skor_perPl = 2;
+                        } else if ($perPl >= 2.0 && $perPl <= 2.5) {
+                            $skor_perPl = 1;
+                        } else if ($perPl >= 2.5) {
+                            $skor_perPl = 0;
+                        }
+                    }
+                    // $akp = ($janjang_panen / $pokok_panen) %
+                    // $mtancaktab1Wil[$key][$key1][$key2]['pokok_sample'] = $pokok_panen;
+                    $ttlSkorMA = $skor_brdPerjjg + $skor_bh + $skor_perPl;
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['pokok_sample'] = $pokok_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['ha_sample'] = $jum_ha;
+                    $mtancaktab1Wil[$key][$key1][$key2]['jumlah_panen'] = $janjang_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['akp_rl'] =  number_format($akp, 2);
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['p'] = $p_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['k'] = $k_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['tgl'] = $skor_bTinggal;
+
+                    // $mtancaktab1Wil[$key][$key1][$key2]['total_brd'] = $skor_bTinggal;
+                    $mtancaktab1Wil[$key][$key1][$key2]['brd/jjg'] = number_format($brdPerjjg, 2);
+
+                    // data untuk buah tinggal
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhts_s'] = $bhts_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm1'] = $bhtm1_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm2'] = $bhtm2_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm3'] = $bhtm3_oanen;
+
+
+                    // $mtancaktab1Wil[$key][$key1][$key2]['jjgperBuah'] = number_format($sumPerBH, 2);
+                    // data untuk pelepah sengklek
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['palepah_pokok'] = $pelepah_s;
+                    // total skor akhir
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_bh'] = number_format($skor_bh, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_brd'] = number_format($skor_brdPerjjg, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_ps'] = number_format($skor_perPl, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_akhir'] = number_format($ttlSkorMA, 2);
+
+                    //PERHITUNGAN UNTUK PERESTATE
+                    $pokok_panenEst += $pokok_panen;
+                    $jum_haEst += $jum_ha;
+                    $janjang_panenEst += $janjang_panen;
+                    $p_panenEst += $p_panen;
+                    $k_panenEst += $k_panen;
+                    $brtgl_panenEst += $skor_bTinggal;
+
+
+                    if ($pokok_panenEst != 0) {
+                        $akpEst = round(($janjang_panenEst / $pokok_panenEst) * 100, 2);
+                    } else {
+                        $akpEst = 0;
+                    }
+
+                    $totalPKT = $p_panenEst + $k_panenEst + $brtgl_panenEst;
+
+                    if ($pokok_panenEst != 0) {
+                        $brdPerjjgEst = $totalPKT / $pokok_panenEst;
+                    } else {
+                        $brdPerjjgEst = 0;
+                    }
+
+
+                    //skore PEnggunnan Brondolan
+                    $skor_brdPerjjgEst = 0;
+                    if ($brdPerjjgEst <= 1.0) {
+                        $skor_brdPerjjgEst = 20;
+                    } else if ($brdPerjjgEst >= 1.5 && $brdPerjjgEst <= 2.0) {
+                        $skor_brdPerjjgEst = 12;
+                    } else if ($brdPerjjgEst >= 2.0 && $brdPerjjgEst <= 2.5) {
+                        $skor_brdPerjjgEst = 8;
+                    } else if ($brdPerjjgEst >= 2.5 && $brdPerjjgEst <= 3.0) {
+                        $skor_brdPerjjgEst = 4;
+                    } else if ($brdPerjjgEst >= 3.0 && $brdPerjjgEst <= 3.5) {
+                        $skor_brdPerjjgEst = 0;
+                    } else if ($brdPerjjgEst >= 4.0 && $brdPerjjgEst <= 4.5) {
+                        $skor_brdPerjjgEst = 8;
+                    } else if ($brdPerjjgEst >=  4.5 && $brdPerjjgEst <= 5.0) {
+                        $skor_brdPerjjgEst = 12;
+                    } else if ($brdPerjjgEst >=  5.0) {
+                        $skor_brdPerjjgEst = 16;
+                    }
+
+                    // bagian buah tinggal
+                    $bhtsEST   += $bhts_panen;
+                    $bhtm1EST += $bhtm1_panen;
+                    $bhtm2EST   += $bhtm2_panen;
+                    $bhtm3EST   += $bhtm3_oanen;
+
+                    $sumBHEst = $bhtsEST +  $bhtm1EST +  $bhtm2EST +  $bhtm3EST;
+                    if ($sumBHEst != 0) {
+                        $sumPerBHEst = $sumBHEst / ($janjang_panenEst + $sumBHEst) * 100;
+                    } else {
+                        $sumPerBHEst = 0;
+                    }
+
+                    $skor_bhEst = 0;
+                    if ($sumPerBHEst <=  0.0) {
+                        $skor_bhEst = 20;
+                    } else if ($sumPerBHEst >=  0.0 && $sumPerBHEst <= 1.0) {
+                        $skor_bhEst = 18;
+                    } else if ($sumPerBHEst >= 1 && $sumPerBHEst <= 1.5) {
+                        $skor_bhEst = 16;
+                    } else if ($sumPerBHEst >= 1.5 && $sumPerBHEst <= 2.0) {
+                        $skor_bhEst = 12;
+                    } else if ($sumPerBHEst >= 2.0 && $sumPerBHEst <= 2.5) {
+                        $skor_bhEst = 8;
+                    } else if ($sumPerBHEst >= 2.5 && $sumPerBHEst <= 3.0) {
+                        $skor_bhEst = 4;
+                    } else if ($sumPerBHEst >= 3.0 && $sumPerBHEst <= 3.5) {
+                        $skor_bhEst = 0;
+                    } else if ($sumPerBHEst >=  3.5 && $sumPerBHEst <= 3.5) {
+                        $skor_bhEst = 0;
+                    } else if ($sumPerBHEst >= 3.5 && $sumPerBHEst <= 4.0) {
+                        $skor_bhEst = 4;
+                    } else if ($sumPerBHEst >= 4.0 && $sumPerBHEst <= 4.5) {
+                        $skor_bhEst = 8;
+                    } else if ($sumPerBHEst >= 4.5 && $sumPerBHEst <= 5.0) {
+                        $skor_bhEst = 12;
+                    } else if ($sumPerBHEst >= 5.0) {
+                        $skor_bhEst = 10;
+                    }
+
+                    // data untuk pelepah sengklek
+                    $pelepah_sEST += $pelepah_s;
+
+                    if ($pelepah_sEST != 0) {
+                        $perPlEst = ($pokok_panenEst / $pelepah_sEST) * 100;
+                    } else {
+                        $perPlEst = 0;
+                    }
+
+                    $skor_PIEST = 0;
+                    if ($perPlEst <=  0.5) {
+                        $skor_PIEST = 5;
+                    } else if ($perPlEst >=  0.5 && $perPlEst <= 1.0) {
+                        $skor_PIEST = 4;
+                    } else if ($perPlEst >= 1.0 && $perPlEst <= 1.5) {
+                        $skor_PIEST = 3;
+                    } else if ($perPlEst >= 1.5 && $perPlEst <= 2.0) {
+                        $skor_PIEST = 2;
+                    } else if ($perPlEst >= 2.0 && $perPlEst <= 2.5) {
+                        $skor_PIEST = 1;
+                    } else if ($perPlEst >= 2.5) {
+                        $skor_PIEST = 0;
+                    }
+
+                    $totalSkorEst = $skor_PIEST + $skor_brdPerjjgEst +  $skor_bhEst;
+                } else {
+                    $mtancaktab1Wil[$key][$key1][$key2]['pokok_sample'] = $pokok_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['ha_sample'] = $jum_ha;
+                    $mtancaktab1Wil[$key][$key1][$key2]['jumlah_panen'] = $janjang_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['akp_rl'] =  number_format($akp, 2);
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['p'] = $p_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['k'] = $k_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['tgl'] = $skor_bTinggal;
+
+                    // $mtancaktab1Wil[$key][$key1][$key2]['total_brd'] = $skor_bTinggal;
+                    $mtancaktab1Wil[$key][$key1][$key2]['brd/jjg'] = number_format($brdPerjjg, 2);
+
+                    // data untuk buah tinggal
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhts_s'] = $bhts_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm1'] = $bhtm1_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm2'] = $bhtm2_panen;
+                    $mtancaktab1Wil[$key][$key1][$key2]['bhtm3'] = $bhtm3_oanen;
+
+
+                    // $mtancaktab1Wil[$key][$key1][$key2]['jjgperBuah'] = number_format($sumPerBH, 2);
+                    // data untuk pelepah sengklek
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['palepah_pokok'] = $pelepah_s;
+                    // total skor akhir
+
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_bh'] = number_format($skor_bh, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_brd'] = number_format($skor_brdPerjjg, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_ps'] = number_format($skor_perPl, 2);
+                    $mtancaktab1Wil[$key][$key1][$key2]['skor_akhir'] = number_format($ttlSkorMA, 2);
+                }
+                //PENAMPILAN UNTUK PERESTATE
+                $mtancaktab1Wil[$key][$key1]['pokok_sample'] = $pokok_panenEst;
+                $mtancaktab1Wil[$key][$key1]['ha_sample'] =  $jum_haEst;
+                $mtancaktab1Wil[$key][$key1]['jumlah_panen'] = $janjang_panenEst;
+                $mtancaktab1Wil[$key][$key1]['akp_rl'] =  $akpEst;
+
+                $mtancaktab1Wil[$key][$key1]['p'] = $p_panenEst;
+                $mtancaktab1Wil[$key][$key1]['k'] = $k_panenEst;
+                $mtancaktab1Wil[$key][$key1]['tgl'] = $brtgl_panenEst;
+
+                // $mtancaktab1Wil[$key][$key1]['total_brd'] = $skor_bTinggal;
+                $mtancaktab1Wil[$key][$key1]['brd/jjg'] = number_format($brdPerjjgEst, 2);
+
+                // data untuk buah tinggal
+                $mtancaktab1Wil[$key][$key1]['bhts_s'] = $bhtsEST;
+                $mtancaktab1Wil[$key][$key1]['bhtm1'] = $bhtm1EST;
+                $mtancaktab1Wil[$key][$key1]['bhtm2'] = $bhtm2EST;
+                $mtancaktab1Wil[$key][$key1]['bhtm3'] = $bhtm3EST;
+                $mtancaktab1Wil[$key][$key1]['palepah_pokok'] = $pelepah_sEST;
+                // total skor akhir
+                $mtancaktab1Wil[$key][$key1]['skor_bh'] = $skor_bhEst;
+                $mtancaktab1Wil[$key][$key1]['skor_brd'] = $skor_brdPerjjgEst;
+                $mtancaktab1Wil[$key][$key1]['skor_ps'] = $skor_PIEST;
+                $mtancaktab1Wil[$key][$key1]['skor_akhir'] = $totalSkorEst;
+
+                //perhitungn untuk perwilayah
+
+                $pokok_panenWil += $pokok_panenEst;
+                $jum_haWil += $jum_haEst;
+                $janjang_panenWil += $janjang_panenEst;
+                $p_panenWil += $p_panenEst;
+                $k_panenWil += $k_panenEst;
+                $brtgl_panenWil += $brtgl_panenEst;
+
+
+                if ($pokok_panenWil != 0) {
+                    $akpWil = round(($janjang_panenWil / $pokok_panenWil) * 100, 2);
+                } else {
+                    $akpWil = 0;
+                }
+
+                $totalPKTwil = $p_panenWil + $k_panenWil + $brtgl_panenWil;
+
+                if ($pokok_panenWil != 0) {
+                    $brdPerwil = $totalPKTwil / $pokok_panenWil;
+                } else {
+                    $brdPerwil = 0;
+                }
+
+
+                //skore PEnggunnan Brondolan
+                $skor_brdPerwil = 0;
+                if ($brdPerwil <= 1.0) {
+                    $skor_brdPerwil = 20;
+                } else if ($brdPerwil >= 1.5 && $brdPerwil <= 2.0) {
+                    $skor_brdPerwil = 12;
+                } else if ($brdPerwil >= 2.0 && $brdPerwil <= 2.5) {
+                    $skor_brdPerwil = 8;
+                } else if ($brdPerwil >= 2.5 && $brdPerwil <= 3.0) {
+                    $skor_brdPerwil = 4;
+                } else if ($brdPerwil >= 3.0 && $brdPerwil <= 3.5) {
+                    $skor_brdPerwil = 0;
+                } else if ($brdPerwil >= 4.0 && $brdPerwil <= 4.5) {
+                    $skor_brdPerwil = 8;
+                } else if ($brdPerwil >=  4.5 && $brdPerwil <= 5.0) {
+                    $skor_brdPerwil = 12;
+                } else if ($brdPerwil >=  5.0) {
+                    $skor_brdPerwil = 16;
+                }
+                // bagian buah tinggal
+                $bhts_panenWil += $bhtsEST;
+                $bhtm1_panenWil += $bhtm1EST;
+                $bhtm2_panenWil += $bhtm2EST;
+                $bhtm3_oanenWil += $bhtm3EST;
+
+                $sumBHWil = $bhts_panenWil +  $bhtm1_panenWil +  $bhtm2_panenWil +  $bhtm3_oanenWil;
+
+                if ($sumBHWil != 0) {
+                    $sumPerBHWil = $sumBHWil / ($janjang_panenWil + $sumBHWil) * 100;
+                } else {
+                    $sumPerBHWil = 0;
+                }
+
+
+                $skor_sumPerBHWil = 0;
+                if ($sumPerBHWil <=  0.0) {
+                    $skor_sumPerBHWil = 20;
+                } else if ($sumPerBHWil >=  0.0 && $sumPerBHWil <= 1.0) {
+                    $skor_sumPerBHWil = 18;
+                } else if ($sumPerBHWil >= 1 && $sumPerBHWil <= 1.5) {
+                    $skor_sumPerBHWil = 16;
+                } else if ($sumPerBHWil >= 1.5 && $sumPerBHWil <= 2.0) {
+                    $skor_sumPerBHWil = 12;
+                } else if ($sumPerBHWil >= 2.0 && $sumPerBHWil <= 2.5) {
+                    $skor_sumPerBHWil = 8;
+                } else if ($sumPerBHWil >= 2.5 && $sumPerBHWil <= 3.0) {
+                    $skor_sumPerBHWil = 4;
+                } else if ($sumPerBHWil >= 3.0 && $sumPerBHWil <= 3.5) {
+                    $skor_sumPerBHWil = 0;
+                } else if ($sumPerBHWil >=  3.5 && $sumPerBHWil <= 3.5) {
+                    $skor_sumPerBHWil = 0;
+                } else if ($sumPerBHWil >= 3.5 && $sumPerBHWil <= 4.0) {
+                    $skor_sumPerBHWil = 4;
+                } else if ($sumPerBHWil >= 4.0 && $sumPerBHWil <= 4.5) {
+                    $skor_sumPerBHWil = 8;
+                } else if ($sumPerBHWil >= 4.5 && $sumPerBHWil <= 5.0) {
+                    $skor_sumPerBHWil = 12;
+                } else if ($sumPerBHWil >= 5.0) {
+                    $skor_sumPerBHWil = 10;
+                }
+
+
+                $pelepah_swil += $pelepah_sEST;
+
+                if ($pelepah_swil != 0) {
+                    $perPiWil = ($pokok_panenWil / $pelepah_swil) * 100;
+                } else {
+                    $perPiWil = 0;
+                }
+                $skor_perPiWil = 0;
+                if ($perPiWil <=  0.5) {
+                    $skor_perPiWil = 5;
+                } else if ($perPiWil >=  0.5 && $perPiWil <= 1.0) {
+                    $skor_perPiWil = 4;
+                } else if ($perPiWil >= 1.0 && $perPiWil <= 1.5) {
+                    $skor_perPiWil = 3;
+                } else if ($perPiWil >= 1.5 && $perPiWil <= 2.0) {
+                    $skor_perPiWil = 2;
+                } else if ($perPiWil >= 2.0 && $perPiWil <= 2.5) {
+                    $skor_perPiWil = 1;
+                } else if ($perPiWil >= 2.5) {
+                    $skor_perPiWil = 0;
+                }
+
+                $totalWil = $skor_brdPerwil +  $skor_sumPerBHWil +  $skor_perPiWil;
+            } else {
+                $mtancaktab1Wil[$key][$key1]['pokok_sample'] = 0;
+                $mtancaktab1Wil[$key][$key1]['ha_sample'] =  0;
+                $mtancaktab1Wil[$key][$key1]['jumlah_panen'] = 0;
+                $mtancaktab1Wil[$key][$key1]['akp_rl'] = 0;
+
+                $mtancaktab1Wil[$key][$key1]['p'] = 0;
+                $mtancaktab1Wil[$key][$key1]['k'] = 0;
+                $mtancaktab1Wil[$key][$key1]['tgl'] = 0;
+
+                // $mtancaktab1Wil[$key][$key1]['total_brd'] = $skor_bTinggal;
+                $mtancaktab1Wil[$key][$key1]['brd/jjg'] = 0;
+                // data untuk buah tinggal
+                $mtancaktab1Wil[$key][$key1]['bhts_s'] = 0;
+                $mtancaktab1Wil[$key][$key1]['bhtm1'] = 0;
+                $mtancaktab1Wil[$key][$key1]['bhtm2'] = 0;
+                $mtancaktab1Wil[$key][$key1]['bhtm3'] = 0;
+                $mtancaktab1Wil[$key][$key1]['palepah_pokok'] = 0;
+                // total skor akhir
+                $mtancaktab1Wil[$key][$key1]['skor_bh'] = 0;
+                $mtancaktab1Wil[$key][$key1]['skor_brd'] =  0;
+                $mtancaktab1Wil[$key][$key1]['skor_ps'] =  0;
+                $mtancaktab1Wil[$key][$key1]['skor_akhir'] = 0;
+            }
+            $mtancaktab1Wil[$key]['pokok_sample'] = $pokok_panenWil;
+            $mtancaktab1Wil[$key]['ha_sample'] =  $jum_haWil;
+            $mtancaktab1Wil[$key]['jumlah_panen'] = $janjang_panenWil;
+            $mtancaktab1Wil[$key]['akp_rl'] =  $akpWil;
+
+            $mtancaktab1Wil[$key]['p'] = $p_panenWil;
+            $mtancaktab1Wil[$key]['k'] = $k_panenWil;
+            $mtancaktab1Wil[$key]['tgl'] = $brtgl_panenWil;
+
+            // $mtancaktab1Wil[$key]['total_brd'] = $skor_bTinggal;
+            $mtancaktab1Wil[$key]['brd/jjg'] = number_format($brdPerwil, 2);
+            $mtancaktab1Wil[$key]['bhts_s'] = $bhts_panenWil;
+            $mtancaktab1Wil[$key]['bhtm1'] = $bhtm1_panenWil;
+            $mtancaktab1Wil[$key]['bhtm2'] = $bhtm2_panenWil;
+            $mtancaktab1Wil[$key]['bhtm3'] = $bhtm3_oanenWil;
+            // $mtancaktab1Wil[$key]['jjgperBuah'] = number_format($sumPerBH, 2);
+            // data untuk pelepah sengklek
+            $mtancaktab1Wil[$key]['palepah_pokok'] = $pelepah_swil;
+            // total skor akhir
+            $mtancaktab1Wil[$key]['skor_bh'] = number_format($skor_sumPerBHWil, 2);
+            $mtancaktab1Wil[$key]['skor_brd'] = number_format($skor_brdPerwil, 2);
+            $mtancaktab1Wil[$key]['skor_ps'] = number_format($skor_perPiWil, 2);
+            $mtancaktab1Wil[$key]['skor_akhir'] = number_format($totalWil, 2);
+        } else {
+            $mtancaktab1Wil[$key]['pokok_sample'] = 0;
+            $mtancaktab1Wil[$key]['ha_sample'] =  0;
+            $mtancaktab1Wil[$key]['jumlah_panen'] = 0;
+            $mtancaktab1Wil[$key]['akp_rl'] = 0;
+
+            $mtancaktab1Wil[$key]['p'] = 0;
+            $mtancaktab1Wil[$key]['k'] = 0;
+            $mtancaktab1Wil[$key]['tgl'] = 0;
+
+            // $mtancaktab1Wil[$key]['total_brd'] = $skor_bTinggal;
+            $mtancaktab1Wil[$key]['brd/jjg'] = 0;
+            $mtancaktab1Wil[$key]['bhts_s'] = 0;
+            $mtancaktab1Wil[$key]['bhtm1'] = 0;
+            $mtancaktab1Wil[$key]['bhtm2'] =  0;
+            $mtancaktab1Wil[$key]['bhtm3'] =  0;
+
+
+            // $mtancaktab1Wil[$key]['jjgperBuah'] = number_format($sumPerBH, 2);
+            // data untuk pelepah sengklek
+
+            $mtancaktab1Wil[$key]['palepah_pokok'] =  0;
+            $mtancaktab1Wil[$key]['skor_bh'] = 0;
+            $mtancaktab1Wil[$key]['skor_brd'] = 0;
+            $mtancaktab1Wil[$key]['skor_ps'] = 0;
+            $mtancaktab1Wil[$key]['skor_akhir'] = 0;
+        }
+        // dd($mtancaktab1Wil, $mtBuahtab1Wil, $mtTranstab1Wil);
+
+        //menggabunugkan smua total skor di mutu ancak transport dan buah jadi satu array
+        $RekapWIlTabel = array();
+        // foreach ($mtancaktab1Wil as $key => $value) {
+        //     foreach ($value as $key2  => $value2)  if (is_array($value2)) {
+        //         foreach ($mtBuahtab1Wil as $key3 => $value3) {
+        //             foreach ($value3 as $key4 => $value4) if (is_array($value4)) {
+        //                 foreach ($mtTranstab1Wil as $key5 => $value5) {
+        //                     foreach ($value5 as $key6 => $value6)
+        //                         if ($key == $key3 && $key3 == $key5) if (is_array($value6)) {
+        //                             // dd($value6);
+        //                             $RekapWIlTabel[$key][$key2]['skor_bulanTotal'] = $value2['skor_akhir'] + $value4['TOTAL_SKOR'] + $value6['totalSkor'];
+        //                         }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // $RekapWIlTabel = array();
+        // dd($mtBuahtab1Wil);
+        foreach ($mtancaktab1Wil as $key => $value) {
+            foreach ($value as $key1 => $value1) if (is_array($value1)) {
+                foreach ($value1 as $key2 => $value2) {
+                    foreach ($mtBuahtab1Wil as $bh => $buah) {
+                        foreach ($buah as $bh1 => $buah1) if (is_array($buah1)) {
+                            foreach ($buah1 as $bh2 => $buah2) {
+                                foreach ($mtTranstab1Wil as $tr => $trans) {
+                                    foreach ($trans as $tr1 => $trans1) if (is_array($trans1)) {
+                                        foreach ($trans1 as $tr2 => $trans2)
+                                            // if (
+                                            //     $bh1 == $key
+                                            //     && $bh1 == $tr
+                                            // ) {
+                                            // dd($trans2);
+                                            $RekapWIlTabel[$key][$key1][$key2]['TotalSkor'] = $value1['skor_akhir'] + $buah1['TOTAL_SKOR'] + $trans1['totalSkor'];
+                                        // }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        dd($RekapWIlTabel);
 
         //end testing
         // dd($RegMTbuahBln);
@@ -1848,6 +3684,7 @@ class inspectController extends Controller
         }
 
         // dd($DataTable1);
+        $dataPerWil = array();
         foreach ($queryEste as $key => $value) {
             foreach ($value as $key2 => $value2) {
                 foreach ($DataTable1 as $key3 => $value3) {
@@ -1885,6 +3722,7 @@ class inspectController extends Controller
             unset($sortedData);
         }
 
+        // dd($dataPerWil);
         //membuat tabel utama untuk tiap estate total
         $TotalperEstate = array();
         foreach ($dataPerWil as $key => $value) {
@@ -1906,7 +3744,7 @@ class inspectController extends Controller
                 $sum_ha_sample = 0;
                 $brdperjjg = 0;
                 $persenPalepah = 0;
-                foreach ($value2 as $key3 => $value3) {
+                foreach ($value2 as $key3 => $value3) if (!empty($value3)) {
                     foreach ($value3 as $key4 => $value4) {
                         if (is_array($value4)) {
                             $sum_ttlPanen += $value4['jumlah_panen'];
@@ -1924,25 +3762,11 @@ class inspectController extends Controller
                             $sum_bhtm3 += (int)$value4['bhtm3'];
 
                             $sum_pelepah += (int)$value4['total_pelepah'];
-
-                            // $TotalperEstate[$key][$key2]['total_p'] += $value4['p'];
-                            // $TotalperEstate[$key][$key2]['total_k'] += $value4['k'];
-                            // $TotalperEstate[$key][$key2]['total_tinggal'] += $value4['tgl'];
-                            // $TotalperEstate[$key][$key2]['total_panen'] += $value4['jumlah_panen'];
-
-                            // $TotalperEstate[$key][$key2]['bhts'] += $value4['bhts_s'];
-                            // $TotalperEstate[$key][$key2]['bhtm1'] +=  (int) $value4['bhtm1'];
-                            // $TotalperEstate[$key][$key2]['bhtm2'] +=  (int) $value4['bhtm2'];
-                            // $TotalperEstate[$key][$key2]['bhtm3'] +=  (int) $value4['bhtm3'];
                         }
                     }
 
                     $total_brd = $sum_p + $sum_k + $sum_tgl;
                     $total_buah = $sum_bhts + $sum_bhtm1 + $sum_bhtm2 + $sum_bhtm3;
-
-
-
-
 
                     if ($sum_ttlPanen != 0) {
                         $brdperjjg = $total_brd / $sum_ttlPanen;
@@ -2037,9 +3861,18 @@ class inspectController extends Controller
                     $TotalperEstate[$key][$key2]['skor_buah'] = $skor_bh;
                     $TotalperEstate[$key][$key2]['skor_palepah'] = $skor_perPl;
                     $TotalperEstate[$key][$key2]['skor_akhir'] = $total_skor;
+                } else {
+                    $TotalperEstate[$key][$key2]['brd_janjang'] = 0;
+                    $TotalperEstate[$key][$key2]['total_ha'] = 0;
+                    $TotalperEstate[$key][$key2]['buah_janjang'] = 0;
+                    $TotalperEstate[$key][$key2]['skor_brd'] = 0;
+                    $TotalperEstate[$key][$key2]['skor_buah'] = 0;
+                    $TotalperEstate[$key][$key2]['skor_palepah'] = 0;
+                    $TotalperEstate[$key][$key2]['skor_akhir'] = 0;
                 }
             }
         }
+        // dd($TotalperEstate);
 
 
         foreach ($TotalperEstate as $key1 => $estates) {
@@ -2074,13 +3907,14 @@ class inspectController extends Controller
         $queryEsta = json_decode($queryEsta, true);
         // dd($queryEsta);
 
+        // dd($TotalperEstate);
         $chartBTT = array();
         foreach ($TotalperEstate as $key => $value) {
             foreach ($value as $key2 => $value2) {
                 $chartBTT[] = $value2['brd_janjang'];
             }
         }
-
+        // dd($TotalperEstate, $chartBTT);
         $chartBuahTT = array();
         foreach ($TotalperEstate as $key => $value) {
             foreach ($value as $key2 => $value2) {
@@ -2112,6 +3946,7 @@ class inspectController extends Controller
             $chartPerwil[] = round($total_Brd, 2);
         }
 
+        // dd($TotalperEstate);
         $buahPerwil = array();
         foreach ($TotalperEstate as $key => $value) {
             $sum_brd = 0;
@@ -2419,7 +4254,7 @@ class inspectController extends Controller
                         $combination_counts = array();
                         foreach ($value3 as $key3 => $value4) {
                             // dd($value4);
-                            $combination = $value4['blok'] . ' ' . $value4['estate'] . ' ' . $value4['afdeling'] . ' ' . $value4['tph_baris'];
+                            $combination = $value4['blok'] . ' ' . $value4['estate'] . ' ' . $value4['afdeling'];
                             if (!isset($combination_counts[$combination])) {
                                 $combination_counts[$combination] = 0;
                             }
@@ -2538,33 +4373,7 @@ class inspectController extends Controller
                         $skor_brdPertph = 0;
                     }
 
-                    // if ($buahPerTPH != 0) {
-                    //     //menghitung Skor Restant
-                    //     $skor_buahPerTPH = 0;
-                    //     if ($buahPerTPH <= 0.0) {
-                    //         $skor_buahPerTPH = 10;
-                    //     } else if ($buahPerTPH >= 0.0 && $buahPerTPH <= 0.5) {
-                    //         $skor_buahPerTPH = 8;
-                    //     } else if ($buahPerTPH >= 0.5 && $buahPerTPH <= 1) {
-                    //         $skor_buahPerTPH = 6;
-                    //     } else if ($buahPerTPH >= 1.0 && $buahPerTPH <= 1.5) {
-                    //         $skor_buahPerTPH = 4;
-                    //     } else if ($buahPerTPH >= 1.5 && $buahPerTPH <= 2.0) {
-                    //         $skor_buahPerTPH = 2;
-                    //     } else if ($buahPerTPH >= 2.0 && $buahPerTPH <= 2.5) {
-                    //         $skor_buahPerTPH = 0;
-                    //     } else if ($buahPerTPH >= 2.5 && $buahPerTPH <= 3.0) {
-                    //         $skor_buahPerTPH = 2;
-                    //     } else if ($buahPerTPH >= 3.0 && $buahPerTPH <= 3.5) {
-                    //         $skor_buahPerTPH = 4;
-                    //     } else if ($buahPerTPH >= 3.5 && $buahPerTPH <= 4.0) {
-                    //         $skor_buahPerTPH = 6;
-                    //     } else if ($buahPerTPH >= 4.0) {
-                    //         $skor_buahPerTPH = 8;
-                    //     }
-                    // } else {
-                    //     $skor_buahPerTPH = 0;
-                    // }
+
 
                     $skor_buahPerTPH = 0;
                     if ($buahPerTPH <= 0.0) {
@@ -2945,7 +4754,7 @@ class inspectController extends Controller
                     }
             }
         }
-        // dd($bulananBh);
+        // dd($bulananBh['BKE']['OA']);
         //mutu buah perbulan per estate
         $bulananEST = array();
         foreach ($bulananBh as $key => $value) {
@@ -3927,7 +5736,7 @@ class inspectController extends Controller
             $Final_end[$key]['skor_tahun'] = $final_skorTH ? $final_skorTH : 0;
         }
 
-        // dd($Final_end, $mutuTransTahun);
+        // dd($Final_end);
 
 
         // end menghitung table untuk data pertahun
@@ -4566,7 +6375,7 @@ class inspectController extends Controller
                 $totalSM123  =  $bmts +  $bhtm1 + $bhtm2 + $bhtm3;
 
                 if ($pokok_panen != 0) {
-                    $sumPerBH = $totalSM123 / ($pokok_panen + $totalSM123) * 100;
+                    $sumPerBH = round($totalSM123 / ($pokok_panen + $totalSM123) * 100, 2);
                 } else {
                     $sumPerBH = 0;
                 }
@@ -4637,6 +6446,7 @@ class inspectController extends Controller
                 $WilMtAncakThn[$key]['bhtm1'] = $bhtm1;
                 $WilMtAncakThn[$key]['bhtm2'] = $bhtm2;
                 $WilMtAncakThn[$key]['bhtm3'] = $bhtm3;
+                $WilMtAncakThn[$key]['bhPerjjg'] = $sumPerBH;
                 $WilMtAncakThn[$key]['skor_bh'] = $skor_bh;
 
                 $WilMtAncakThn[$key]['palepah_pokok'] = $palepah_pokok;
@@ -4658,6 +6468,7 @@ class inspectController extends Controller
                 $WilMtAncakThn[$key]['bhtm1'] = 0;
                 $WilMtAncakThn[$key]['bhtm2'] = 0;
                 $WilMtAncakThn[$key]['bhtm3'] = 0;
+                $WilMtAncakThn[$key]['bhPerjjg'] = 0;
                 $WilMtAncakThn[$key]['skor_bh'] = 0;
 
                 $WilMtAncakThn[$key]['palepah_pokok'] = 0;
@@ -5437,8 +7248,8 @@ class inspectController extends Controller
                         foreach ($value3 as $key4 => $value4) {
                             // dd($value4);
 
-                            if (!in_array($value4['estate'] . ' ' . $value4['afdeling'] . ' ' . $value4['blok'] . ' ' . $value4['tph_baris'], $listBlokPerAfd)) {
-                                $listBlokPerAfd[] = $value4['estate'] . ' ' . $value4['afdeling'] . ' ' . $value4['blok'] . ' ' . $value4['tph_baris'];
+                            if (!in_array($value4['estate'] . ' ' . $value4['afdeling'] . ' ' . $value4['blok'], $listBlokPerAfd)) {
+                                $listBlokPerAfd[] = $value4['estate'] . ' ' . $value4['afdeling'] . ' ' . $value4['blok'];
                             }
                             $dataBLok = count($listBlokPerAfd);
                             $sum_bt += $value4['bt'];
@@ -5796,8 +7607,8 @@ class inspectController extends Controller
                     $dataBLok = 0;
                     $listBlokPerAfd = array();
                     foreach ($value2 as $key4 => $value3) {
-                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'], $listBlokPerAfd)) {
-                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'];
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
                         }
                         $dataBLok = count($listBlokPerAfd);
                         $sum_bt += $value3['bt'];
@@ -8737,7 +10548,7 @@ class inspectController extends Controller
                     $combination_counts = array();
                     foreach ($value2 as $key3 => $value3) {
                         // dd($value4);
-                        $combination = $value3['blok'] . ' ' . $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['tph_baris'];
+                        $combination = $value3['blok'] . ' ' . $value3['estate'] . ' ' . $value3['afdeling'];
                         if (!isset($combination_counts[$combination])) {
                             $combination_counts[$combination] = 0;
                         }
@@ -9325,7 +11136,7 @@ class inspectController extends Controller
                 }
             }
         }
-        // dd($RekapBulanReg);
+        // dd($chartBTT);
         //rekap tahun regional 1
         $RekapTahunReg = array();
         foreach ($RegMTanckTHn as $key => $value) {
@@ -9373,6 +11184,32 @@ class inspectController extends Controller
 
         // dd($RekapBulanAFD);
         // //end
+        //bagian chart untuk pertahun 
+        // dd($WilMtAncakThn);
+        $chartBTTth = array();
+        foreach ($Final_end as $key => $value) {
+            // dd($value);
+            $chartBTTth[] = $value['total_brd/panen'];
+        }
+        $chartBHth = array();
+        foreach ($Final_end as $key => $value) {
+            // dd($value);
+            $chartBHth[] = $value['total_buah/jjg'];
+        }
+        // chart untuk perwilayah
+        $chartbrdWilTH = array();
+        foreach ($WilMtAncakThn as $key => $value) {
+            // dd($value);
+            $chartbrdWilTH[] = $value['brdPerjjg'];
+        }
+        $chartBhwilTH = array();
+        foreach ($WilMtAncakThn as $key => $value) {
+            // dd($value);
+            $chartBhwilTH[] = $value['bhPerjjg'];
+        }
+        // dd($chartBHth);
+        //end
+
 
         $arrView = array();
         $arrView['list_estate'] =  $queryEsta;
@@ -9382,8 +11219,12 @@ class inspectController extends Controller
         $arrView['value_tblEST'] =  $dataPerWil;
         $arrView['chart_brd'] = $chartBTT;
         $arrView['chart_buah'] = $chartBuahTT;
+        $arrView['chart_brdTAHUN'] = $chartBTTth;
+        $arrView['chart_buahTAHUN'] = $chartBHth;
         $arrView['chart_brdwil'] =  $chartPerwil;
         $arrView['chart_buahwil'] = $buahPerwil;
+        $arrView['chartbrdWilTH'] = $chartbrdWilTH;
+        $arrView['chartBhwilTH'] = $chartBhwilTH;
         $arrView['table_utama'] = $dataPerWil;
         $arrView['FinalTahun'] = $FinalTahun;
         $arrView['Final_end'] = $Final_end;

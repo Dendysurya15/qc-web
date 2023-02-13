@@ -263,6 +263,7 @@
                                     <select class="form-control" id="yearDate" name="year">
                                         <option value="2023" selected>2023</option>
                                         <option value="2022">2022</option>
+                                        <option value="2024">2024</option>
                                     </select>
                                 </div>
                             </div>
@@ -871,19 +872,7 @@
     wilayah = wilayah.substring(0, wilayah.length - 1);
     wilayah += ']'
 
-    // var brd= '['
-    // list_btt.forEach(element => {
-    //         brd += '"' +element + '",'
-    //       });
-    // brd = brd.substring(0, brd.length - 1);
-    // brd += ']'
 
-    // var buah= '['
-    // list_buah.forEach(element => {
-    //         buah += '"' +element + '",'
-    //       });
-    // buah = buah.substring(0, buah.length - 1);
-    // buah += ']'
 
     var buahWil= '['
     list_brdWil.forEach(element => {
@@ -907,237 +896,7 @@
     var buah_wil = JSON.parse(btWill)
 
 
-    // chart bagian brd
-//     var options = { 
-//         series: [{
-//             name: 'Butir/Janjang Panen',
-//             data: brd_jjg
-//         }],
-//         chart: {
-//             height: 350,
-//             type: 'bar'
-//         },
-//         plotOptions: {
-//             bar: {
-//                 distributed: true
-//             }
-//         },
-//         colors: [ '#00FF00',
-//   '#00FF00',
-//   '#00FF00',
-//   '#00FF00',
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#FF8D1A', 
-//    '#FF8D1A', 
-//    '#FF8D1A', 
-//    '#FF8D1A'],
-//         stroke: {
-//             curve: 'smooth'
-//         },
-//         xaxis: {
-//             type: '',
-//             categories: estate
-//         }
-//     };
-//     var chartGrain = new ApexCharts(document.querySelector("#brondolanGraph"), options);
-//     chartGrain.render();
 
-//     //chart buah tinggal
-//     var options = { 
-//         series: [{
-//             name: '%',
-//             data:buah_jjg
-//         }],
-//         chart: {
-//             height: 350,
-//             type: 'bar'
-//         },
-//         plotOptions: {
-//             bar: {
-//                 distributed: true
-//             }
-//         },
-//         colors: [ '#00FF00',
-//   '#00FF00',
-//   '#00FF00',
-//   '#00FF00',
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#3063EC', 
-//    '#FF8D1A', 
-//    '#FF8D1A', 
-//    '#FF8D1A', 
-//    '#FF8D1A'],
-//         stroke: {
-//             curve: 'smooth'
-//         },
-//         xaxis: {
-//             type: '',
-//             categories: estate
-//         }
-//     };
-//     var chartFruit = new ApexCharts(document.querySelector("#buahGraph"), options);
-//     chartFruit.render();
-
-    // var options = { 
-    //     series: [{
-    //         name: 'Butir/Ha Sample',
-    //         data: brd_wil
-    //     }],
-    //     chart: {
-    //         height: 350,
-    //         type: 'bar'
-    //     },
-    //     plotOptions: {
-    //         bar: {
-    //             distributed: true
-    //         }
-    //     },
-    //     colors: ['#00FF00','#3063EC','#FF8D1A'],
-    //     stroke: {
-    //         curve: 'smooth'
-    //     },
-    //     xaxis: {
-    //         type: '',
-    //         categories: ['WIL-I', 'WIL-II', 'WIL-III']
-    //     }
-    // };
-    // var chartGrainWil = new ApexCharts(document.querySelector("#brondolanGraphWil"), options);
-    // chartGrainWil.render();
-
-    // var options = { 
-    //     series: [{
-    //         name: 'Janjang/Ha Sample',
-    //         data: buah_wil
-    //     }],
-    //     chart: {
-    //         height: 350,
-    //         type: 'bar'
-    //     },
-    //     plotOptions: {
-    //         bar: {
-    //             distributed: true
-    //         }
-    //     },
-    //     colors: ['#00FF00','#3063EC','#FF8D1A'],
-    //     stroke: {
-    //         curve: 'smooth'
-    //     },
-    //     xaxis: {
-    //         type: '',
-    //         categories: ['WIL-I', 'WIL-II', 'WIL-III']
-    //     }
-    // };
-    // var chartFruitWil = new ApexCharts(document.querySelector("#buahGraphWil"), options);
-    // chartFruitWil.render();
-
-    var options = { 
-        series: [{
-            name: 'Butir/Janjang Panen',
-            data: [12, 42, 35] 
-        }],
-        chart: {
-            height: 350,
-            type: 'bar'
-        },
-        plotOptions: {
-            bar: {
-                distributed: true
-            }
-        },
-        colors: ['#00FF00','#3063EC','#FF8D1A'],
-        stroke: {
-            curve: 'smooth'
-        },
-        xaxis: {
-            type: '',
-            categories: ['KNE','SLE','RDE']
-        }
-    };
-    var chartGrainYear = new ApexCharts(document.querySelector("#brondolanGraphYear"), options);
-    chartGrainYear.render();
-
-    var options = { 
-        series: [{
-            name: '%',
-            data: [12, 42, 35] 
-        }],
-        chart: {
-            height: 350,
-            type: 'bar'
-        },
-        plotOptions: {
-            bar: {
-                distributed: true
-            }
-        },
-        colors: ['#00FF00','#3063EC','#FF8D1A'],
-        stroke: {
-            curve: 'smooth'
-        },
-        xaxis: {
-            type: '',
-            categories: ['KNE','SLE','RDE']
-        }
-    };
-    var chartFruitYear = new ApexCharts(document.querySelector("#buahGraphYear"), options);
-    chartFruitYear.render();
-
-    var options = { 
-        series: [{
-            name: 'Butir/Ha Sample',
-            data: [31, 12, 34] 
-        }],
-        chart: {
-            height: 350,
-            type: 'bar'
-        },
-        plotOptions: {
-            bar: {
-                distributed: true
-            }
-        },
-        colors: ['#00FF00','#3063EC','#FF8D1A'],
-        stroke: {
-            curve: 'smooth'
-        },
-        xaxis: {
-            type: '',
-            categories: ['WIL-I', 'WIL-II', 'WIL-III']
-        }
-    };
-    var chartGrainWilYear = new ApexCharts(document.querySelector("#brondolanGraphWilYear"), options);
-    chartGrainWilYear.render();
-
-    var options = { 
-        series: [{
-            name: 'Janjang/Ha Sample',
-            data: [00,99,20]
-        }],
-        chart: {
-            height: 350,
-            type: 'bar'
-        },
-        plotOptions: {
-            bar: {
-                distributed: true
-            }
-        },
-        colors: ['#00FF00','#3063EC','#FF8D1A'],
-        stroke: {
-            curve: 'smooth'
-        },
-        xaxis: {
-            type: '',
-            categories: ['WIL-I', 'WIL-II', 'WIL-III']
-        }
-    };
-    var chartFruitWilYear = new ApexCharts(document.querySelector("#buahGraphWilYear"), options);
-    chartFruitWilYear.render();
 
     var options = {
     chart: {
@@ -1474,7 +1233,11 @@
             categories: ['WIL-I', 'WIL-II', 'WIL-III']
         }
     };
+    
 
+
+ 
+//chart untuk perbulan
         var chartGrain = new ApexCharts(document.querySelector("#brondolanGraph"), options);
     chartGrain.render();
  var chartFruit = new ApexCharts(document.querySelector("#buahGraph"), options);
@@ -1484,8 +1247,17 @@
     chartGrainWil.render();
  var chartFruitWil = new ApexCharts(document.querySelector("#buahGraphWil"), will);
  chartFruitWil.render();
+///chart untuk pertahun
+var chartGrainYear = new ApexCharts(document.querySelector("#brondolanGraphYear"), options);
+    chartGrainYear.render();
+    var chartFruitYear = new ApexCharts(document.querySelector("#buahGraphYear"), options);
+    chartFruitYear.render();
 
-    
+    var chartGrainWilYear = new ApexCharts(document.querySelector("#brondolanGraphWilYear"), will);
+    chartGrainWilYear.render();
+
+    var chartFruitWilYear = new ApexCharts(document.querySelector("#buahGraphWilYear"), will);
+    chartFruitWilYear.render();
 
  document.getElementById('btnShow').onclick = function(){
   $('#tbody1').empty()
@@ -1495,7 +1267,6 @@ var date = ''
 var _token = $('input[name="_token"]').val();
 var date = document.getElementById('inputDate').value
 
-console.log(date)
 // console.log(date);
     $.ajax({
         url:"{{ route('filter') }}",
@@ -1518,9 +1289,10 @@ console.log(date)
     var chartWillbt = Object.entries(parseResult['chart_brdwil'])
     var chartWillbh = Object.entries(parseResult['chart_buahwil'])
     // unutk table utama
-    var table_utama = Object.entries(parseResult['table_utama'])
+
     //untuk tabel pertahun
     var FinalTahun = Object.entries(parseResult['FinalTahun'])
+    // console.log(chart_btt);
 
   
     // console.log(FinalTahun);
@@ -1637,8 +1409,64 @@ console.log(date)
                          var RekapTahunReg = Object.entries(parseResult['RekapTahunReg'])
                          var RekapBulanAFD = Object.entries(parseResult['RekapBulanAFD'])
                          var RekapTahunAFD = Object.entries(parseResult['RekapTahunAFD'])
+                         var chart_brdTH = Object.entries(parseResult['chart_brdTAHUN'])
+                         var chart_bhTH = Object.entries(parseResult['chart_buahTAHUN'])
+                         var chart_brdWIl = Object.entries(parseResult['chartbrdWilTH'])
+                         var chart_bhWil = Object.entries(parseResult['chartBhwilTH'])   
+                         var list_will = Object.entries(parseResult['list_estate'] )
+
+
+                         var bttEST = '[';
+                        chart_brdTH.forEach(element => {
+                            bttEST += '"' + element.toString().split(',')[1] + '",';
+                        });
+                        bttEST = bttEST.substring(0, bttEST.length - 1);
+                        bttEST += ']';
+
+                        var bhEST = '[';
+                        chart_bhTH.forEach(element => {
+                            bhEST += '"' + element.toString().split(',')[1] + '",';
+                        });
+                        bhEST = bhEST.substring(0, bhEST.length - 1);
+                        bhEST += ']';
+
+                        var brdWil = '[';
+                        chart_brdWIl.forEach(element => {
+                            brdWil += '"' + element.toString().split(',')[1] + '",';
+                        });
+                        brdWil = brdWil.substring(0, brdWil.length - 1);
+                        brdWil += ']';
+
+                        var bhWil = '[';
+                        chart_bhWil.forEach(element => {
+                            bhWil += '"' + element.toString().split(',')[1] + '",';
+                        });
+                        bhWil = bhWil.substring(0, bhWil.length - 1);
+                        bhWil += ']';
+
+
+                            var wilayah = '['
+                                list_will.forEach(element => {
+                                        wilayah += '"' +element + '",'
+                                    });
+                                wilayah = wilayah.substring(0, wilayah.length - 1);
+                                wilayah += ']'
+
+                           
+
+    var estate = JSON.parse(wilayah)
+    var bttEst = JSON.parse(bttEST)
+    var bhEST = JSON.parse(bhEST)
+
+    var brdWil = JSON.parse(brdWil)
+    var bhWil = JSON.parse(bhWil)
+   
+    // console.log(bttEST)
+   
     
 
+   
+  
                         // console.log(year)
                         // console.log(rekap_bulan)
                         
@@ -1981,10 +1809,34 @@ break;
   });
 });
 
-
-
 //   end rekap table afd
                         //endtable
+                        //chart table untuk pertahun
+                        chartGrainYear.updateSeries([{
+                name: 'butir/jjg panen',
+                data: bttEst
+            }])
+
+            chartFruitYear.updateSeries([{
+          name: 'buah %',
+           data: bhEST
+         }])
+
+         
+         chartGrainWilYear.updateSeries([{
+          name:'butir/ha sample',
+           data: brdWil
+         }])
+            
+         chartFruitWilYear.updateSeries([{
+          name:'janjang/ha sample',
+           data: bhWil
+         }])
+
+   
+    
+
+                        //endchart
         }
     });
     }
