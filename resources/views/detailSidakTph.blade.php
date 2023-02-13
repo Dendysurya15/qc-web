@@ -218,6 +218,7 @@ $(".popup_image").on('click', function() {
         });
         var popupOptions = { className: "customPopup" };
         var template =
+        "<div> <span style='font-weight:bold'>Jam Sidak : </span>"+ markerResult[i][1]['jam']+"</div>" +
   "<div> <span style='font-weight:bold'>Nomor TPH : </span>"+ markerResult[i][1]['notph']+"</div>" +
   "<div ><span style='font-weight:bold'>Blok </span>: "+markerResult[i][1]['blok']+"</div>" ;
 
