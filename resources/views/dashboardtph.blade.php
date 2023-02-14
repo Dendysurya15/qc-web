@@ -206,13 +206,13 @@
 
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Sidak TPH berdasarkan Estate</h3>
+      <h3> Grafik Sidak TPH berdasarkan Estate</h3>
     </div>
     {{-- chart bag 1 --}}
     <div class="row" id="chart">
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Brondolan/Blok Tinggal DI TPH</h5>
+          <h5>Brondolan Tinggal (Brondol / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="bttinggal"></div>
@@ -220,7 +220,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Karung/Blok berisi Brondolan</h5>
+          <h5>Karung Berisi Brondolan (Karung / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="karung"></div>
@@ -228,7 +228,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Buah/Blok tinggal TPH</h5>
+          <h5>Buah Tinggal (Janjang / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="btt_tgl"></div>
@@ -236,7 +236,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Restan/Blok Tidak Dilaporkan</h5>
+          <h5>Restan Tidak Dilaporkan (Janjang / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="rst_none"></div>
@@ -245,14 +245,14 @@
     </div><br>
     <div class="d-flex justify-content-center text-center border border-secondary border-2"
       style="background-color: #e8ecdc">
-      <h3>Sidak TPH berdasarkan Wilayah</h3>
+      <h3>Grafik Sidak TPH berdasarkan Wilayah</h3>
     </div>
 
     {{-- chart bg 2 --}}
     <div class="row" id="chart">
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Brondolan Tinggal DI TPH</h5>
+          <h5>Brondolan Tinggal DI TPH (Brondolan / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="btt_id"></div>
@@ -260,7 +260,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Karung berisi Brondolan</h5>
+          <h5>Karung berisi Brondolan (Karung / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="karung_id"></div>
@@ -268,7 +268,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Buah tinggal TPH</h5>
+          <h5>Buah tinggal TPH (Janjang / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="bttTglTph_id"></div>
@@ -276,7 +276,7 @@
       </div>
       <div class="card col-sm-6">
         <div class="card-header d-flex card-light justify-content-center">
-          <h5>Restan Tidak Dilaporkan</h5>
+          <h5>Restan Tidak Dilaporkan (Janjang / Blok)</h5>
         </div>
         <div class="card-body pb-5">
           <div id="rst_none_id"></div>
@@ -462,6 +462,9 @@ var will = {
     lastWeek = lastWeekData.slice(1,11) 
 
 
+
+    console.log(firstWeek)
+    console.log(lastWeek)
     document.getElementById('startWeek').value = firstWeek
     document.getElementById('lastWeek').value = lastWeek
 });

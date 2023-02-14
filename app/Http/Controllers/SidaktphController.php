@@ -809,11 +809,14 @@ class SidaktphController extends Controller
                         $sum_est_buah_tinggal += $value2['total_estate_buah_tinggal'];
                         $sum_est_restan_tinggal += $value2['total_estate_restan_tinggal'];
 
-                        if ($value2['total_blokokok'] != 0) {
-                            $sum_blok += $value2['total_blokokok'];
-                        } else {
-                            $sum_blok = 1;
-                        }
+
+                        // dd($value2['total_blokokok']);
+
+                        // if ($value2['total_blokokok'] != 0) {
+                        $sum_blok += $value2['total_blokokok'];
+                        // } else {
+                        //     $sum_blok = 1;
+                        // }
                     }
 
                     $skor_total_brondol = round($sum_est_brondol / $sum_blok, 2);
