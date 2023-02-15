@@ -304,7 +304,9 @@
 
     var estate = '['
     list_estate.forEach(element => {
+        if (element != 'CWS') {
             estate += '"' +element + '",'
+        }
           });
     estate = estate.substring(0, estate.length - 1);
     estate += ']'
@@ -525,7 +527,7 @@ var will = {
       });
     }
 
-      function getDataTph () {
+    function getDataTph () {
       var firstWeek = ''
       var lastWeek = ''
       var _token = $('input[name="_token"]').val();
@@ -648,12 +650,14 @@ var will = {
                var list_skor_rh = Object.entries(parseResult['list_skor_rh']) 
 
             
-
+    
               //mnghitung dan mengurai string dengan substrack untuk chart
                 //brondolan tgl
               var valBtTph = '['
               listBtTph.forEach(element => {
+                if (element[0] != 'CWS') {
                 valBtTph += '"' +element[1] + '",'
+                }
               });
               valBtTph = valBtTph.substring(0, valBtTph.length - 1);
               valBtTph += ']'
@@ -661,7 +665,9 @@ var will = {
                 //karung tgl
               var valKRtgl = '['
               listKRTph.forEach(element => {
+                if (element[0] != 'CWS') {
                 valKRtgl += '"' +element[1] + '",'
+                }
               });
               valKRtgl = valKRtgl.substring(0, valKRtgl.length - 1);
               valKRtgl += ']'
@@ -669,7 +675,9 @@ var will = {
                 //buah tinggal
               var valBHtgl = '['
               lisBHtph.forEach(element => {
+                if (element[0] != 'CWS') {
                 valBHtgl += '"' +element[1] + '",'
+                }
               });
               valBHtgl = valBHtgl.substring(0, valBHtgl.length - 1);
               valBHtgl += ']'
@@ -679,7 +687,9 @@ var will = {
                 
               var valRSnone = '['
               listRStph.forEach(element => {
+                if (element[0] != 'CWS') {
                 valRSnone += '"' +element[1] + '",'
+                }
               });
               valRSnone = valRSnone.substring(0, valRSnone.length - 1);
               valRSnone += ']'
@@ -854,6 +864,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#eaeaea";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -872,6 +884,8 @@ var will = {
     }
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
+    } else {
+        itemElement4.style.color = "black";
     }
 
 
@@ -939,6 +953,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#e8ecdc";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -957,6 +973,9 @@ var will = {
     }
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
+    }
+    else {
+        itemElement4.style.color = "black";
     }
 
 
@@ -1016,6 +1035,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#eaeaea";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -1034,6 +1055,9 @@ var will = {
     }
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
+    }
+    else {
+        itemElement4.style.color = "black";
     }
 
 
@@ -1099,6 +1123,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#e8ecdc";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -1118,7 +1144,9 @@ var will = {
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
     }
-
+    else {
+        itemElement4.style.color = "black";
+    }
 
                       itemElement4.innerText = item4;
                       itemElement1.innerText  = item1
@@ -1182,6 +1210,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#eaeaea";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -1201,6 +1231,10 @@ var will = {
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
     }
+    else {
+        itemElement4.style.color = "black";
+    }
+
 
 
                   itemElement1.innerText  = item1
@@ -1266,6 +1300,8 @@ var will = {
           itemElement4.style.backgroundColor = "#fffc04";
         } else if (item4 >= 65 && item4 < 75) {
             itemElement4.style.backgroundColor = "#ffc404";
+        } else if (item4 == 0) {
+            itemElement4.style.backgroundColor = "#e8ecdc";
         } else {
             itemElement4.style.backgroundColor = "red";
         }
@@ -1285,6 +1321,10 @@ var will = {
     else if(itemElement4.style.backgroundColor === "red"){
         itemElement4.style.color = "white";
     }
+    else {
+        itemElement4.style.color = "black";
+    }
+
 
 
                       itemElement4.innerText = item4;
@@ -1351,6 +1391,8 @@ var inc = 0;
                     itemElement4.style.backgroundColor = "#fffc04";
                   } else if (item4 >= 65 && item4 < 75) {
                       itemElement4.style.backgroundColor = "#ffc404";
+                  } else if (item4 == 0) {
+                      itemElement4.style.backgroundColor = "#fff4cc";
                   } else {
                       itemElement4.style.backgroundColor = "red";
                   }
@@ -1370,6 +1412,10 @@ var inc = 0;
               else if(itemElement4.style.backgroundColor === "red"){
                   itemElement4.style.color = "white";
               }
+              else {
+                  itemElement4.style.color = "black";
+              }
+
 
 
                       itemElement4.innerText = item4;
@@ -1426,6 +1472,8 @@ var inc = 0;
                     itemElement4.style.backgroundColor = "#fffc04";
                   } else if (item4 >= 65 && item4 < 75) {
                       itemElement4.style.backgroundColor = "#ffc404";
+                  } else if (item4 == 0) {
+                      itemElement4.style.backgroundColor = "#eaeaea";
                   } else {
                       itemElement4.style.backgroundColor = "red";
                   }
@@ -1444,6 +1492,9 @@ var inc = 0;
               }
               else if(itemElement4.style.backgroundColor === "red"){
                   itemElement4.style.color = "white";
+              }
+              else {
+                  itemElement4.style.color = "black";
               }
 
 

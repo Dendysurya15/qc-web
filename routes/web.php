@@ -39,7 +39,7 @@ Route::post('/downloadPDF', [SidaktphController::class, 'downloadPDF'])->name('d
 Route::post('/getBtTph', [SidaktphController::class, 'getBtTph'])->name('getBtTph');
 Route::post('/getKrTph', [SidaktphController::class, 'getKrTph'])->name('getKrTph');
 Route::post('/getBHtgl', [SidaktphController::class, 'getBHtgl'])->name('getBHtgl');
-Route::post('/exportPDF', [SidaktphController::class, 'exportPDF'])->name('exportPDF');
+Route::get('/exportPDF', [SidaktphController::class, 'exportPDF'])->name('exportPDF');
 // Route::get('/404', [SidaktphController::class, 'notfound'])->name('404');
 Route::post('/getDataByYear', [unitController::class, 'getDataByYear'])->name('getDataByYear');
 
@@ -57,6 +57,7 @@ Route::get('/cetakpdf/{id}', [unitController::class, 'cetakpdf']);
 // });
 
 Route::get('/dashboard_inspeksi', [inspectController::class, 'dashboard_inspeksi'])->name('dashboard_inspeksi');
+Route::get('/cetakPDFFI/{id}', [inspectController::class, 'cetakPDFFI'])->name('cetakPDFFI');
 // Route::post('/filter', [inspectController::class, 'filter']);
 
 Route::get('/filter', [inspectController::class, 'filter'])->name('filter');

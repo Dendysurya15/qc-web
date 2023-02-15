@@ -183,8 +183,8 @@ $(".popup_image").on('click', function() {
         // console.log(plotResult)
 
         // console.log(blokResult)
-        // drawPlot(plotResult)
-        drawBlok(blokResult)
+        drawPlot(plotResult)
+        // drawBlok(blokResult)
 
 
         //  for (let i = 0; i < markerResult.length; i++) {
@@ -222,60 +222,60 @@ $(".popup_image").on('click', function() {
   "<div> <span style='font-weight:bold'>Nomor TPH : </span>"+ markerResult[i][1]['notph']+"</div>" +
   "<div ><span style='font-weight:bold'>Blok </span>: "+markerResult[i][1]['blok']+"</div>" ;
 
-  if (markerResult[i][1]['brondol_tinggal'] != 0){
-    template +=   "<div ><span style='font-weight:bold'>Brondol Tinggal </span>: "+markerResult[i][1]['brondol_tinggal']+"</div>" ;
-     numberIcon = new L.Icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-        });
-  } 
-  if (markerResult[i][1]['jum_karung'] != 0){
-    template +=   "<div ><span style='font-weight:bold'>Karung Tinggal </span>: "+markerResult[i][1]['jum_karung']+"</div>" ;
-     numberIcon = new L.Icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-        });
-  }
-  if (markerResult[i][1]['buah_tinggal'] != 0){
-    template +=   "<div ><span style='font-weight:bold'>Buah Tinggal </span>: "+markerResult[i][1]['buah_tinggal']+"</div>" ;
-     numberIcon = new L.Icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-        });
-  }
-  if (markerResult[i][1]['restan_unreported'] != 0){
-    template +=   "<div ><span style='font-weight:bold'>Restan Tidak Dilaporkan </span>: "+markerResult[i][1]['restan_unreported']+"</div>" ;
+//   if (markerResult[i][1]['brondol_tinggal'] != 0){
+//     template +=   "<div ><span style='font-weight:bold'>Brondol Tinggal </span>: "+markerResult[i][1]['brondol_tinggal']+"</div>" ;
+//      numberIcon = new L.Icon({
+//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+//             iconSize: [25, 41],
+//             iconAnchor: [12, 41],
+//             popupAnchor: [1, -34],
+//             shadowSize: [41, 41],
+//         });
+//   } 
+//   if (markerResult[i][1]['jum_karung'] != 0){
+//     template +=   "<div ><span style='font-weight:bold'>Karung Tinggal </span>: "+markerResult[i][1]['jum_karung']+"</div>" ;
+//      numberIcon = new L.Icon({
+//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+//             iconSize: [25, 41],
+//             iconAnchor: [12, 41],
+//             popupAnchor: [1, -34],
+//             shadowSize: [41, 41],
+//         });
+//   }
+//   if (markerResult[i][1]['buah_tinggal'] != 0){
+//     template +=   "<div ><span style='font-weight:bold'>Buah Tinggal </span>: "+markerResult[i][1]['buah_tinggal']+"</div>" ;
+//      numberIcon = new L.Icon({
+//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+//             iconSize: [25, 41],
+//             iconAnchor: [12, 41],
+//             popupAnchor: [1, -34],
+//             shadowSize: [41, 41],
+//         });
+//   }
+//   if (markerResult[i][1]['restan_unreported'] != 0){
+//     template +=   "<div ><span style='font-weight:bold'>Restan Tidak Dilaporkan </span>: "+markerResult[i][1]['restan_unreported']+"</div>" ;
     
-    numberIcon = new L.Icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41],
-        });
-  }
+//     numberIcon = new L.Icon({
+//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+//             iconSize: [25, 41],
+//             iconAnchor: [12, 41],
+//             popupAnchor: [1, -34],
+//             shadowSize: [41, 41],
+//         });
+//   }
 
-        L.marker(JSON.parse(markerResult[i][1]['latln']), {
-            icon: numberIcon
-        }).addTo(map).bindPopup(template, popupOptions)
-    .openPopup();
+//         L.marker(JSON.parse(markerResult[i][1]['latln']), {
+//             icon: numberIcon
+//         }).addTo(map).bindPopup(template, popupOptions)
+//     .openPopup();
 
-    //     // }
+//     //     // }
 
-}
+// }
     }
     })
 
@@ -300,11 +300,10 @@ function drawPlot(plot){
                         getLineStr += ":"
                         getLineStr += '{"coordinates"'
                         getLineStr += ":"
-                        getLineStr += '['
                         getLineStr += plot[i][1]
-                        getLineStr += '],"type"'
+                        getLineStr += ',"type"'
                         getLineStr += ":"
-                        getLineStr += '"LineString"'
+                        getLineStr += '"Point"'
                         getLineStr += '}},'
                     }
 
@@ -313,11 +312,11 @@ function drawPlot(plot){
 
             var line2 = JSON.parse(getLineStr)
 
-          var test =  L.geoJSON(line2, {
-                onEachFeature: function(feature, layer){
-                    layer.myTag = 'LineMarker'
-                    layer.addTo(map);
-                },
+          var test =  L.geoJSON(line2['features'], {
+                // onEachFeature: function(feature, layer){
+                //     layer.myTag = 'LineMarker'
+                //     layer.addTo(map);
+                // },
                 style: function(feature) {
                     return {
                     weight: 2,

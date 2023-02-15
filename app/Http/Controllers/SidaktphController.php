@@ -1283,572 +1283,576 @@ class SidaktphController extends Controller
 
         // $start = $request->start;
         // $last = $request->last;
+        $start = '2023-01-23';
+        $last = '2023-01-29';
 
 
 
-        // $queryEste = DB::connection('mysql2')->table('estate')
-        //     ->whereIn('wil', [1, 2, 3])
-        //     ->get();
+        $queryEste = DB::connection('mysql2')->table('estate')
+            ->whereIn('wil', [1, 2, 3])
+            ->get();
 
-        // $listEstaeWil1 = $queryEste;
+        $listEstaeWil1 = $queryEste;
 
 
-        // $listEstaeWil1 = json_decode($listEstaeWil1, true);
+        $listEstaeWil1 = json_decode($listEstaeWil1, true);
 
-        // $queryEste = $queryEste->groupBy(function ($item) {
-        //     return $item->wil;
-        // });
+        $queryEste = $queryEste->groupBy(function ($item) {
+            return $item->wil;
+        });
 
 
-        // $queryEste = json_decode($queryEste, true);
+        $queryEste = json_decode($queryEste, true);
 
 
 
 
 
-        // $queryAfd = DB::connection('mysql2')->Table('afdeling')
-        //     ->select(
-        //         'afdeling.id',
-        //         'afdeling.nama',
-        //         'estate.est'
-        //     )
-        //     ->join('estate', 'estate.id', '=', 'afdeling.estate')
-        //     ->get();
-        // // dd($queryAfd);
-        // $queryAfd = json_decode($queryAfd, true);
+        $queryAfd = DB::connection('mysql2')->Table('afdeling')
+            ->select(
+                'afdeling.id',
+                'afdeling.nama',
+                'estate.est'
+            )
+            ->join('estate', 'estate.id', '=', 'afdeling.estate')
+            ->get();
+        // dd($queryAfd);
+        $queryAfd = json_decode($queryAfd, true);
 
 
-        // // dd($queryAfd);
-        // $querySidak = DB::connection('mysql2')->table('sidak_tph')
-        //     ->whereBetween('sidak_tph.datetime', [$start, $last])
-        //     // ->whereBetween('sidak_tph.datetime', ['2022-12-19', '2022-12-25'])
-        //     ->get();
-        // $querySidak = json_decode($querySidak, true);
-        // $dataAfdEst = array();
+        // dd($queryAfd);
+        $querySidak = DB::connection('mysql2')->table('sidak_tph')
+            ->whereBetween('sidak_tph.datetime', [$start, $last])
+            // ->whereBetween('sidak_tph.datetime', ['2022-12-19', '2022-12-25'])
+            ->get();
+        $querySidak = json_decode($querySidak, true);
+        $dataAfdEst = array();
 
-        // $querySidakPerEstate = DB::connection('mysql2')->table('sidak_tph')
-        //     ->select('sidak_tph.*',  DB::raw("DATE_FORMAT(sidak_tph.datetime,'%Y-%m-%d') as tanggal"))
-        //     ->whereBetween('sidak_tph.datetime', [$start, $last])
-        //     // ->whereBetween('sidak_tph.datetime', ['2022-12-19', '2022-12-25'])
-        //     ->get();
-
-
-
-        // // cari table pertanggal 
-        // $queryEste1 = $querySidakPerEstate->groupBy(function ($item) {
-        //     return $item->tanggal;
-        // });
-
-        // $queryEste2 = $querySidakPerEstate->groupBy(function ($item) {
-        //     return $item->est;
-        // });
-        // // dd($queryEste2);
-        // $queryEste1 = json_decode($queryEste1, true);
-        // $queryEste2 = json_decode($queryEste2, true);
-
-
-
-        // $dataPerEst = array();
-        // foreach ($listEstaeWil1 as $key => $value) {
-        //     foreach ($queryEste1 as $key2 => $value2) {
-        //         foreach ($value2 as $key3 => $value3) {
-        //             if ($value3['est'] == $value['est']) {
-        //                 foreach ($queryAfd as $key4 => $value4) {
-        //                     if ($value4['est'] == $value['est']) {
-        //                         if ($value3['afd'] == $value4['nama']) {
-        //                             $str = substr($value3['blok'], 0, -2);
-        //                             if (strpos($str, '0') !== false) {
-        //                                 $str = substr_replace($str, "", strpos($str, "0"), 1);
-        //                             }
-        //                             $dataPerEst[$key2][$value3['est']][$value4['nama']][$str] = $value3;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-
-        // $grouped = array_reduce($listEstaeWil1, function ($acc, $item) {
-        //     $acc[$item['wil']][] = $item;
-        //     return $acc;
-        // }, []);
-
-        // // dd($queryEste2);
-
-        // $dataFoto = array();
-        // foreach ($grouped as $key => $value) {
-        //     foreach ($queryEste2 as $key3 => $value3) {
-        //         // if ($value3['est'] == $value2['est']) {
-        //         //     $dataFoto[$key][$key3] = $value3;
-        //         //     # code...
-        //         // }
-        //     }
-        // }
-
-
-        // // dd($dataFoto);
-
-
-
-
-
-        // foreach ($dataPerEst as $key => $value) {
-        //     foreach ($value as $key2 => $value2) {
-        //         $sum_est_ha_sample = 0;
-        //         $sum_est_ha_sample = 0;
-        //         $sum_est_bt_sample = 0;
-        //         $sum_est_JlBin_sample = 0;
-        //         $sum_est_Karung_sample = 0;
-        //         $sum_est_Buah_sample = 0;
-        //         $sum_est_Restan_sample = 0;
-        //         foreach ($value2 as $key3 => $value3) {
-        //             $sum_bt_tph = 0;
-        //             $sum_bt_jalan = 0;
-        //             $sum_bt_bin = 0;
-        //             $sum_jum_karung = 0;
-        //             $sum_buah_tinggal = 0;
-        //             $sum_restan_unreported = 0;
-        //             $sum_HA = 0;
-        //             $sum_all = 0;
-        //             if (is_array($value3)) {
-        //                 foreach ($value3 as $key4 => $value4) {
-        //                     // dd($value4);
-        //                     $sum_bt_tph += $value4['bt_tph'];
-        //                     $sum_bt_jalan += $value4['bt_jalan'];
-        //                     $sum_bt_bin += $value4['bt_bin'];
-        //                     $sum_HA += $value4['luas'];
-
-        //                     $sum_jum_karung += $value4['jum_karung'];
-        //                     $sum_buah_tinggal += $value4['buah_tinggal'];
-        //                     $sum_restan_unreported += $value4['restan_unreported'];
-        //                     $dataSkorAwalBlok[$key][$key2][$key3][$key4] = $value4;
-        //                 }
-        //             }
-        //             $sum_all = $sum_bt_jalan + $sum_bt_bin;
-        //             $sum_est_bt_sample = $sum_bt_tph;
-        //             $sum_est_JlBin_sample = $sum_all;
-        //             $sum_est_Karung_sample = $sum_jum_karung;
-        //             $sum_est_Buah_sample = $sum_buah_tinggal;
-        //             $sum_est_Restan_sample = $sum_restan_unreported;
-        //             $sum_est_ha_sample = $sum_HA;
-        //             //  else {
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['ha_total'] = $sum_est_ha_sample;
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['brondolan_total'] = $sum_est_bt_sample;
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['JalanBin_total'] = $sum_est_JlBin_sample;
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['Karung_total'] = $sum_est_Karung_sample;
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['BuahTinggal_total'] = $sum_est_Buah_sample;
-        //             $dataSkorAwalBlok[$key][$key2][$key3]['RestanUnreported_total'] = $sum_est_Restan_sample;
-        //         }
-        //     }
-        // }
-
-        // // dd($dataSkorAwalBlok);
-
-
-
-        // if (!empty($dataSkorAwalBlok)) {
-        //     foreach ($listEstaeWil1 as $key => $value) {
-        //         foreach ($dataSkorAwalBlok as $key2 => $value2) {
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if ($value['est'] == $key3) {
-        //                     $dataSkorAwalBlok[$key2][$key3]['estate'] = $value['nama'];
-        //                     $dataSkorAwalBlok[$key2][$key3]['tanggal'] = $key2;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-
-
-
-
-        // $dataAfdEst = array();
-        // // menyimpan array nested dari  wil -> est -> afd
-        // foreach ($queryEste as $key => $value) {
-        //     foreach ($value as $key2 => $value2) {
-        //         foreach ($queryAfd as $key3 => $value3) {
-        //             $est = $value2['est'];
-        //             $afd = $value3['nama'];
-        //             if ($value2['est'] == $value3['est']) {
-        //                 foreach ($querySidak as $key4 => $value4) {
-        //                     if (($est == $value4['est']) && $afd == $value4['afd']) {
-        //                         $dataAfdEst[$est][$afd][] = $value4;
-        //                     } else {
-        //                         $dataAfdEst[$est][$afd]['null'] = 0;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        // foreach ($dataAfdEst as $key => $value) {
-        //     foreach ($value as $key2 => $value2) {
-        //         foreach ($value2 as $key3 => $value3) {
-        //             if ($key3 == 'null') {;
-        //                 unset($dataAfdEst[$key][$key2][$key3]);
-        //                 if (empty($dataAfdEst[$key][$key2])) {
-        //                     $dataAfdEst[$key][$key2] = 0;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        // // bagian untuk export ke foto 
-        // $DataFotoperWil = array();
-        // foreach ($queryEste as $key => $value) {
-        //     foreach ($value as $key2 => $value2) {
-        //         foreach ($dataAfdEst as $key3 => $value3) {
-        //             if ($value2['est'] == $key3) {
-        //                 $DataFotoperWil[$key][$key3] = $value3;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // foreach ($DataFotoperWil as $key1 => $value1) {
-        //     foreach ($value1 as $key2 => $value2) {
-        //         foreach ($value2 as $key3 => $value3)
-        //             if (is_array($value3)) {
-
-        //                 $DataFotoperWil[$key1][$key2][$key3] = reset($value3);
-        //             }
-        //     }
-        // }
-
-
-
-        // // dd($DataFotoperWil);
-
-        // // endnya
-        // // cari table pertama 
-        // if (!isset($dataSkorAwal)) {
-        //     $dataSkorAwal = array();
-        // }
-        // foreach ($dataAfdEst as $key => $value) {
-        //     //...
-        //     $sum_est_ha_sample = 0;
-        //     $sum_est_bt_sample = 0;
-        //     $sum_est_JlBin_sample = 0;
-        //     $sum_est_Karung_sample = 0;
-        //     $sum_est_Buah_sample = 0;
-        //     $sum_est_Restan_sample = 0;
-        //     foreach ($value as $key2 => $value2) {
-        //         $sum_bt_tph = 0;
-        //         $sum_bt_jalan = 0;
-        //         $sum_bt_bin = 0;
-        //         $sum_jum_karung = 0;
-        //         $sum_buah_tinggal = 0;
-        //         $sum_restan_unreported = 0;
-        //         $sum_ha_sample = 0;
-        //         if (is_array($value2)) {
-        //             foreach ($value2 as $key3 => $value3) {
-
-        //                 $sum_bt_tph += $value3['bt_tph'];
-        //                 $sum_bt_jalan += $value3['bt_jalan'];
-        //                 $sum_bt_bin += $value3['bt_bin'];
-
-        //                 $sum_ha_sample += $value3['luas'];
-
-        //                 $sum_jum_karung += $value3['jum_karung'];
-        //                 $sum_buah_tinggal += $value3['buah_tinggal'];
-        //                 $sum_restan_unreported += $value3['restan_unreported'];
-        //             }
-
-        //             $dataSkorAwal[$key][$key2]['tph'] = $sum_bt_tph;
-        //             $dataSkorAwal[$key][$key2]['ha_sample'] = $sum_ha_sample;
-        //             $dataSkorAwal[$key][$key2]['jalan_bin'] = $sum_bt_jalan + $sum_bt_bin;
-        //             $dataSkorAwal[$key][$key2]['karung'] = $sum_jum_karung;
-        //             $dataSkorAwal[$key][$key2]['buah_tinggal'] = $sum_buah_tinggal;
-        //             $dataSkorAwal[$key][$key2]['restan_unreported'] = $sum_restan_unreported;
-        //         } else {
-        //             $dataSkorAwal[$key][$key2]['tph'] = 0;
-        //             $dataSkorAwal[$key][$key2]['ha_sample'] = 0;
-        //             $dataSkorAwal[$key][$key2]['jalan_bin'] = 0;
-        //             $dataSkorAwal[$key][$key2]['karung'] = 0;
-        //             $dataSkorAwal[$key][$key2]['buah_tinggal'] = 0;
-        //             $dataSkorAwal[$key][$key2]['restan_unreported'] = 0;
-        //         }
-        //         $sum_est_ha_sample += $sum_ha_sample;
-        //         $sum_est_bt_sample += $sum_bt_tph;
-        //         $sum_est_JlBin_sample += $sum_bt_jalan + $sum_bt_bin;
-        //         $sum_est_Karung_sample += $sum_jum_karung;
-        //         $sum_est_Buah_sample += $sum_buah_tinggal;
-        //         $sum_est_Restan_sample += $sum_restan_unreported;
-        //     }
-        //     $dataSkorAwal[$key]['ha_total'] = $sum_est_ha_sample;
-        //     $dataSkorAwal[$key]['brondolan_total'] = $sum_est_bt_sample;
-        //     $dataSkorAwal[$key]['JalanBin_total'] = $sum_est_JlBin_sample;
-        //     $dataSkorAwal[$key]['Karung_total'] = $sum_est_Karung_sample;
-        //     $dataSkorAwal[$key]['BuahTinggal_total'] = $sum_est_Buah_sample;
-        //     $dataSkorAwal[$key]['RestanUnreported_total'] = $sum_est_Restan_sample;
-        // }
-
-
-        // // dd($dataAfdEst);
-        // // if (empty($dataSkorAwal && $dataSkorAwalBlok)) {
-        // //     // echo "No data to display";
-        // //     return redirect()->route('404')->with('status', 'No data to display');
-        // // } else {
-        //     $dataSkorAkhirPerWil = array();
-        //     foreach ($queryEste as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             foreach ($dataSkorAwal as $key3 => $value3) {
-        //                 if ($value2['est'] == $key3) {
-        //                     $dataSkorAkhirPerWil[$key][$key3] = $value3;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-
-        //     // dd($dataSkorAkhirPerWil);
-        //     // cari table highest finding
-        //     $max_brd = [];
-        //     foreach ($dataSkorAkhirPerWil as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             $max_tph = 0;
-        //             $max_tph_id = 0;
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['tph'] > $max_tph) {
-        //                     $max_tph = $value3['tph'];
-        //                     $max_tph_id = $key3;
-        //                 }
-        //             }
-        //             if ($max_tph > 0) {
-        //                 $max_brd[$key][$key2][$max_tph_id]['brd_max'] = $max_tph;
-        //                 $max_wil_1[$key]['brd_max'] = $max_tph;
-        //             }
-        //         }
-        //     }
-        //     // dd($max_wil_1);
-        //     $max_brd_fix = [];
-        //     foreach ($max_brd as $key => $value) {
-        //         $max_tph = 0;
-        //         $max_tph_id = 0;
-        //         foreach ($value as $key2 => $value2) {
-
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['brd_max'] > $max_tph) {
-        //                     $max_tph = $value3['brd_max'];
-        //                     $max_tph_id = $key3;
-        //                 }
-        //             }
-        //         }
-        //         if ($max_tph > 0) {
-        //             $max_brd_fix[$key][$key2][$max_tph_id]['brondolan_maxx'] = $max_tph;
-        //         } else {
-        //             $max_brd_fix[$key][$key2][$max_tph_id]['brondolan_maxx'] = 0;
-        //         }
-        //     }
-        //     // dd($max_brd_fix)
-        //     // menghitung karung 
-        //     $max_Karung = [];
-        //     foreach ($dataSkorAkhirPerWil as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             $max_tph = 0;
-        //             $max_tph_id = 0;
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['karung'] > $max_tph) {
-        //                     $max_tph = $value3['karung'];
-        //                     $max_tph_id = $key3;
-        //                 }
-        //             }
-        //             if ($max_tph > 0) {
-        //                 $max_Karung[$key][$key2][$max_tph_id]['krg_max'] = $max_tph;
-        //                 $max_wil_1[$key]['krg_max'] = $max_tph;
-        //             }
-        //         }
-        //     }
-        //     $max_krg_fix = [];
-        //     foreach ($max_Karung as $key => $value) {
-        //         $max_krg = 0;
-        //         $max_krg_id = 0;
-        //         foreach ($value as $key2 => $value2) {
-
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['krg_max'] > $max_krg) {
-        //                     $max_krg = $value3['krg_max'];
-        //                     $max_krg_id = $key3;
-        //                 }
-        //             }
-        //         }
-        //         if ($max_krg > 0) {
-        //             $max_krg_fix[$key][$key2][$max_krg_id]['karung_max'] = $max_krg;
-        //         } else {
-        //             $max_krg_fix[$key][$key2][$max_krg_id]['karung_max'] = 0;
-        //         }
-        //     }
-        //     //menghitung buah tinggal
-        //     $max_buahTgl = [];
-        //     foreach ($dataSkorAkhirPerWil as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             $max_tph = 0;
-        //             $max_tph_id = 0;
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['buah_tinggal'] > $max_tph) {
-        //                     $max_tph = $value3['buah_tinggal'];
-        //                     $max_tph_id = $key3;
-        //                 }
-        //             }
-        //             if ($max_tph > 0) {
-        //                 $max_buahTgl[$key][$key2][$max_tph_id]['buahTGL_max'] = $max_tph;
-        //                 $max_wil_1[$key]['buahTGL_max'] = $max_tph;
-        //             }
-        //         }
-        //     }
-        //     $max_buahtgal_fix = [];
-        //     foreach ($max_buahTgl as $key => $value) {
-        //         $max_bhTgl = 0;
-        //         $max_bhTgl_id = 0;
-        //         foreach ($value as $key2 => $value2) {
-
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['buahTGL_max'] > $max_bhTgl) {
-        //                     $max_bhTgl = $value3['buahTGL_max'];
-        //                     $max_bhTgl_id = $key3;
-        //                 }
-        //             }
-        //         }
-        //         if ($max_bhTgl > 0) {
-        //             $max_buahtgal_fix[$key][$key2][$max_bhTgl_id]['buah_tgl_max_fix'] = $max_bhTgl;
-        //         } else {
-        //             $max_buahtgal_fix[$key][$key2][$max_bhTgl_id]['buah_tgl_max_fix'] = 0;
-        //         }
-        //     }
-        //     //buah restant
-        //     $max_restant = [];
-        //     foreach ($dataSkorAkhirPerWil as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             $max_tph = 0;
-        //             $max_tph_id = 0;
-
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['restan_unreported'] > $max_tph) {
-        //                     $max_tph = $value3['restan_unreported'];
-        //                     $max_tph_id = $key3;
-        //                 }
-        //             }
-        //             if ($max_tph > 0) {
-        //                 $max_restant[$key][$key2][$max_tph_id]['restant_max'] = $max_tph;
-        //                 $max_wil_1[$key]['restant_max'] = $max_tph;
-        //             }
-        //         }
-        //     }
-
-        //     $max_restanFix = [];
-        //     foreach ($max_restant as $key => $value) {
-        //         $max_bhTgl = 0;
-        //         $max_bhTgl_id = 0;
-        //         foreach ($value as $key2 => $value2) {
-
-        //             foreach ($value2 as $key3 => $value3) {
-        //                 if (is_array($value3) && $value3['restant_max'] > $max_bhTgl) {
-        //                     $max_bhTgl = $value3['restant_max'];
-        //                     $max_bhTgl_id = $key3;
-        //                 }
-        //             }
-        //         }
-        //         if ($max_bhTgl > 0) {
-        //             $max_restanFix[$key][$key2][$max_bhTgl_id]['restant_max_fix'] = $max_bhTgl;
-        //         } else {
-        //             $max_restanFix[$key][$key2][$max_bhTgl_id]['restant_max_fix'] = 0;
-        //         }
-        //     }
-
-        //     // membuat bagian untuk export chart ke pdf
-
-
-
-        //     // end chart
-
-        //     //hasil akhir  untuk di kirim ke blade view
-
-        //     //foto akhir
-        //     $will_1_foto = isset($DataFotoperWil) ? $DataFotoperWil : '';
-        //     // dd($will_1_foto);
-        //     //
-
-
-        //     // dd($dataSkorAkhirPerWil);
-        //     $wil_1_sidak_tph = $dataSkorAkhirPerWil[1];
-        //     $wil_2_sidak_tph = $dataSkorAkhirPerWil[2];
-        //     $wil_3_sidak_tph = $dataSkorAkhirPerWil[3];
-        //     //untuk max id wil 1
-
-
-
-        //     $wil_1_sidak_tph_max = isset($max_brd_fix[1]) ? $max_brd_fix[1] : '';
-        //     $wil_1_sidak_krng_max = isset($max_krg_fix[1]) ? $max_krg_fix[1] : '';
-        //     $wil_1_sidak_buah_max = isset($max_buahtgal_fix[1]) ? $max_buahtgal_fix[1] : '';
-        //     $wil_1_sidak_restant_max = isset($max_restanFix[1]) ? $max_restanFix[1] : '';
-        //     //untuk max id wil 3
-        //     $wil_2_sidak_tph_max = isset($max_brd_fix[2]) ? $max_brd_fix[2] : '';
-        //     $wil_2_sidak_krng_max = isset($max_krg_fix[2]) ? $max_krg_fix[2] : '';
-        //     $wil_2_sidak_buah_max = isset($max_buahtgal_fix[2]) ? $max_buahtgal_fix[2] : '';
-        //     $wil_2_sidak_restant_max = isset($max_restanFix[2]) ? $max_restanFix[2] : '';
-        //     // //untuk max id wil 3
-        //     $wil_3_sidak_tph_max = isset($max_brd_fix[3]) ? $max_brd_fix[3] : '';
-        //     $wil_3_sidak_krng_max = isset($max_krg_fix[3]) ? $max_krg_fix[3] : '';
-        //     $wil_3_sidak_buah_max = isset($max_buahtgal_fix[3]) ? $max_buahtgal_fix[3] : '';
-        //     $wil_3_sidak_restant_max = isset($max_restanFix[3]) ? $max_restanFix[3] : '';
-
-        //     // data untuk menampilkan data pertanggal di table
-        //     // dd($dataSkorAwalBlok);
-        //     $dataFixSkorAwalBlok = array();
-        //     foreach ($dataSkorAwalBlok as $key => $value) {
-        //         foreach ($value as $key2 => $value2) {
-        //             $dataFixSkorAwalBlok[] = $value2;
-        //         }
-        //     }
-
-        //     // dd($dataFixSkorAwalBlok);
-        //     $DataPerTanggal = isset($dataFixSkorAwalBlok) ? $dataFixSkorAwalBlok : '';
-
-        //     // $DataPerTanggal = isset($dataSkorAwalBlok) ? $dataSkorAwalBlok : '';
-
-        //     // dd($wil_1_sidak_tph_max, $wil_1_sidak_krng_max);
-        //     // $pdf = PDF::loadView('cetakSidak', [
-        //     //     'wil_1_sidak_tph' => $wil_1_sidak_tph,
-        //     //     'wil_2_sidak_tph' => $wil_2_sidak_tph,
-        //     //     'wil_3_sidak_tph' => $wil_3_sidak_tph,
-        //     //     'start' => $start,
-        //     //     'last' => $last,
-        //     //     'wil_1_sidak_tph_max' => $wil_1_sidak_tph_max,
-        //     //     'wil_1_sidak_krng_max' => $wil_1_sidak_krng_max,
-        //     //     'wil_1_sidak_buah_max' => $wil_1_sidak_buah_max,
-        //     //     'wil_1_sidak_restant_max' => $wil_1_sidak_restant_max,
-        //     //     'wil_2_sidak_tph_max' => $wil_2_sidak_tph_max,
-        //     //     'wil_2_sidak_krng_max' => $wil_2_sidak_krng_max,
-        //     //     'wil_2_sidak_buah_max' => $wil_2_sidak_buah_max,
-        //     //     'wil_2_sidak_restant_max' => $wil_2_sidak_restant_max,
-        //     //     'wil_3_sidak_tph_max' => $wil_3_sidak_tph_max,
-        //     //     'wil_3_sidak_krng_max' => $wil_3_sidak_krng_max,
-        //     //     'wil_3_sidak_buah_max' => $wil_3_sidak_buah_max,
-        //     //     'wil_3_sidak_restant_max' => $wil_3_sidak_restant_max,
-        //     //     'DataPerTanggal' => $DataPerTanggal,
-        //     //     'will_1_foto' => $will_1_foto
-
-        //     // ]);
-
-
-
-
-
-
-        //     // $pdf->set_paper('A3', 'potrait');
-        //     // $pdf->setOption('enable-javascript', true);
-        //     // $filename = 'REKAPITULASI Pemeriksaan TPH & BIN Reg-I Tanggal: ' . $start . ' sampai ' . $last . '.pdf';
-        //     // $filename = 'REKAPITULASI-' .$start . '-' .$last '.pdf';
-
-        //     // return $pdf->stream($filename, array('Attachment' => 0));
+        $querySidakPerEstate = DB::connection('mysql2')->table('sidak_tph')
+            ->select('sidak_tph.*',  DB::raw("DATE_FORMAT(sidak_tph.datetime,'%Y-%m-%d') as tanggal"))
+            ->whereBetween('sidak_tph.datetime', [$start, $last])
+            // ->whereBetween('sidak_tph.datetime', ['2022-12-19', '2022-12-25'])
+            ->get();
+
+
+
+        // cari table pertanggal 
+        $queryEste1 = $querySidakPerEstate->groupBy(function ($item) {
+            return $item->tanggal;
+        });
+
+        $queryEste2 = $querySidakPerEstate->groupBy(function ($item) {
+            return $item->est;
+        });
+        // dd($queryEste2);
+        $queryEste1 = json_decode($queryEste1, true);
+        $queryEste2 = json_decode($queryEste2, true);
+
+
+
+        $dataPerEst = array();
+        foreach ($listEstaeWil1 as $key => $value) {
+            foreach ($queryEste1 as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    if ($value3['est'] == $value['est']) {
+                        foreach ($queryAfd as $key4 => $value4) {
+                            if ($value4['est'] == $value['est']) {
+                                if ($value3['afd'] == $value4['nama']) {
+                                    $str = substr($value3['blok'], 0, -2);
+                                    if (strpos($str, '0') !== false) {
+                                        $str = substr_replace($str, "", strpos($str, "0"), 1);
+                                    }
+                                    $dataPerEst[$key2][$value3['est']][$value4['nama']][$str] = $value3;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        $grouped = array_reduce($listEstaeWil1, function ($acc, $item) {
+            $acc[$item['wil']][] = $item;
+            return $acc;
+        }, []);
+
+        // dd($queryEste2);
+
+        $dataFoto = array();
+        foreach ($grouped as $key => $value) {
+            foreach ($queryEste2 as $key3 => $value3) {
+                // if ($value3['est'] == $value2['est']) {
+                //     $dataFoto[$key][$key3] = $value3;
+                //     # code...
+                // }
+            }
+        }
+
+
+        // dd($dataFoto);
+
+
+
+
+
+        foreach ($dataPerEst as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $sum_est_ha_sample = 0;
+                $sum_est_ha_sample = 0;
+                $sum_est_bt_sample = 0;
+                $sum_est_JlBin_sample = 0;
+                $sum_est_Karung_sample = 0;
+                $sum_est_Buah_sample = 0;
+                $sum_est_Restan_sample = 0;
+                foreach ($value2 as $key3 => $value3) {
+                    $sum_bt_tph = 0;
+                    $sum_bt_jalan = 0;
+                    $sum_bt_bin = 0;
+                    $sum_jum_karung = 0;
+                    $sum_buah_tinggal = 0;
+                    $sum_restan_unreported = 0;
+                    $sum_HA = 0;
+                    $sum_all = 0;
+                    if (is_array($value3)) {
+                        foreach ($value3 as $key4 => $value4) {
+                            // dd($value4);
+                            $sum_bt_tph += $value4['bt_tph'];
+                            $sum_bt_jalan += $value4['bt_jalan'];
+                            $sum_bt_bin += $value4['bt_bin'];
+                            $sum_HA += $value4['luas'];
+
+                            $sum_jum_karung += $value4['jum_karung'];
+                            $sum_buah_tinggal += $value4['buah_tinggal'];
+                            $sum_restan_unreported += $value4['restan_unreported'];
+                            $dataSkorAwalBlok[$key][$key2][$key3][$key4] = $value4;
+                        }
+                    }
+                    $sum_all = $sum_bt_jalan + $sum_bt_bin;
+                    $sum_est_bt_sample = $sum_bt_tph;
+                    $sum_est_JlBin_sample = $sum_all;
+                    $sum_est_Karung_sample = $sum_jum_karung;
+                    $sum_est_Buah_sample = $sum_buah_tinggal;
+                    $sum_est_Restan_sample = $sum_restan_unreported;
+                    $sum_est_ha_sample = $sum_HA;
+                    //  else {
+                    $dataSkorAwalBlok[$key][$key2][$key3]['ha_total'] = $sum_est_ha_sample;
+                    $dataSkorAwalBlok[$key][$key2][$key3]['brondolan_total'] = $sum_est_bt_sample;
+                    $dataSkorAwalBlok[$key][$key2][$key3]['JalanBin_total'] = $sum_est_JlBin_sample;
+                    $dataSkorAwalBlok[$key][$key2][$key3]['Karung_total'] = $sum_est_Karung_sample;
+                    $dataSkorAwalBlok[$key][$key2][$key3]['BuahTinggal_total'] = $sum_est_Buah_sample;
+                    $dataSkorAwalBlok[$key][$key2][$key3]['RestanUnreported_total'] = $sum_est_Restan_sample;
+                }
+            }
+        }
+
+        // dd($dataSkorAwalBlok);
+
+
+
+        if (!empty($dataSkorAwalBlok)) {
+            foreach ($listEstaeWil1 as $key => $value) {
+                foreach ($dataSkorAwalBlok as $key2 => $value2) {
+                    foreach ($value2 as $key3 => $value3) {
+                        if ($value['est'] == $key3) {
+                            $dataSkorAwalBlok[$key2][$key3]['estate'] = $value['nama'];
+                            $dataSkorAwalBlok[$key2][$key3]['tanggal'] = $key2;
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+        $dataAfdEst = array();
+        // menyimpan array nested dari  wil -> est -> afd
+        foreach ($queryEste as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($queryAfd as $key3 => $value3) {
+                    $est = $value2['est'];
+                    $afd = $value3['nama'];
+                    if ($value2['est'] == $value3['est']) {
+                        foreach ($querySidak as $key4 => $value4) {
+                            if (($est == $value4['est']) && $afd == $value4['afd']) {
+                                $dataAfdEst[$est][$afd][] = $value4;
+                            } else {
+                                $dataAfdEst[$est][$afd]['null'] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        foreach ($dataAfdEst as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    if ($key3 == 'null') {;
+                        unset($dataAfdEst[$key][$key2][$key3]);
+                        if (empty($dataAfdEst[$key][$key2])) {
+                            $dataAfdEst[$key][$key2] = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        // bagian untuk export ke foto 
+        $DataFotoperWil = array();
+        foreach ($queryEste as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($dataAfdEst as $key3 => $value3) {
+                    if ($value2['est'] == $key3) {
+                        $DataFotoperWil[$key][$key3] = $value3;
+                    }
+                }
+            }
+        }
+
+        foreach ($DataFotoperWil as $key1 => $value1) {
+            foreach ($value1 as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3)
+                    if (is_array($value3)) {
+
+                        $DataFotoperWil[$key1][$key2][$key3] = reset($value3);
+                    }
+            }
+        }
+
+
+
+        // dd($DataFotoperWil);
+
+        // endnya
+        // cari table pertama 
+        if (!isset($dataSkorAwal)) {
+            $dataSkorAwal = array();
+        }
+        foreach ($dataAfdEst as $key => $value) {
+            //...
+            $sum_est_ha_sample = 0;
+            $sum_est_bt_sample = 0;
+            $sum_est_JlBin_sample = 0;
+            $sum_est_Karung_sample = 0;
+            $sum_est_Buah_sample = 0;
+            $sum_est_Restan_sample = 0;
+            foreach ($value as $key2 => $value2) {
+                $sum_bt_tph = 0;
+                $sum_bt_jalan = 0;
+                $sum_bt_bin = 0;
+                $sum_jum_karung = 0;
+                $sum_buah_tinggal = 0;
+                $sum_restan_unreported = 0;
+                $sum_ha_sample = 0;
+                if (is_array($value2)) {
+                    foreach ($value2 as $key3 => $value3) {
+
+                        $sum_bt_tph += $value3['bt_tph'];
+                        $sum_bt_jalan += $value3['bt_jalan'];
+                        $sum_bt_bin += $value3['bt_bin'];
+
+                        $sum_ha_sample += $value3['luas'];
+
+                        $sum_jum_karung += $value3['jum_karung'];
+                        $sum_buah_tinggal += $value3['buah_tinggal'];
+                        $sum_restan_unreported += $value3['restan_unreported'];
+                    }
+
+                    $dataSkorAwal[$key][$key2]['tph'] = $sum_bt_tph;
+                    $dataSkorAwal[$key][$key2]['ha_sample'] = $sum_ha_sample;
+                    $dataSkorAwal[$key][$key2]['jalan_bin'] = $sum_bt_jalan + $sum_bt_bin;
+                    $dataSkorAwal[$key][$key2]['karung'] = $sum_jum_karung;
+                    $dataSkorAwal[$key][$key2]['buah_tinggal'] = $sum_buah_tinggal;
+                    $dataSkorAwal[$key][$key2]['restan_unreported'] = $sum_restan_unreported;
+                } else {
+                    $dataSkorAwal[$key][$key2]['tph'] = 0;
+                    $dataSkorAwal[$key][$key2]['ha_sample'] = 0;
+                    $dataSkorAwal[$key][$key2]['jalan_bin'] = 0;
+                    $dataSkorAwal[$key][$key2]['karung'] = 0;
+                    $dataSkorAwal[$key][$key2]['buah_tinggal'] = 0;
+                    $dataSkorAwal[$key][$key2]['restan_unreported'] = 0;
+                }
+                $sum_est_ha_sample += $sum_ha_sample;
+                $sum_est_bt_sample += $sum_bt_tph;
+                $sum_est_JlBin_sample += $sum_bt_jalan + $sum_bt_bin;
+                $sum_est_Karung_sample += $sum_jum_karung;
+                $sum_est_Buah_sample += $sum_buah_tinggal;
+                $sum_est_Restan_sample += $sum_restan_unreported;
+            }
+            $dataSkorAwal[$key]['ha_total'] = $sum_est_ha_sample;
+            $dataSkorAwal[$key]['brondolan_total'] = $sum_est_bt_sample;
+            $dataSkorAwal[$key]['JalanBin_total'] = $sum_est_JlBin_sample;
+            $dataSkorAwal[$key]['Karung_total'] = $sum_est_Karung_sample;
+            $dataSkorAwal[$key]['BuahTinggal_total'] = $sum_est_Buah_sample;
+            $dataSkorAwal[$key]['RestanUnreported_total'] = $sum_est_Restan_sample;
+        }
+
+
+        // dd($dataAfdEst);
+        // if (empty($dataSkorAwal && $dataSkorAwalBlok)) {
+        //     // echo "No data to display";
+        //     return redirect()->route('404')->with('status', 'No data to display');
+        // } else {
+        $dataSkorAkhirPerWil = array();
+        foreach ($queryEste as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                foreach ($dataSkorAwal as $key3 => $value3) {
+                    if ($value2['est'] == $key3) {
+                        $dataSkorAkhirPerWil[$key][$key3] = $value3;
+                    }
+                }
+            }
+        }
+
+
+        // dd($dataSkorAkhirPerWil);
+        // cari table highest finding
+        $max_brd = [];
+        foreach ($dataSkorAkhirPerWil as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $max_tph = 0;
+                $max_tph_id = 0;
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['tph'] > $max_tph) {
+                        $max_tph = $value3['tph'];
+                        $max_tph_id = $key3;
+                    }
+                }
+                if ($max_tph > 0) {
+                    $max_brd[$key][$key2][$max_tph_id]['brd_max'] = $max_tph;
+                    $max_wil_1[$key]['brd_max'] = $max_tph;
+                }
+            }
+        }
+        // dd($max_wil_1);
+        $max_brd_fix = [];
+        foreach ($max_brd as $key => $value) {
+            $max_tph = 0;
+            $max_tph_id = 0;
+            foreach ($value as $key2 => $value2) {
+
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['brd_max'] > $max_tph) {
+                        $max_tph = $value3['brd_max'];
+                        $max_tph_id = $key3;
+                    }
+                }
+            }
+            if ($max_tph > 0) {
+                $max_brd_fix[$key][$key2][$max_tph_id]['brondolan_maxx'] = $max_tph;
+            } else {
+                $max_brd_fix[$key][$key2][$max_tph_id]['brondolan_maxx'] = 0;
+            }
+        }
+        // dd($max_brd_fix)
+        // menghitung karung 
+        $max_Karung = [];
+        foreach ($dataSkorAkhirPerWil as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $max_tph = 0;
+                $max_tph_id = 0;
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['karung'] > $max_tph) {
+                        $max_tph = $value3['karung'];
+                        $max_tph_id = $key3;
+                    }
+                }
+                if ($max_tph > 0) {
+                    $max_Karung[$key][$key2][$max_tph_id]['krg_max'] = $max_tph;
+                    $max_wil_1[$key]['krg_max'] = $max_tph;
+                }
+            }
+        }
+        $max_krg_fix = [];
+        foreach ($max_Karung as $key => $value) {
+            $max_krg = 0;
+            $max_krg_id = 0;
+            foreach ($value as $key2 => $value2) {
+
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['krg_max'] > $max_krg) {
+                        $max_krg = $value3['krg_max'];
+                        $max_krg_id = $key3;
+                    }
+                }
+            }
+            if ($max_krg > 0) {
+                $max_krg_fix[$key][$key2][$max_krg_id]['karung_max'] = $max_krg;
+            } else {
+                $max_krg_fix[$key][$key2][$max_krg_id]['karung_max'] = 0;
+            }
+        }
+        //menghitung buah tinggal
+        $max_buahTgl = [];
+        foreach ($dataSkorAkhirPerWil as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $max_tph = 0;
+                $max_tph_id = 0;
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['buah_tinggal'] > $max_tph) {
+                        $max_tph = $value3['buah_tinggal'];
+                        $max_tph_id = $key3;
+                    }
+                }
+                if ($max_tph > 0) {
+                    $max_buahTgl[$key][$key2][$max_tph_id]['buahTGL_max'] = $max_tph;
+                    $max_wil_1[$key]['buahTGL_max'] = $max_tph;
+                }
+            }
+        }
+        $max_buahtgal_fix = [];
+        foreach ($max_buahTgl as $key => $value) {
+            $max_bhTgl = 0;
+            $max_bhTgl_id = 0;
+            foreach ($value as $key2 => $value2) {
+
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['buahTGL_max'] > $max_bhTgl) {
+                        $max_bhTgl = $value3['buahTGL_max'];
+                        $max_bhTgl_id = $key3;
+                    }
+                }
+            }
+            if ($max_bhTgl > 0) {
+                $max_buahtgal_fix[$key][$key2][$max_bhTgl_id]['buah_tgl_max_fix'] = $max_bhTgl;
+            } else {
+                $max_buahtgal_fix[$key][$key2][$max_bhTgl_id]['buah_tgl_max_fix'] = 0;
+            }
+        }
+        //buah restant
+        $max_restant = [];
+        foreach ($dataSkorAkhirPerWil as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $max_tph = 0;
+                $max_tph_id = 0;
+
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['restan_unreported'] > $max_tph) {
+                        $max_tph = $value3['restan_unreported'];
+                        $max_tph_id = $key3;
+                    }
+                }
+                if ($max_tph > 0) {
+                    $max_restant[$key][$key2][$max_tph_id]['restant_max'] = $max_tph;
+                    $max_wil_1[$key]['restant_max'] = $max_tph;
+                }
+            }
+        }
+
+        $max_restanFix = [];
+        foreach ($max_restant as $key => $value) {
+            $max_bhTgl = 0;
+            $max_bhTgl_id = 0;
+            foreach ($value as $key2 => $value2) {
+
+                foreach ($value2 as $key3 => $value3) {
+                    if (is_array($value3) && $value3['restant_max'] > $max_bhTgl) {
+                        $max_bhTgl = $value3['restant_max'];
+                        $max_bhTgl_id = $key3;
+                    }
+                }
+            }
+            if ($max_bhTgl > 0) {
+                $max_restanFix[$key][$key2][$max_bhTgl_id]['restant_max_fix'] = $max_bhTgl;
+            } else {
+                $max_restanFix[$key][$key2][$max_bhTgl_id]['restant_max_fix'] = 0;
+            }
+        }
+
+        // membuat bagian untuk export chart ke pdf
+
+
+
+        // end chart
+
+        //hasil akhir  untuk di kirim ke blade view
+
+        //foto akhir
+        $will_1_foto = isset($DataFotoperWil) ? $DataFotoperWil : '';
+        // dd($will_1_foto);
+        //
+
+
+        // dd($dataSkorAkhirPerWil);
+        $wil_1_sidak_tph = $dataSkorAkhirPerWil[1];
+        $wil_2_sidak_tph = $dataSkorAkhirPerWil[2];
+        $wil_3_sidak_tph = $dataSkorAkhirPerWil[3];
+
+        dd($dataSkorAkhirPerWil);
+        //untuk max id wil 1
+
+
+
+        $wil_1_sidak_tph_max = isset($max_brd_fix[1]) ? $max_brd_fix[1] : '';
+        $wil_1_sidak_krng_max = isset($max_krg_fix[1]) ? $max_krg_fix[1] : '';
+        $wil_1_sidak_buah_max = isset($max_buahtgal_fix[1]) ? $max_buahtgal_fix[1] : '';
+        $wil_1_sidak_restant_max = isset($max_restanFix[1]) ? $max_restanFix[1] : '';
+        //untuk max id wil 3
+        $wil_2_sidak_tph_max = isset($max_brd_fix[2]) ? $max_brd_fix[2] : '';
+        $wil_2_sidak_krng_max = isset($max_krg_fix[2]) ? $max_krg_fix[2] : '';
+        $wil_2_sidak_buah_max = isset($max_buahtgal_fix[2]) ? $max_buahtgal_fix[2] : '';
+        $wil_2_sidak_restant_max = isset($max_restanFix[2]) ? $max_restanFix[2] : '';
+        // //untuk max id wil 3
+        $wil_3_sidak_tph_max = isset($max_brd_fix[3]) ? $max_brd_fix[3] : '';
+        $wil_3_sidak_krng_max = isset($max_krg_fix[3]) ? $max_krg_fix[3] : '';
+        $wil_3_sidak_buah_max = isset($max_buahtgal_fix[3]) ? $max_buahtgal_fix[3] : '';
+        $wil_3_sidak_restant_max = isset($max_restanFix[3]) ? $max_restanFix[3] : '';
+
+        // data untuk menampilkan data pertanggal di table
+        // dd($dataSkorAwalBlok);
+        $dataFixSkorAwalBlok = array();
+        foreach ($dataSkorAwalBlok as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $dataFixSkorAwalBlok[] = $value2;
+            }
+        }
+
+        // dd($dataFixSkorAwalBlok);
+        $DataPerTanggal = isset($dataFixSkorAwalBlok) ? $dataFixSkorAwalBlok : '';
+
+        // $DataPerTanggal = isset($dataSkorAwalBlok) ? $dataSkorAwalBlok : '';
+
+        // dd($wil_1_sidak_tph_max, $wil_1_sidak_krng_max);
+        // $pdf = PDF::loadView('cetakSidak', [
+        //     'wil_1_sidak_tph' => $wil_1_sidak_tph,
+        //     'wil_2_sidak_tph' => $wil_2_sidak_tph,
+        //     'wil_3_sidak_tph' => $wil_3_sidak_tph,
+        //     'start' => $start,
+        //     'last' => $last,
+        //     'wil_1_sidak_tph_max' => $wil_1_sidak_tph_max,
+        //     'wil_1_sidak_krng_max' => $wil_1_sidak_krng_max,
+        //     'wil_1_sidak_buah_max' => $wil_1_sidak_buah_max,
+        //     'wil_1_sidak_restant_max' => $wil_1_sidak_restant_max,
+        //     'wil_2_sidak_tph_max' => $wil_2_sidak_tph_max,
+        //     'wil_2_sidak_krng_max' => $wil_2_sidak_krng_max,
+        //     'wil_2_sidak_buah_max' => $wil_2_sidak_buah_max,
+        //     'wil_2_sidak_restant_max' => $wil_2_sidak_restant_max,
+        //     'wil_3_sidak_tph_max' => $wil_3_sidak_tph_max,
+        //     'wil_3_sidak_krng_max' => $wil_3_sidak_krng_max,
+        //     'wil_3_sidak_buah_max' => $wil_3_sidak_buah_max,
+        //     'wil_3_sidak_restant_max' => $wil_3_sidak_restant_max,
+        //     'DataPerTanggal' => $DataPerTanggal,
+        //     'will_1_foto' => $will_1_foto
+
+        // ]);
+
+
+
+
+
+
+        // $pdf->set_paper('A3', 'potrait');
+        // $pdf->setOption('enable-javascript', true);
+        // $filename = 'REKAPITULASI Pemeriksaan TPH & BIN Reg-I Tanggal: ' . $start . ' sampai ' . $last . '.pdf';
+        // $filename = 'REKAPITULASI-' .$start . '-' .$last '.pdf';
+
+        // return $pdf->stream($filename, array('Attachment' => 0));
         //     // dd($request);
-        $data = $request->chartData;
-        $pdf = PDF::loadView('cetakSidak', ['data' => $data]);
-        return $pdf->stream('charts.pdf');
+        // $data = $request->chartData;
+        // $pdf = PDF::loadView('cetakSidak', ['data' => $data]);
+        // return $pdf->stream('charts.pdf');
         // }
     }
 
