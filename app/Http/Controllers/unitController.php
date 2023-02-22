@@ -466,19 +466,17 @@ class unitController extends Controller
             }
         }
 
-        // dd($dataResult);
+
 
         $bulanKey = $bulanKe - 1;
 
         foreach ($dataResult as $key => $value) {
 
             //foreach dibawah ini untuk menhgitung banyaknya loop yang harus digunakan untuk membagi data
-            foreach ($bulan as $key2 => $value2) {
-                $incTotalBulan = 1;
-                foreach ($dataResult as $key3 => $value3) {
-                    if (is_array($value3[$value2])) {
-                        $incTotalBulan++;
-                    }
+            $incTotalBulan = 0;
+            foreach ($dataResult[array_key_first($dataResult)] as $key3 => $value3) {
+                if (is_array($value3)) {
+                    $incTotalBulan++;
                 }
             }
             //end foreach
@@ -539,7 +537,7 @@ class unitController extends Controller
                 }
             }
         }
-        // dd($dataResult);
+
 
         //khusus untuk menghitung record setiap bulan per estate
 
