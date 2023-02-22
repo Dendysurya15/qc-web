@@ -30,7 +30,7 @@
 
   <div class="d-flex justify-content-center">
     <div class="row mt-3 text-uppercase">
-      <h1>Sidak Pemeriksaan TPH Regional-I</h1>
+      <h1>Sidak Pemeriksaan TPH Regional - I</h1>
     </div>
   </div>
 
