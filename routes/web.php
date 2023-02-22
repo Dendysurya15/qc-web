@@ -50,6 +50,7 @@ Route::post('/update', [unitController::class, 'update']);
 Route::get('/hapus/{id}', [unitController::class, 'hapus']);
 Route::get('detailInspeksi/{id}', [unitController::class, 'detailInspeksi'])->name('detailInspeksi');
 Route::get('detailSidakTph/{est}/{afd}/{start}/{last}', [SidaktphController::class, 'detailSidakTph'])->name('detailSidakTph');
+Route::post('getDetailTPH', [SidaktphController::class, 'getDetailTPH'])->name('getDetailTPH');
 Route::post('getPlotLine', [SidaktphController::class, 'getPlotLine'])->name('getPlotLine');
 Route::get('/qc', [unitController::class, 'load_qc_gudang'])->name('qc');
 Route::get('/hapusRecord/{id}', [unitController::class, 'hapusRecord'])->name('hapusRecord');
@@ -57,7 +58,8 @@ Route::get('/cetakpdf/{id}', [unitController::class, 'cetakpdf']);
 // });
 
 Route::get('/dashboard_inspeksi', [inspectController::class, 'dashboard_inspeksi'])->name('dashboard_inspeksi');
-Route::get('/cetakPDFFI/{id}', [inspectController::class, 'cetakPDFFI'])->name('cetakPDFFI');
+Route::get('/cetakPDFFI/{id}/{tgl}', [inspectController::class, 'cetakPDFFI'])->name('cetakPDFFI');
+Route::post('/getFindData', [inspectController::class, 'getFindData'])->name('getFindData');
 // Route::post('/filter', [inspectController::class, 'filter']);
 
 Route::get('/filter', [inspectController::class, 'filter'])->name('filter');
