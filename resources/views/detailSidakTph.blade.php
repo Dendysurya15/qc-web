@@ -25,6 +25,12 @@
             <div class="card p-4">
                 <h4 class="text-center mt-2" style="font-weight: bold">Tabel Sidak TPH - {{$est}} {{$afd}}</h4>
                 <hr>
+                <select id="filter-blok" class="form_control mb-3" style="width: 20%">
+                    <option value="Semua Blok" selected>Semua Blok</option>
+                    @foreach ($blok as $key => $item)
+                    <option value="{{ $key }}">{{ $key }}</option>
+                    @endforeach
+                </select>
                 <table id="listSidakTPH" class=" text-center" style="width:100%">
                     {{ csrf_field() }}
                     <thead>
@@ -63,21 +69,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($data as $item)
-                        <tr>
-                            <td>{{ $item->blok }}</td>
-                            <td>{{ $item->no_tph }}</td>
-                            <td>{{ $item->luas }}</td>
-                            <td>{{ $item->bt_tph }}</td>
-                            <td>{{ $item->bt_jalan }}</td>
-                            <td>{{ $item->bt_bin }}</td>
-                            <td>{{ $item->jum_karung }}</td>
-                            <td>{{ $item->buah_tinggal }}</td>
-                            <td>{{ $item->restan_unreported }}</td>
-
-                        </tr>
-
-                        @endforeach
                     </tbody>
                 </table>
 
@@ -123,6 +114,43 @@
 <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>
 <script>
     $(document).ready(function() {
+        var blok = $('#filter-blok').val();
+        var est = '<?php echo $est;?>';
+        var afd = '<?php echo $afd;?>';
+        var start = '<?php echo $start;?>';
+        var last = '<?php echo $last;?>';
+        
+        const table = $('#listSidakTPH').DataTable({
+            'ajax': {
+                url: "{{ route('getDetailTPH') }}",
+                type: "POST",
+                data:function(d){
+                    d._token = "{{ csrf_token() }}";
+                    d.est = est;
+                    d.afd = afd;
+                    d.blok = blok;
+                    d.start = start;
+                    d.last = last;
+                    return d
+                }
+            },
+            columns: [
+                { data: 'blok' },
+                { data: 'no_tph' },
+                { data: 'luas' },
+                { data: 'bt_tph' },
+                { data: 'bt_jalan' },
+                { data: 'bt_bin' },
+                { data: 'jum_karung' },
+                { data: 'buah_tinggal' },
+                { data: 'restan_unreported' },
+            ]
+        })
+        
+        $("#filter-blok").change(function() {
+            blok = $(this).val()
+            table.ajax.reload(null,false)
+        });
 
 $(".popup_image").on('click', function() {
 
@@ -136,9 +164,6 @@ $(".popup_image").on('click', function() {
 });
 
 });
-    $(document).ready(function () {
-        $('#listSidakTPH').DataTable();
-    });
 
     date =  new Date().toISOString().slice(0, 10)
     
@@ -183,8 +208,8 @@ $(".popup_image").on('click', function() {
         // console.log(plotResult)
 
         // console.log(blokResult)
-        drawPlot(plotResult)
-        // drawBlok(blokResult)
+        // drawPlot(plotResult)
+        drawBlok(blokResult)
 
 
         //  for (let i = 0; i < markerResult.length; i++) {
@@ -222,60 +247,60 @@ $(".popup_image").on('click', function() {
   "<div> <span style='font-weight:bold'>Nomor TPH : </span>"+ markerResult[i][1]['notph']+"</div>" +
   "<div ><span style='font-weight:bold'>Blok </span>: "+markerResult[i][1]['blok']+"</div>" ;
 
-//   if (markerResult[i][1]['brondol_tinggal'] != 0){
-//     template +=   "<div ><span style='font-weight:bold'>Brondol Tinggal </span>: "+markerResult[i][1]['brondol_tinggal']+"</div>" ;
-//      numberIcon = new L.Icon({
-//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-//             iconSize: [25, 41],
-//             iconAnchor: [12, 41],
-//             popupAnchor: [1, -34],
-//             shadowSize: [41, 41],
-//         });
-//   } 
-//   if (markerResult[i][1]['jum_karung'] != 0){
-//     template +=   "<div ><span style='font-weight:bold'>Karung Tinggal </span>: "+markerResult[i][1]['jum_karung']+"</div>" ;
-//      numberIcon = new L.Icon({
-//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-//             iconSize: [25, 41],
-//             iconAnchor: [12, 41],
-//             popupAnchor: [1, -34],
-//             shadowSize: [41, 41],
-//         });
-//   }
-//   if (markerResult[i][1]['buah_tinggal'] != 0){
-//     template +=   "<div ><span style='font-weight:bold'>Buah Tinggal </span>: "+markerResult[i][1]['buah_tinggal']+"</div>" ;
-//      numberIcon = new L.Icon({
-//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-//             iconSize: [25, 41],
-//             iconAnchor: [12, 41],
-//             popupAnchor: [1, -34],
-//             shadowSize: [41, 41],
-//         });
-//   }
-//   if (markerResult[i][1]['restan_unreported'] != 0){
-//     template +=   "<div ><span style='font-weight:bold'>Restan Tidak Dilaporkan </span>: "+markerResult[i][1]['restan_unreported']+"</div>" ;
+  if (markerResult[i][1]['brondol_tinggal'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Brondol Tinggal </span>: "+markerResult[i][1]['brondol_tinggal']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  } 
+  if (markerResult[i][1]['jum_karung'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Karung Tinggal </span>: "+markerResult[i][1]['jum_karung']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
+  if (markerResult[i][1]['buah_tinggal'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Buah Tinggal </span>: "+markerResult[i][1]['buah_tinggal']+"</div>" ;
+     numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
+  if (markerResult[i][1]['restan_unreported'] != 0){
+    template +=   "<div ><span style='font-weight:bold'>Restan Tidak Dilaporkan </span>: "+markerResult[i][1]['restan_unreported']+"</div>" ;
     
-//     numberIcon = new L.Icon({
-//                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-//                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-//             iconSize: [25, 41],
-//             iconAnchor: [12, 41],
-//             popupAnchor: [1, -34],
-//             shadowSize: [41, 41],
-//         });
-//   }
+    numberIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+        });
+  }
 
-//         L.marker(JSON.parse(markerResult[i][1]['latln']), {
-//             icon: numberIcon
-//         }).addTo(map).bindPopup(template, popupOptions)
-//     .openPopup();
+        L.marker(JSON.parse(markerResult[i][1]['latln']), {
+            icon: numberIcon
+        }).addTo(map).bindPopup(template, popupOptions)
+    .openPopup();
 
-//     //     // }
+    //     // }
 
-// }
+}
     }
     })
 
@@ -300,10 +325,11 @@ function drawPlot(plot){
                         getLineStr += ":"
                         getLineStr += '{"coordinates"'
                         getLineStr += ":"
+                        getLineStr += '['
                         getLineStr += plot[i][1]
-                        getLineStr += ',"type"'
+                        getLineStr += '],"type"'
                         getLineStr += ":"
-                        getLineStr += '"Point"'
+                        getLineStr += '"LineString"'
                         getLineStr += '}},'
                     }
 
@@ -312,11 +338,11 @@ function drawPlot(plot){
 
             var line2 = JSON.parse(getLineStr)
 
-          var test =  L.geoJSON(line2['features'], {
-                // onEachFeature: function(feature, layer){
-                //     layer.myTag = 'LineMarker'
-                //     layer.addTo(map);
-                // },
+          var test =  L.geoJSON(line2, {
+                onEachFeature: function(feature, layer){
+                    layer.myTag = 'LineMarker'
+                    layer.addTo(map);
+                },
                 style: function(feature) {
                     return {
                     weight: 2,
@@ -441,4 +467,4 @@ map.fitBounds(test.getBounds());
 }
 
 
-</script>
+</script>   

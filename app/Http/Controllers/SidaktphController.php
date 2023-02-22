@@ -572,17 +572,10 @@ class SidaktphController extends Controller
                     $sum_all_buah = $sum_buah;
                     $sum_all_restant = $sum_restant;
 
-                    if ($jum_all_blok != 0) {
-                        $skor_tph = round($sum_all_tph / $jum_all_blok, 2);
-                        $skor_karung = round($sum_all_karung / $jum_all_blok, 2);
-                        $skor_buah = round($sum_all_buah / $jum_all_blok, 2);
-                        $skor_restan = round($sum_all_restant / $jum_all_blok, 2);
-                    } else {
-                        $skor_tph = 0;
-                        $skor_karung = 0;
-                        $skor_buah = 0;
-                        $skor_restan = 0;
-                    }
+                    $skor_tph = $jum_all_blok == 0 ? $sum_all_tph : round($sum_all_tph / $jum_all_blok, 2);
+                    $skor_karung = $jum_all_blok == 0 ? $sum_all_karung : round($sum_all_karung / $jum_all_blok, 2);
+                    $skor_buah = $jum_all_blok == 0 ? $sum_all_buah : round($sum_all_buah / $jum_all_blok, 2);
+                    $skor_restan = $jum_all_blok == 0 ? $sum_all_restant : round($sum_all_restant / $jum_all_blok, 2);
 
                     $skor_tph_akhir = 0;
                     if ($skor_tph <= 18) {
@@ -819,10 +812,10 @@ class SidaktphController extends Controller
                         // }
                     }
 
-                    $skor_total_brondol = round($sum_est_brondol / $sum_blok, 2);
-                    $skor_total_karung = round($sum_est_karung / $sum_blok, 2);
-                    $skor_total_buah_tinggal = round($sum_est_buah_tinggal / $sum_blok, 2);
-                    $skor_total_restan_tinggal = round($sum_est_restan_tinggal / $sum_blok, 2);
+                    $skor_total_brondol = $sum_blok == 0 ? $sum_est_brondol : round($sum_est_brondol / $sum_blok, 2);
+                    $skor_total_karung = $sum_blok == 0 ? $sum_est_karung : round($sum_est_karung / $sum_blok, 2);
+                    $skor_total_buah_tinggal = $sum_blok == 0 ? $sum_est_buah_tinggal : round($sum_est_buah_tinggal / $sum_blok, 2);
+                    $skor_total_restan_tinggal = $sum_blok == 0 ? $sum_est_restan_tinggal : round($sum_est_restan_tinggal / $sum_blok, 2);
 
 
                     $skor_tph_akhir = 0;
@@ -1876,7 +1869,10 @@ class SidaktphController extends Controller
             return $item->blok;
         });
 
-        // dd($query);
+        $blok = $query;
+        $blok = json_decode($blok, true);
+        ksort($blok);
+
         $datas = array();
         $img = array();
         foreach ($query as $key => $value) {
@@ -1898,7 +1894,42 @@ class SidaktphController extends Controller
             }
         }
 
-        return view('detailSidakTPH', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last, 'data' => $datas, 'img' => $imgNew]);
+        return view('detailSidakTPH', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last, 'data' => $datas, 'img' => $imgNew, 'blok' => $blok]);
+    }
+
+    public function getDetailTPH(Request $request)
+    {
+        $afd = $request->get('afd');
+        $est = $request->get('est');
+        $start = $request->get('start');
+        $last = $request->get('last');
+        $blok = $request->get('blok');
+
+        $query = DB::connection('mysql2')->Table('sidak_tph')
+            ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
+            ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
+            ->where('sidak_tph.est', $est)
+            ->where('sidak_tph.afd', $afd)
+            ->whereBetween('sidak_tph.datetime', [$start, $last])
+            ->get();
+
+        if($blok != 'Semua Blok'){
+            $query = $query->where('blok', $blok);
+        }
+
+        $query = $query->groupBy(function ($item) {
+            return $item->blok;
+        });
+
+        $datas = array();
+        foreach ($query as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $datas[] = $value2;
+            }
+        }
+
+        $json_data['data'] = $datas;
+        echo json_encode($json_data);
     }
 
     public function getPlotLine(Request $request)
@@ -1984,14 +2015,17 @@ class SidaktphController extends Controller
             foreach ($value as $key2 => $data) {
                 if (strlen($data) == 5) {
                     $result_list_blok[$key][$data] = substr($data, 0, -2);
-                }
-                if (strlen($data) == 6) {
+                } else if (strlen($data) == 6) {
                     $sliced = substr_replace($data, '', 1, 1);
                     $result_list_blok[$key][$data] = substr($sliced, 0, -2);
-                }
-                if (strlen($data) == 3) {
+                } else if (strlen($data) == 3) {
                     $result_list_blok[$key][$data] = $data;
-                }
+                } else if (strpos($data, 'CBI') !== false) {
+                    $result_list_blok[$key][$data] = substr($data, 0, -4);
+                } else if (strpos($data, 'CB') !== false){
+                    $sliced = substr_replace($data, '', 1, 1);
+                    $result_list_blok[$key][$data] = substr($sliced, 0, -3);
+                } 
             }
         }
 
@@ -2012,27 +2046,32 @@ class SidaktphController extends Controller
             $query = array_unique($result_list_all_blok[$est]);
             $result_blok[$est] = array_intersect($result_list_blok[$est], $query);
         }
+        // dd($result_list_blok, $result_blok, $listIdAfd);
 
 
         //get lat lang dan key $result_blok atau semua list_blok
 
         $blokLatLn = array();
 
-        foreach ($result_blok as $key => $value) {
+        foreach ($result_list_blok as $key => $value) {
             $inc = 0;
             foreach ($value as $key2 => $data) {
                 $newData = substr_replace($data, '0', 1, 0);
                 $query = '';
                 $query = DB::connection('mysql2')->table('blok')
                     ->select('blok.*')
-                    ->where('blok.nama', $newData)
+                    // ->where('blok.nama', $newData)
+                    // ->orWhere('blok.nama', $data)
                     ->whereIn('blok.afdeling', $listIdAfd)
                     ->get();
 
+                    // dd($newData, $data);
+
                 $latln = '';
                 foreach ($query as $key3 => $val) {
-
-                    $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                    if ($val->nama == $newData || $val->nama == $data) {
+                        $latln .= '[' . $val->lon . ',' . $val->lat . '],';
+                    }
                 }
 
                 $estate = DB::connection('mysql2')->table('estate')
@@ -2053,6 +2092,7 @@ class SidaktphController extends Controller
         $plot['plot'] = $plotTitik;
         $plot['marker'] = $plotMarker;
         $plot['blok'] = $blokLatLn;
+        // dd($plot);
         echo json_encode($plot);
     }
 }
