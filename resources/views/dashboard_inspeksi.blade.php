@@ -1,6 +1,50 @@
 @include('layout/header')
 <style>
+    .tbl-fixed {
+        overflow: scroll;
+        height: fit-content;
+        max-height: 70vh;
+        border: 1px solid #777777;
+    }
 
+    .tbl-fixed table {
+        border-spacing: 0;
+        font-size: 15px;
+    }
+
+    .tbl-fixed th {
+        border: 1px solid #bbbbbb;
+    }
+
+    .tbl-fixed thead {
+        position: sticky; 
+        top: 0px;
+        z-index: 2;
+    }
+
+    .tbl-fixed td {
+        border: 1px solid #bbbbbb;
+        padding: 5px;
+        width: 80px;
+        min-width: 80px;
+    }
+
+    .tbl-fixed td:nth-child(1) {
+        position: sticky;
+        left: 0;
+    }
+
+    .tbl-fixed td:nth-child(2) {
+        position: sticky;
+        left: 4.5%;
+        width: 50px;
+        min-width: 50px;
+    }
+
+    .tbl-fixed td:nth-child(1),
+    .tbl-fixed td:nth-child(2) {
+        background: #cfcfcf;
+    }
 </style>
 <div class="content-wrapper">
     <section class="content"><br>
@@ -461,10 +505,10 @@
                         </div>
 
                         <div class="d-flex flex-row-reverse mr-3">
-                            <button class="btn btn-primary mb-3" style="float: right">Show</button>
+                            <button class="btn btn-primary mb-3" style="float: right" id="showDataIns">Show</button>
                             <div class="col-2 mr-2" style="float: right">
                                 {{csrf_field()}}
-                                <select class="form-control" id="regionalData">
+                                <select class="form-control" id="regDataIns">
                                     <option value="1" selected>Regional 1</option>
                                     <option value="2">Regional 2</option>
                                     <option value="3">Regional 3</option>
@@ -472,417 +516,117 @@
                             </div>
                             <div class="col-2" style="float: right">
                                 <input class="form-control" value="{{ date('Y-m') }}" type="month" name="tgl"
-                                    id="input">
+                                    id="dateDataIns">
                             </div>
                         </div>
 
                         <div class="ml-3 mr-3 mb-3">
-                            <div class="row text-center">
-                                <div class="col-12" style="overflow-y:scroll;"">
-                                    <table id=" tbData" class="table table-bordered"
-                                    style="width: 100%; font-size: 13px;">
+                            <div class="row text-center tbl-fixed">
+                                <table>
                                     <thead style="color: white;">
                                         <tr>
                                             {{-- <th rowspan="3" bgcolor="darkblue">Est.</th>
                                             <th rowspan="3" bgcolor="darkblue">Afd.</th> --}}
-                                            <th class="freeze-col" rowspan="3" bgcolor="darkblue">Est.</th>
-                                            <th class="freeze-col" rowspan="3" bgcolor="darkblue">Afd</th>
-                                            <th colspan="8" bgcolor="blue">Mutu Transport (MT)</th>
-                                            <th colspan="22" bgcolor="yellow" style="color: #000000;">Mutu Buah (MB)
-                                            <th colspan="4" rowspan="2" bgcolor="#588434">DATA BLOK SAMPEL</th>
-                                            <th colspan="17" bgcolor="#588434">Mutu Ancak (MA)</th>
+                                            <th class="freeze-col align-middle" rowspan="3" bgcolor="#1c5870">Est.</th>
+                                            <th class="freeze-col align-middle" rowspan="3" bgcolor="#1c5870">Afd.</th>
+                                            <th class="align-middle" colspan="4" rowspan="2" bgcolor="#588434">DATA BLOK SAMPEL</th>
+                                            <th class="align-middle" colspan="17" bgcolor="#588434">Mutu Ancak (MA)</th>
+                                            <th class="align-middle" colspan="8" bgcolor="blue">Mutu Transport (MT)</th>
+                                            <th class="align-middle" colspan="22" bgcolor="#ffc404" style="color: #000000;">Mutu Buah (MB)
+                                            <th class="align-middle" rowspan="3" bgcolor="gray" style="color: #fff;">All Skor</th>
+                                            <th class="align-middle" rowspan="3" bgcolor="gray" style="color: #fff;">Kategori</th>
                                             </th>
                                         </tr>
                                         <tr>
-                                            <th rowspan="2" bgcolor="blue">TPH Sampel</th>
-                                            <th colspan="3" bgcolor="blue">Brd Tinggal</th>
-                                            <th colspan="3" bgcolor="blue">Buah Tinggal</th>
-                                            <th rowspan="2" bgcolor="blue">Total Skor</th>
-                                            {{-- TAble Mutu Buah --}}
-                                            <th rowspan="2" bgcolor="yellow" style="color: #000000;">Total Janjang
+                                            {{-- Table Mutu Ancak --}}
+                                            <th class="align-middle" colspan="6" bgcolor="#588434">Brondolan Tinggal</th>
+                                            <th class="align-middle" colspan="7" bgcolor="#588434">Buah Tinggal</th>
+                                            <th class="align-middle" colspan="3" bgcolor="#588434">Pelepah Sengkleh</th>
+                                            <th class="align-middle" rowspan="2" bgcolor="#588434">Total Skor</th>
+
+                                            <th class="align-middle" rowspan="2" bgcolor="blue">TPH Sampel</th>
+                                            <th class="align-middle" colspan="3" bgcolor="blue">Brd Tinggal</th>
+                                            <th class="align-middle" colspan="3" bgcolor="blue">Buah Tinggal</th>
+                                            <th class="align-middle" rowspan="2" bgcolor="blue">Total Skor</th>
+
+                                            {{-- Table Mutu Buah --}}
+                                            <th class="align-middle" rowspan="2" bgcolor="#ffc404" style="color: #000000;">Total Janjang
                                                 Sampel</th>
-
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Mentah (A)</th>
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Matang (N)</th>
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Lewat Matang
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Mentah (A)</th>
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Matang (N)</th>
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Lewat Matang
                                                 (O)</th>
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Janjang Kosong
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Janjang Kosong
                                                 (E)</th>
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Tidak Standar
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Tidak Standar
                                                 V-Cut</th>
-                                            <th colspan="2" bgcolor="yellow" style="color: #000000;">Abnormal</th>
-                                            <th colspan="3" bgcolor="yellow" style="color: #000000;">Penggunaan
+                                            <th class="align-middle" colspan="2" bgcolor="#ffc404" style="color: #000000;">Abnormal</th>
+                                            <th class="align-middle" colspan="3" bgcolor="#ffc404" style="color: #000000;">Penggunaan
                                                 Karung Brondolan</th>
-                                            <th rowspan="2" bgcolor="yellow" style="color: #000000;">Total Skor</th>
-                                            {{-- Table Mutu Ancak --}}
-
-                                            <th colspan="6" bgcolor="#588434">Brondolan Tinggal</th>
-                                            <th colspan="7" bgcolor="#588434">Buah Tinggal</th>
-                                            <th colspan="3" bgcolor="#588434">Pelepah Sengkleh</th>
-                                            <th rowspan="2" bgcolor="#588434">Total Skor</th>
-
+                                            <th class="align-middle" rowspan="2" bgcolor="#ffc404" style="color: #000000;">Total Skor</th>
                                         </tr>
                                         <tr>
-                                            <th bgcolor="blue">Butir</th>
-                                            <th bgcolor="blue">Butir/TPH</th>
-                                            <th bgcolor="blue">Skor</th>
-                                            <th bgcolor="blue">Jjg</th>
-                                            <th bgcolor="blue">Jjg/TPH</th>
-                                            <th bgcolor="blue">Skor</th>
+                                            {{-- Table Mutu Ancak --}}
+                                            <th class="align-middle" bgcolor="#588434">Jumlah Pokok Sampel</th>
+                                            <th class="align-middle" bgcolor="#588434">Luas Ha Sampel</th>
+                                            <th class="align-middle" bgcolor="#588434">Jumlah Jjg Panen</th>
+                                            <th class="align-middle" bgcolor="#588434">AKP Realisasi</th>
+                                            <th class="align-middle" bgcolor="#588434">P</th>
+                                            <th class="align-middle" bgcolor="#588434">K</th>
+                                            <th class="align-middle" bgcolor="#588434">GL</th>
+                                            <th class="align-middle" bgcolor="#588434">Total Brd</th>
+                                            <th class="align-middle" bgcolor="#588434">Brd/JJG</th>
+                                            <th class="align-middle" bgcolor="#588434">Skor</th>
+                                            <th class="align-middle" bgcolor="#588434">S</th>
+                                            <th class="align-middle" bgcolor="#588434">M1</th>
+                                            <th class="align-middle" bgcolor="#588434">M2</th>
+                                            <th class="align-middle" bgcolor="#588434">M3</th>
+                                            <th class="align-middle" bgcolor="#588434">Total JJG</th>
+                                            <th class="align-middle" bgcolor="#588434">JJG tinggal</th>
+                                            <th class="align-middle" bgcolor="#588434">Skor</th>
+                                            <th class="align-middle" bgcolor="#588434">Jjg</th>
+                                            <th class="align-middle" bgcolor="#588434">%</th>
+                                            <th class="align-middle" bgcolor="#588434">Skor</th>
+
+                                            <th class="align-middle" bgcolor="blue">Butir</th>
+                                            <th class="align-middle" bgcolor="blue">Butir/TPH</th>
+                                            <th class="align-middle" bgcolor="blue">Skor</th>
+                                            <th class="align-middle" bgcolor="blue">Jjg</th>
+                                            <th class="align-middle" bgcolor="blue">Jjg/TPH</th>
+                                            <th class="align-middle" bgcolor="blue">Skor</th>
                                             {{-- table mutu Buah --}}
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">Jjg</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Jjg</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
 
-                                            <th bgcolor="yellow" style="color: #000000;">TPH</th>
-                                            <th bgcolor="yellow" style="color: #000000;">%</th>
-                                            <th bgcolor="yellow" style="color: #000000;">Skor</th>
-
-                                            {{-- Table Mutu Ancak --}}
-                                            <th bgcolor="#588434">Jumlah Pokok Sampel</th>
-                                            <th bgcolor="#588434">Luas Ha Sampel</th>
-                                            <th bgcolor="#588434">Jumlah Jjg Panen</th>
-                                            <th bgcolor="#588434">AKP Realisasi</th>
-                                            <th bgcolor="#588434">P</th>
-                                            <th bgcolor="#588434">K</th>
-                                            <th bgcolor="#588434">GL</th>
-                                            <th bgcolor="#588434">Total Brd</th>
-                                            <th bgcolor="#588434">Brd/JJG</th>
-                                            <th bgcolor="#588434">Skor</th>
-                                            <th bgcolor="#588434">S</th>
-                                            <th bgcolor="#588434">M1</th>
-                                            <th bgcolor="#588434">M2</th>
-                                            <th bgcolor="#588434">M3</th>
-                                            <th bgcolor="#588434">Total JJG</th>
-                                            <th bgcolor="#588434">JJG tinggal/ji</th>
-                                            <th bgcolor="#588434">Skor</th>
-                                            <th bgcolor="#588434">Jjg</th>
-                                            <th bgcolor="#588434">%</th>
-                                            <th bgcolor="#588434">Skor</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">TPH</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">%</th>
+                                            <th class="align-middle" bgcolor="#ffc404" style="color: #000000;">Skor</th>
                                         </tr>
-
                                     </thead>
-                                    <tbody>
-                                        @foreach ($dataSkor as $key3 => $item3)
-                                        @php
-                                        // Mutu Transport Wilayah
-                                        $bt_total_wil = 0;
-                                        $tph_total_wil = 0;
-                                        $bt_tph_total_wil = 0;
-                                        $jjg_total_wil = 0;
-                                        $jjg_tph_total_wil = 0;
-
-                                        // Mutu Buah Wilayah
-                                        $blok_mb = 0;
-                                        $alas_mb = 0;
-                                        $tot_jjg_wil = 0;
-                                        $tot_mentah_wil = 0;
-                                        $tot_matang_wil = 0;
-                                        $tot_over_wil = 0;
-                                        $tot_empty_wil = 0;
-                                        $tot_vcut_wil = 0;
-                                        $tot_abr_wil = 0;
-                                        $tot_krg_wil = 0;
-                                        $tot_Permentah_wil = 0;
-                                        $tot_Permatang_wil = 0;
-                                        $tot_Perover_wil = 0;
-                                        $tot_Perjangkos_wil = 0;
-                                        $tot_Pervcut_wil = 0;
-                                        $tot_Perabr_wil = 0;
-                                        $tot_Perkrg_wil = 0;
-                                        @endphp
-                                        @foreach ($dataSkor[$key3] as $key => $item)
-                                        @if (is_array($item))
-                                        @foreach ($item as $key2 => $value)
-                                        @if (is_array($value))
-                                        @php
-                                        $bt_total_wil += check_array('bt_total', $value);
-                                        $tph_total_wil += check_array('tph_sample', $value);
-                                        $jjg_total_wil += check_array('restan_total', $value);
-
-                                        $blok_mb += check_array('blok_mb', $value);
-                                        $alas_mb += check_array('alas_mb', $value);
-                                        $tot_jjg_wil += check_array('jml_janjang', $value);
-                                        $tot_mentah_wil += check_array('jml_mentah', $value);
-                                        $tot_matang_wil += check_array('jml_masak', $value);
-                                        $tot_over_wil += check_array('jml_over', $value);
-                                        $tot_empty_wil += check_array('jml_empty', $value);
-                                        $tot_abr_wil += check_array('jml_abnormal', $value);
-                                        $tot_vcut_wil += check_array('jml_vcut', $value);
-                                        @endphp
-                                        <tr>
-                                            {{-- Bagian Mutu Transport --}}
-                                            <td>{{$key}}</td>
-                                            <td>{{$key2}}</td>
-                                            <td>{{check_array('tph_sample', $value)}}</td>
-                                            <td>{{check_array('bt_total', $value)}}</td>
-                                            <td>{{check_array('skor', $value)}}</td>
-                                            <td>{{skor_brd_tinggal(check_array('skor', $value))}}</td>
-                                            <td>{{check_array('restan_total', $value)}}</td>
-                                            <td>{{check_array('skor_restan', $value)}}</td>
-                                            <td>{{skor_buah_tinggal(check_array('skor_restan', $value))}}</td>
-                                            <td>{{ skor_brd_tinggal(check_array('skor', $value)) +
-                                                skor_buah_tinggal(check_array('skor_restan', $value)) }}</td>
-                                            {{-- Bagian Mutu Buah - Buah Mentah --}}
-                                            <td>{{check_array('jml_janjang', $value)}}</td>
-                                            <td>{{check_array('jml_mentah', $value)}}</td>
-                                            <td>{{check_array('PersenBuahMentah', $value)}}</td>
-                                            <td>{{skor_buah_mentah_mb(check_array('PersenBuahMentah', $value))}}</td>
-                                            {{-- Bagian Mutu Buah - Buah Matang --}}
-                                            <td>{{check_array('jml_masak', $value)}}</td>
-                                            <td>{{check_array('PersenBuahMasak', $value)}}</td>
-                                            <td>{{skor_buah_masak_mb(check_array('PersenBuahMasak', $value))}}</td>
-                                            {{-- Bagian Mutu Buah - Lewat Matang --}}
-                                            <td>{{check_array('jml_over', $value)}}</td>
-                                            <td>{{check_array('PersenBuahOver', $value)}}</td>
-                                            <td>{{skor_buah_over_mb(check_array('PersenBuahOver', $value))}}</td>
-                                            {{-- Bagian Mutu Buah - Jangkos --}}
-                                            <td>{{check_array('jml_empty', $value)}}</td>
-                                            <td>{{check_array('PersenPerJanjang', $value)}}</td>
-                                            <td>{{skor_jangkos_mb(check_array('PersenPerJanjang', $value))}}</td>
-                                            {{-- Bagian Mutu Buah - Tidak Standar V-Cut --}}
-                                            <td>{{check_array('jml_vcut', $value)}}</td>
-                                            <td>{{check_array('PersenVcut', $value)}}</td>
-                                            <td>{{skor_buah_over_mb(check_array('PersenVcut', $value))}}</td>
-                                            {{-- Bagian Mutu Buah - Abnormal --}}
-                                            <td>{{check_array('jml_abnormal', $value)}}</td>
-                                            <td>{{check_array('PersenAbr', $value)}}</td>
-                                            {{-- Bagian Mutu Buah - Karung Brondolan --}}
-                                            <td>{{check_array('jml_krg_brd', $value)}}</td>
-                                            <td>{{check_array('PersenKrgBrd', $value)}}</td>
-                                            <td>{{skor_abr_mb(check_array('PersenKrgBrd', $value))}}</td>
-                                            <td>{{skor_buah_mentah_mb(check_array('PersenBuahMentah', $value)) +
-                                                skor_buah_masak_mb(check_array('PersenBuahMasak', $value))
-                                                + skor_buah_over_mb(check_array('PersenBuahOver', $value)) +
-                                                skor_jangkos_mb(check_array('PersenPerJanjang', $value)) +
-                                                skor_buah_over_mb(check_array('PersenVcut', $value)) +
-                                                skor_abr_mb(check_array('PersenKrgBrd', $value))}}</td>
-                                        </tr>
-                                        @endif
-                                        @endforeach
-                                        <tr>
-                                            <td style="background-color : #b0d48c; color: #000000;" colspan="2">{{$key}}
-                                            </td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tph_sample_total', $item)}}</td>
-                                            </td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('bt_total', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('bt_tph_total', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_brd_tinggal(check_array('bt_tph_total', $item)) }}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('jjg_total', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('jjg_tph_total', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_tinggal(check_array('jjg_tph_total', $item)) }}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_brd_tinggal(check_array('bt_tph_total',
-                                                $item))+skor_buah_tinggal(check_array('jjg_tph_total', $item))
-                                                }}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_jjg', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_mentah', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenBuahMentah', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_matang', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenBuahMasak', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_over', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenBuahOver', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_over_mb(check_array('tot_PersenBuahOver', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_empty', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenPerJanjang', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_vcut', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenVcut', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_over_mb(check_array('tot_PersenVcut', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_abr', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenAbr', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_krg_brd', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{check_array('tot_PersenKrgBrd', $item)}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}</td>
-                                            <td style="background-color : #b0d48c; color: #000000;">
-                                                {{skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item)) +
-                                                skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))
-                                                + skor_buah_over_mb(check_array('tot_PersenBuahOver', $item)) +
-                                                skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item)) +
-                                                skor_buah_over_mb(check_array('tot_PersenVcut', $item)) +
-                                                skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}</td>
-                                        </tr>
-                                        @php
-                                        $bt_tph_total_wil = $bt_total_wil == 0 && $tph_total_wil == 0 ? 0 :
-                                        round($bt_total_wil / $tph_total_wil, 2);
-                                        $jjg_tph_total_wil = $jjg_total_wil == 0 && $tph_total_wil == 0 ? 0 :
-                                        round($jjg_total_wil / $tph_total_wil, 2);
-
-                                        $tot_krg_wil = $blok_mb == 0 && $alas_mb == 0 ? 0 : round($blok_mb / $alas_mb,
-                                        2);
-                                        $tot_Permentah_wil = $tot_jjg_wil == 0 && $tot_abr_wil == 0 ? 0 :
-                                        round(($tot_mentah_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-                                        100, 2);
-                                        $tot_Permatang_wil = $tot_jjg_wil == 0 && $tot_abr_wil == 0 ? 0
-                                        : round(($tot_matang_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-                                        100, 2);
-                                        $tot_Perover_wil = $tot_jjg_wil == 0 && $tot_abr_wil == 0 ? 0
-                                        : round(($tot_over_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-                                        100, 2);
-                                        $tot_Perjangkos_wil = $tot_jjg_wil == 0 && $tot_abr_wil == 0 ? 0
-                                        : round(($tot_empty_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-                                        100, 2);
-                                        $tot_Pervcut_wil = $tot_vcut_wil == 0 && $tot_jjg_wil == 0 ? 0
-                                        : round(($tot_vcut_wil / $tot_jjg_wil) *
-                                        100, 2);
-                                        $tot_Perabr_wil = $tot_abr_wil == 0 && $tot_jjg_wil == 0 ? 0
-                                        : round(($tot_abr_wil / $tot_jjg_wil) *
-                                        100, 2);
-                                        $tot_Perkrg_wil = $blok_mb == 0 && $alas_mb == 0 ? 0 : round(($blok_mb /
-                                        $alas_mb) *
-                                        100, 2);
-                                        @endphp
-                                        @endif
-                                        @endforeach
-                                        <tr>
-                                            <td style="background-color : yellow; color: #000000;" colspan="2">
-                                                WIL-{{$key3}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{ $tph_total_wil }}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{ $bt_total_wil }}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $bt_tph_total_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                skor_brd_tinggal($bt_tph_total_wil) }}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{ $jjg_total_wil }}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $jjg_tph_total_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                skor_buah_tinggal($jjg_tph_total_wil) }}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                skor_brd_tinggal($bt_tph_total_wil)+skor_buah_tinggal($jjg_tph_total_wil)}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_jjg_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_mentah_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Permentah_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_buah_mentah_mb($tot_Permentah_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_matang_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Permatang_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_buah_masak_mb($tot_Permatang_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_over_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Perover_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_buah_over_mb($tot_Perover_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_empty_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Perjangkos_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_jangkos_mb($tot_Perjangkos_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_vcut_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Pervcut_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_buah_over_mb($tot_Pervcut_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_abr_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Perabr_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_krg_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">{{
-                                                $tot_Perkrg_wil}}
-                                            </td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_abr_mb($tot_Perkrg_wil)}}</td>
-                                            <td style="background-color : yellow; color: #000000;">
-                                                {{skor_buah_mentah_mb($tot_Permentah_wil) +
-                                                skor_buah_masak_mb($tot_Permatang_wil) +
-                                                skor_buah_over_mb($tot_Perover_wil) +
-                                                skor_jangkos_mb($tot_Perjangkos_wil) +
-                                                skor_buah_over_mb($tot_Pervcut_wil) + skor_abr_mb($tot_Perkrg_wil)}}
-                                            </td>
-                                        </tr>
-                                        @if ($key3 === array_key_last($dataSkor))
-                                        @else
-                                        <tr style="border: none;">
-                                            <td colspan="32"></td>
-                                        </tr>
-                                        @endif
-                                        @endforeach
+                                    
+                                    <tbody id="dataInspeksi">
                                     </tbody>
-                                    </table>
-                                </div>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -893,10 +637,10 @@
                         </div>
 
                         <div class="d-flex flex-row-reverse mr-3">
-                            <button class="btn btn-primary mb-3" style="float: right">Show</button>
+                            <button class="btn btn-primary mb-3" style="float: right" id="showFinding">Show</button>
                             <div class="col-2 mr-2" style="float: right">
                                 {{csrf_field()}}
-                                <select class="form-control" id="regionalData">
+                                <select class="form-control" id="regFind">
                                     <option value="1" selected>Regional 1</option>
                                     <option value="2">Regional 2</option>
                                     <option value="3">Regional 3</option>
@@ -904,7 +648,7 @@
                             </div>
                             <div class="col-2" style="float: right">
                                 <input class="form-control" value="{{ date('Y-m') }}" type="month" name="tgl"
-                                    id="inputDate">
+                                    id="dateFind">
                             </div>
                         </div>
 
@@ -929,25 +673,7 @@
                                             <th>%</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach ($dataResFind as $key => $value)
-                                        @foreach ($dataResFind[$key] as $key1 => $value1)
-                                        <tr>
-                                            <td class="align-middle">{{$key1}}</td>
-                                            <td class="align-middle">{{ $value1['total_temuan'] }}</td>
-                                            <td class="align-middle">{{ $value1['tuntas'] }}</td>
-                                            <td class="align-middle">{{ count_percent($value1['tuntas'],
-                                                $value1['total_temuan']) }}</td>
-                                            <td class="align-middle">{{ $value1['no_tuntas'] }}</td>
-                                            <td class="align-middle">{{ count_percent($value1['no_tuntas'],
-                                                $value1['total_temuan']) }}</td>
-                                            <td class="align-middle">
-                                                <a href="/cetakPDFFI/{{$key1}}" class="btn btn-primary"
-                                                    target="_blank"><i class="nav-icon fa fa-download"></i></a>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                        @endforeach
+                                    <tbody id="bodyFind">
                                     </tbody>
                                 </table>
                             </div>
@@ -1013,15 +739,101 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <script>
-    // let skor1 = 1;
-    // let skor2 = 15;
-    // console.log(parseFloat(((skor1/skor2)*100).toFixed(2)))
-
     $(document).ready(function () {
-        // $('#tbData').DataTable({
-        //     "bPaginate": true
-        // });
+        changeData()
+        getFindData()
     });
+
+    
+    $("#showDataIns").click(function() {
+        changeData()
+    });
+
+    $("#showFinding").click(function(){
+        getFindData()
+    }); 
+
+    function changeData() {
+        var regIns = $("#regDataIns").val();
+        var dateIns = $("#dateDataIns").val();
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url:"{{ route('changeDataInspeksi') }}",
+            method:"POST",
+            cache: false,
+            data:{  _token: _token, regional:regIns,date:dateIns },
+            success:function(result)
+            {
+                $("#dataInspeksi").html(result);
+            }
+        });
+    }
+
+    function getFindData() {
+        $('#bodyFind').empty()
+
+        var regional = $( "#regFind" ).val();
+        var date = $( "#dateFind" ).val();
+        var _token = $('input[name="_token"]').val();
+
+        $.ajax({
+            url:"{{ route('getFindData') }}",
+            method:"POST",
+            data:{ regional:regional,date:date, _token:_token},
+            success:function(result)
+            {
+              var parseResult = JSON.parse(result)
+              var dataResFind = Object.entries(parseResult['dataResFind']) //parsing data brondolan ke dalam var list
+
+            //   console.log(dataResFind[0])
+              dataResFind.forEach(function (value, key) {
+                dataResFind[key].forEach(function (value1, key1) {
+                    Object.entries(value1).forEach(function (value2, key2) {
+                        if (value2[0] != 0) {
+                            // console.log(value2)
+                            var tbody1 = document.getElementById('bodyFind');
+
+                            tr = document.createElement('tr')
+
+                            let item1 = value2[0]
+                            let item2 = value2[1]['total_temuan']
+                            let item3 = value2[1]['tuntas']
+                            let item4 = value2[1]['perTuntas']
+                            let item5 = value2[1]['no_tuntas']
+                            let item6 = value2[1]['perNoTuntas']
+
+                            let itemElement1 = document.createElement('td')
+                            let itemElement2 = document.createElement('td')
+                            let itemElement3 = document.createElement('td')
+                            let itemElement4 = document.createElement('td')
+                            let itemElement5 = document.createElement('td')
+                            let itemElement6 = document.createElement('td')
+                            let itemElement7 = document.createElement('td')
+
+                            itemElement1.innerText  = item1
+                            itemElement2.innerText  = item2
+                            itemElement3.innerText  = item3
+                            itemElement4.innerText  = item4
+                            itemElement5.innerText  = item5
+                            itemElement6.innerText  = item6
+                            itemElement7.innerHTML  =  '<a href="/cetakPDFFI/' + value2[0] + '/'+ date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+
+                            tr.appendChild(itemElement1)
+                            tr.appendChild(itemElement2)
+                            tr.appendChild(itemElement3)
+                            tr.appendChild(itemElement4)
+                            tr.appendChild(itemElement5)
+                            tr.appendChild(itemElement6)
+                            tr.appendChild(itemElement7)
+                            tbody1.appendChild(tr)
+                        }
+                    });
+                });
+              });
+            }
+        });
+    }
 
     var skor = document.getElementById("skor").innerHTML;
     if (skor < 65) {

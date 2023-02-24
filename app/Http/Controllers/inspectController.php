@@ -11,11 +11,14 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class inspectController extends Controller
 {
-    public function cetakPDFFI($id)
+    public function cetakPDFFI($id, $tgl)
     {
+        $date = Carbon::parse($tgl)->format('F Y');
         $queryMTFI = DB::connection('mysql2')->table('mutu_transport')
             ->select("mutu_transport.*")
             ->where('estate', $id)
+            ->where('afdeling', '!=', 'Pla')
+            ->where('datetime', 'like', '%' . $tgl . '%')
             ->orderBy('afdeling', 'asc')
             ->get();
         $dataMTFI = $queryMTFI->groupBy('estate');
@@ -28,6 +31,8 @@ class inspectController extends Controller
         $queryMAFI = DB::connection('mysql2')->table('mutu_ancak')
             ->select("mutu_ancak.*")
             ->where('estate', $id)
+            ->where('afdeling', '!=', 'Pla')
+            ->where('datetime', 'like', '%' . $tgl . '%')
             ->orderBy('afdeling', 'asc')
             ->get();
         $dataMAFI = $queryMAFI->groupBy('estate');
@@ -36,6 +41,22 @@ class inspectController extends Controller
             return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
         });
         $dataMAFI1 = json_decode($dataMAFI1, true);
+        
+        $queryMBFI = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*")
+            ->where('estate', $id)
+            ->where('afdeling', '!=', 'Pla')
+            ->where('datetime', 'like', '%' . $tgl . '%')
+            ->orderBy('afdeling', 'asc')
+            ->get();
+        $dataMBFI1 = $queryMBFI->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $dataMBFI1 = json_decode($dataMBFI1, true);
+
+        $tempData = array_merge($dataMTFI1, $dataMBFI1);
+        $resultData = array_merge($tempData, $dataMAFI1);
+        ksort($resultData);
 
         foreach ($dataMTFI as $key => $value) {
             $total_temuan = array();
@@ -89,15 +110,384 @@ class inspectController extends Controller
         // dd($dataMTFI1, $dataResFind);
 
         $pdf = pdf::loadview('cetakFI', [
-            'dataMTFI' => $dataMTFI1,
-            'dataMAFI' => $dataMAFI1,
+            'dataResult' => $resultData,
             'dataTotal' => $dataResFind,
+            'date' => strtoupper($date)
         ]);
         $customPaper = array(360, 360, 360, 360);
         $pdf->set_paper('A2', 'potrait');
 
         $filename = 'Finding Issue.pdf';
         return $pdf->stream($filename);
+    }
+
+    public function getFindData(Request $request)
+    {
+        $queryEstate = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->join('wil', 'wil.id', '=', 'estate.wil')
+            ->where('wil.regional', $request->get('regional'))
+            ->get();
+
+        $queryEstate = json_decode($queryEstate, true);
+
+        $dataFinding = array();
+        $dataResFind = array();
+        foreach ($queryEstate as $value1) {
+            $queryMTFI = DB::connection('mysql2')->table('mutu_transport')
+                ->select("mutu_transport.*")
+                ->where('estate', $value1['est'])
+                ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->get();
+            $dataMTFI = $queryMTFI->groupBy('estate');
+            $dataMTFI = json_decode($dataMTFI, true);
+
+            $queryMAFI = DB::connection('mysql2')->table('mutu_ancak')
+                ->select("mutu_ancak.*")
+                ->where('estate', $value1['est'])
+                ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->get();
+            $dataMAFI = $queryMAFI->groupBy('estate');
+            $dataMAFI = json_decode($dataMAFI, true);
+
+            foreach ($dataMTFI as $key => $value) {
+                $total_temuan = array();
+                $tuntas = array();
+                $no_tuntas = array();
+                foreach ($value as $key2 => $value2) {
+                    if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
+                        $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
+                        if (!empty($value2['foto_fu'])) {
+                            $tuntas[] = $value2['foto_fu'];
+                        } else {
+                            $no_tuntas[] = $value2['foto_fu'];
+                        }
+                    }
+                    $tot_temuan = count($total_temuan);
+                    $tot_tuntas = count($tuntas);
+                    $tot_no_tuntas = count($no_tuntas);
+                }
+                $dataFinding[$value1['wil']][$key]['total_temuan'] = $tot_temuan;
+                $dataFinding[$value1['wil']][$key]['tuntas'] = $tot_tuntas;
+                $dataFinding[$value1['wil']][$key]['no_tuntas'] = $tot_no_tuntas;
+            }
+
+            foreach ($dataMAFI as $key => $value) {
+                $total_temuan = array();
+                $tuntas = array();
+                $no_tuntas = array();
+                foreach ($value as $key2 => $value2) {
+                    if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
+                        $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
+                        if (!empty($value2['foto_fu'])) {
+                            $tuntas[] = $value2['foto_fu'];
+                        } else {
+                            $no_tuntas[] = $value2['foto_fu'];
+                        }
+                    }
+                    $tot_temuan = count($total_temuan);
+                    $tot_tuntas = count($tuntas);
+                    $tot_no_tuntas = count($no_tuntas);
+                }
+                $dataFinding[$value1['wil']][$key]['total_temuan_ma'] = $tot_temuan;
+                $dataFinding[$value1['wil']][$key]['tuntas_ma'] = $tot_tuntas;
+                $dataFinding[$value1['wil']][$key]['no_tuntas_ma'] = $tot_no_tuntas;
+            }
+
+            foreach ($dataFinding as $key => $value) {
+                foreach ($value as $key1 => $value1) {
+                    $dataResFind[$key][$key1]['total_temuan'] = check_array('total_temuan', $value1) + check_array('total_temuan_ma', $value1);
+                    $dataResFind[$key][$key1]['tuntas'] = check_array('tuntas', $value1) + check_array('tuntas_ma', $value1);
+                    $dataResFind[$key][$key1]['no_tuntas'] = check_array('no_tuntas', $value1) + check_array('no_tuntas_ma', $value1);
+                    $dataResFind[$key][$key1]['perTuntas'] = count_percent((check_array('tuntas', $value1) + check_array('tuntas_ma', $value1)),(check_array('total_temuan', $value1) + check_array('total_temuan_ma', $value1)));
+                    $dataResFind[$key][$key1]['perNoTuntas'] = count_percent((check_array('no_tuntas', $value1) + check_array('no_tuntas_ma', $value1)), (check_array('total_temuan', $value1) + check_array('total_temuan_ma', $value1)));
+                }
+            }
+        }
+
+        $arrView = array();
+
+        $arrView['dataResFind'] = $dataResFind;
+
+        echo json_encode($arrView); 
+        exit();
+    }
+
+    public function changeDataInspeksi(Request $request)
+    {
+        $queryEstate = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->join('wil', 'wil.id', '=', 'estate.wil')
+            ->where('wil.regional', $request->get('regional'))
+            ->get();
+            
+        $queryEstate = json_decode($queryEstate, true);
+
+        $dataSkor = array();
+        foreach ($queryEstate as $value1) {
+            $querySidak = DB::connection('mysql2')->table('mutu_transport')
+                ->select("mutu_transport.*")
+                ->where('estate', $value1['est'])
+                ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->where('afdeling', '!=', 'Pla')
+                ->orderBy('afdeling', 'asc')
+                ->get();
+            $DataEstate = $querySidak->groupBy(['estate', 'afdeling']);
+            // dd($DataEstate);
+            $DataEstate = json_decode($DataEstate, true);
+
+            foreach ($DataEstate as $key => $value) {
+                $skor_butir = 0;
+                $skor_restant = 0;
+                $sum_tph_sample = 0;
+                $sum_skor_bt = 0;
+                $sum_jjg = 0;
+                foreach ($value as $key2 => $value2) {
+                    $sum_bt = 0;
+                    $sum_Restan = 0;
+                    $tph_sample = 0;
+                    $listBlokPerAfd = array();
+                    foreach ($value2 as $key3 => $value3) {
+                        // if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+                        $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
+                        // }
+                        $sum_Restan += $value3['rst'];
+                        $tph_sample = count($listBlokPerAfd);
+                        $sum_bt += $value3['bt'];
+                    }
+                    $sum_tph_sample += $tph_sample;
+                    $sum_skor_bt += $sum_bt;
+                    $sum_jjg += $sum_Restan;
+
+                    $dataSkor[$value1['wil']][$key][$key2]['bt_total'] = $sum_bt;
+                    $dataSkor[$value1['wil']][$key][$key2]['restan_total'] = $sum_Restan;
+                    $dataSkor[$value1['wil']][$key][$key2]['tph_sample'] = $tph_sample;
+                    $dataSkor[$value1['wil']][$key][$key2]['skor'] = round($sum_bt / $tph_sample, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['skor_restan'] = round($sum_Restan / $tph_sample, 2);
+                }
+                $dataSkor[$value1['wil']][$key]['bt_total'] = $sum_skor_bt;
+                $dataSkor[$value1['wil']][$key]['tph_sample_total'] = $sum_tph_sample;
+                $dataSkor[$value1['wil']][$key]['bt_tph_total'] = round($sum_skor_bt / $sum_tph_sample, 2);
+                $dataSkor[$value1['wil']][$key]['jjg_total'] = $sum_jjg;
+                $dataSkor[$value1['wil']][$key]['jjg_tph_total'] = round($sum_jjg / $sum_tph_sample, 2);
+            }
+        }
+
+        foreach ($queryEstate as $value1) {
+            $queryBuah = DB::connection('mysql2')->table('mutu_buah')
+                ->select("mutu_buah.*")
+                ->where('estate', $value1['est'])
+                ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->orderBy('afdeling', 'asc')
+                ->get();
+
+            $DataMTbuah = $queryBuah->groupBy(['estate', 'afdeling']);
+            $DataMTbuah = json_decode($DataMTbuah, true);
+
+            foreach ($DataMTbuah as $key => $value) {
+                $sum_blok = 0;
+                $sum_janjang = 0;
+                $sum_jjg_mentah = 0;
+                $sum_jjg_matang = 0;
+                $sum_jjg_over = 0;
+                $sum_jjg_empty = 0;
+                $sum_jjg_abnormal = 0;
+                $sum_jjg_vcut = 0;
+                $sum_jjg_als = 0;
+                foreach ($value as $key2 => $value2) {
+                    $listBlokPerAfd = array();
+                    $janjang = 0;
+                    $Jjg_Mth = 0;
+                    $Jjg_Mtng = 0;
+                    $Jjg_Over = 0;
+                    $Jjg_Empty = 0;
+                    $Jjg_Abr = 0;
+                    $Jjg_Vcut = 0;
+                    $Jjg_Als = 0;
+                    foreach ($value2 as $key3 => $value3) {
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'], $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'];
+                        }
+                        $dtBlok = count($listBlokPerAfd);
+                        $janjang += $value3['jumlah_jjg'];
+                        $Jjg_Mth += $value3['bmt'];
+                        $Jjg_Mtng += $value3['bmk'];
+                        $Jjg_Over += $value3['overripe'];
+                        $Jjg_Empty += $value3['empty'];
+                        $Jjg_Abr += $value3['abnormal'];
+                        $Jjg_Vcut += $value3['vcut'];
+                        $Jjg_Als += $value3['alas_br'];
+                    }
+                    $sum_blok += $dtBlok;
+                    $sum_janjang += $janjang;
+                    $sum_jjg_mentah += $Jjg_Mth;
+                    $sum_jjg_matang += $Jjg_Mtng;
+                    $sum_jjg_over += $Jjg_Over;
+                    $sum_jjg_empty += $Jjg_Empty;
+                    $sum_jjg_abnormal += $Jjg_Abr;
+                    $sum_jjg_vcut += $Jjg_Vcut;
+                    $sum_jjg_als += $Jjg_Als;
+
+                    $dataSkor[$value1['wil']][$key][$key2]['blok_mb'] = $dtBlok;
+                    $dataSkor[$value1['wil']][$key][$key2]['alas_mb'] = $Jjg_Als;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_janjang'] = $janjang;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_mentah'] = $Jjg_Mth;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_masak'] = $Jjg_Mtng;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_over'] = $Jjg_Over;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_empty'] = $Jjg_Empty;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_abnormal'] = $Jjg_Abr;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_vcut'] = $Jjg_Vcut;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_krg_brd'] = $Jjg_Als == 0 ? $dtBlok : round($dtBlok / $Jjg_Als, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMentah'] = round(($Jjg_Mth / ($janjang - $Jjg_Abr)) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMasak'] = round(($Jjg_Mtng / ($janjang - $Jjg_Abr)) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahOver'] = round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenPerJanjang'] = round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenVcut'] = round(($Jjg_Vcut / $janjang) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenAbr'] = round(($Jjg_Abr / $janjang) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenKrgBrd'] = $Jjg_Als == 0 ? $dtBlok : round(($dtBlok / $Jjg_Als) * 100, 2);
+                }
+                $dataSkor[$value1['wil']][$key]['tot_jjg'] = $sum_janjang;
+                $dataSkor[$value1['wil']][$key]['tot_mentah'] = $sum_jjg_mentah;
+                $dataSkor[$value1['wil']][$key]['tot_matang'] = $sum_jjg_matang;
+                $dataSkor[$value1['wil']][$key]['tot_over'] = $sum_jjg_over;
+                $dataSkor[$value1['wil']][$key]['tot_empty'] = $sum_jjg_empty;
+                $dataSkor[$value1['wil']][$key]['tot_abr'] = $sum_jjg_abnormal;
+                $dataSkor[$value1['wil']][$key]['tot_vcut'] = $sum_jjg_vcut;
+                $dataSkor[$value1['wil']][$key]['tot_krg_brd'] = $sum_jjg_als == 0 ? $sum_blok : round($sum_blok / $sum_jjg_als, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenBuahMentah'] = round(($sum_jjg_mentah / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenBuahMasak'] = round(($sum_jjg_matang / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenBuahOver'] = round(($sum_jjg_over / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenPerJanjang'] = round(($sum_jjg_empty / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenVcut'] = round(($sum_jjg_vcut / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenAbr'] = round(($sum_jjg_abnormal / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['tot_PersenKrgBrd'] = $sum_jjg_als == 0 ? $sum_blok : round(($sum_blok / $sum_jjg_als) * 100, 2);
+            }
+        }
+
+        foreach ($queryEstate as $value1) {
+            $queryAncak = DB::connection('mysql2')->table('mutu_ancak')
+                ->select("mutu_ancak.*")
+                ->where('estate', $value1['est'])
+                ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->orderBy('afdeling', 'asc')
+                ->get();
+
+            $DataMTAncak = $queryAncak->groupBy(['estate', 'afdeling']);
+            $DataMTAncak = json_decode($DataMTAncak, true);
+            
+            foreach ($DataMTAncak as $key => $value) {
+                $jml_pokok_sm_est = 0;
+                $luas_ha_est = 0;
+                $jml_jjg_panen_est = 0;
+                $jml_brtp_est = 0;
+                $jml_brtk_est = 0;
+                $jml_brtgl_est = 0;
+                $jml_bhts_est = 0;
+                $jml_bhtm1_est = 0;
+                $jml_bhtm2_est = 0;
+                $jml_bhtm3_est = 0;
+                $jml_ps_est = 0;
+                foreach ($value as $key2 => $value2) {
+                    $listBlok = array();
+                    $sph = 0;
+                    $jml_pokok_sm = 0;
+                    $jml_jjg_panen = 0;
+                    $jml_brtp = 0;
+                    $jml_brtk = 0;
+                    $jml_brtgl = 0;
+                    $jml_bhts = 0;
+                    $jml_bhtm1 = 0;
+                    $jml_bhtm2 = 0;
+                    $jml_bhtm3 = 0;
+                    $jml_ps = 0;
+                    foreach ($value2 as $key3 => $value3) {
+                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlok)) {
+                            if ($value3['sph'] != 0) {
+                                $listBlok[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
+                                $sph += $value3['sph'];
+                            }
+                        }
+                        $jml_blok = count($listBlok);
+                        $pokok_dipanen = json_decode($value3["pokok_dipanen"], true);
+                        $jajang_panen = json_decode($value3["jjg_dipanen"], true);
+                        $brtp = json_decode($value3["brtp"], true);
+                        $brtk = json_decode($value3["brtk"], true);
+                        $brtgl = json_decode($value3["brtgl"], true);
+                        $bhts = json_decode($value3["bhts"], true);
+                        $bhtm1 = json_decode($value3["bhtm1"], true);
+                        $bhtm2 = json_decode($value3["bhtm2"], true);
+                        $bhtm3 = json_decode($value3["bhtm3"], true);
+                        $ps = json_decode($value3["ps"], true);
+                        $jml_pokok_sm += count($pokok_dipanen);
+                        $jml_jjg_panen += array_sum($jajang_panen);
+                        $jml_brtp += array_sum($brtp);
+                        $jml_brtk += array_sum($brtk);
+                        $jml_brtgl += array_sum($brtgl);
+                        $jml_bhts += array_sum($bhts);
+                        $jml_bhtm1 += array_sum($bhtm1);
+                        $jml_bhtm2 += array_sum($bhtm2);
+                        $jml_bhtm3 += array_sum($bhtm3);
+                        $jml_ps += array_sum($ps);
+                    }
+                    $jml_sph = $jml_blok == 0 ? $sph : ($sph / $jml_blok);
+                    $tot_brd = ($jml_brtp + $jml_brtk + $jml_brtgl);
+                    $tot_jjg = ($jml_bhts + $jml_bhtm1 + $jml_bhtm2 + $jml_bhtm3);
+                    $luas_ha = round(($jml_pokok_sm / $jml_sph), 2);
+
+                    $jml_pokok_sm_est += $jml_pokok_sm;
+                    $luas_ha_est += $luas_ha;
+                    $jml_jjg_panen_est += $jml_jjg_panen;
+                    $jml_brtp_est += $jml_brtp;
+                    $jml_brtk_est += $jml_brtk;
+                    $jml_brtgl_est += $jml_brtgl;
+                    $jml_bhts_est += $jml_bhts;
+                    $jml_bhtm1_est += $jml_bhtm1;
+                    $jml_bhtm2_est += $jml_bhtm2;
+                    $jml_bhtm3_est += $jml_bhtm3;
+                    $jml_ps_est += $jml_ps;
+
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_pokok_sampel'] = $jml_pokok_sm;
+                    $dataSkor[$value1['wil']][$key][$key2]['luas_ha'] = $luas_ha;
+                    $dataSkor[$value1['wil']][$key][$key2]['jml_jjg_panen'] = $jml_jjg_panen;
+                    $dataSkor[$value1['wil']][$key][$key2]['akp_real'] = count_percent($jml_jjg_panen, $jml_pokok_sm);
+                    $dataSkor[$value1['wil']][$key][$key2]['p_ma'] = $jml_brtp;
+                    $dataSkor[$value1['wil']][$key][$key2]['k_ma'] = $jml_brtk;
+                    $dataSkor[$value1['wil']][$key][$key2]['gl_ma'] = $jml_brtgl;
+                    $dataSkor[$value1['wil']][$key][$key2]['total_brd_ma'] = $tot_brd;
+                    $dataSkor[$value1['wil']][$key][$key2]['btr_jjg_ma'] = round(($tot_brd / $jml_jjg_panen), 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['bhts_ma'] = $jml_bhts;
+                    $dataSkor[$value1['wil']][$key][$key2]['bhtm1_ma'] = $jml_bhtm1;
+                    $dataSkor[$value1['wil']][$key][$key2]['bhtm2_ma'] = $jml_bhtm2;
+                    $dataSkor[$value1['wil']][$key][$key2]['bhtm3_ma'] = $jml_bhtm3;
+                    $dataSkor[$value1['wil']][$key][$key2]['tot_jjg_ma'] = $tot_jjg;
+                    $dataSkor[$value1['wil']][$key][$key2]['jjg_tgl_ma'] = round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2);
+                    $dataSkor[$value1['wil']][$key][$key2]['ps_ma'] = $jml_ps;
+                    $dataSkor[$value1['wil']][$key][$key2]['PerPSMA'] = count_percent($jml_ps, $jml_pokok_sm);
+                }
+                $tot_brd_est = ($jml_brtp_est + $jml_brtk_est + $jml_brtgl_est);
+                $tot_jjg_est = ($jml_bhts_est + $jml_bhtm1_est + $jml_bhtm2_est + $jml_bhtm3_est);
+
+                $dataSkor[$value1['wil']][$key]['tot_jml_pokok_ma'] = $jml_pokok_sm_est;
+                $dataSkor[$value1['wil']][$key]['tot_luas_ha_ma'] = $luas_ha_est;
+                $dataSkor[$value1['wil']][$key]['tot_jml_jjg_panen_ma'] = $jml_jjg_panen_est;
+                $dataSkor[$value1['wil']][$key]['akp_real_est'] = count_percent($jml_jjg_panen_est, $jml_pokok_sm_est);
+                $dataSkor[$value1['wil']][$key]['p_ma_est'] = $jml_brtp_est;
+                $dataSkor[$value1['wil']][$key]['k_ma_est'] = $jml_brtk_est;
+                $dataSkor[$value1['wil']][$key]['gl_ma_est'] = $jml_brtgl_est;
+                $dataSkor[$value1['wil']][$key]['total_brd_ma_est'] = $tot_brd_est;
+                $dataSkor[$value1['wil']][$key]['btr_jjg_ma_est'] = round(($tot_brd_est / $jml_jjg_panen_est), 2);
+                $dataSkor[$value1['wil']][$key]['bhts_ma_est'] = $jml_bhts_est;
+                $dataSkor[$value1['wil']][$key]['bhtm1_ma_est'] = $jml_bhtm1_est;
+                $dataSkor[$value1['wil']][$key]['bhtm2_ma_est'] = $jml_bhtm2_est;
+                $dataSkor[$value1['wil']][$key]['bhtm3_ma_est'] = $jml_bhtm3_est;
+                $dataSkor[$value1['wil']][$key]['tot_jjg_ma_est'] = $tot_jjg_est;
+                $dataSkor[$value1['wil']][$key]['jjg_tgl_ma_est'] = round(($tot_jjg_est / ($jml_jjg_panen_est + $tot_jjg_est)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['ps_ma_est'] = $jml_ps_est;
+                $dataSkor[$value1['wil']][$key]['PerPSMA_est'] = count_percent($jml_ps_est, $jml_pokok_sm_est);
+            }
+        }
+
+        return view('dataInspeksi', ['dataSkor' => $dataSkor]);
     }
 
     public function dashboard_inspeksi(Request $request)
@@ -607,375 +997,158 @@ class inspectController extends Controller
         // dd($FinalTahun);
         // end menghitung table untuk data pertahun
 
-        // Function menghitung finding issue
-        $dataFinding = array();
-        $dataResFind = array();
-        foreach ($queryEstate as $value1) {
-            $queryMTFI = DB::connection('mysql2')->table('mutu_transport')
-                ->select("mutu_transport.*")
-                ->where('estate', $value1['est'])
-                // ->where('datetime', 'like', '%' . $getDate . '%')
-                ->get();
-            $dataMTFI = $queryMTFI->groupBy('estate');
-            $dataMTFI = json_decode($dataMTFI, true);
-
-            $queryMAFI = DB::connection('mysql2')->table('mutu_ancak')
-                ->select("mutu_ancak.*")
-                ->where('estate', $value1['est'])
-                // ->where('datetime', 'like', '%' . $getDate . '%')
-                ->get();
-            $dataMAFI = $queryMAFI->groupBy('estate');
-            $dataMAFI = json_decode($dataMAFI, true);
-
-            foreach ($dataMTFI as $key => $value) {
-                $total_temuan = array();
-                $tuntas = array();
-                $no_tuntas = array();
-                foreach ($value as $key2 => $value2) {
-                    if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
-                        $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
-                        if (!empty($value2['foto_fu'])) {
-                            $tuntas[] = $value2['foto_fu'];
-                        } else {
-                            $no_tuntas[] = $value2['foto_fu'];
-                        }
-                    }
-                    $tot_temuan = count($total_temuan);
-                    $tot_tuntas = count($tuntas);
-                    $tot_no_tuntas = count($no_tuntas);
-                }
-                $dataFinding[$value1['wil']][$key]['total_temuan'] = $tot_temuan;
-                $dataFinding[$value1['wil']][$key]['tuntas'] = $tot_tuntas;
-                $dataFinding[$value1['wil']][$key]['no_tuntas'] = $tot_no_tuntas;
-            }
-
-            foreach ($dataMAFI as $key => $value) {
-                $total_temuan = array();
-                $tuntas = array();
-                $no_tuntas = array();
-                foreach ($value as $key2 => $value2) {
-                    if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
-                        $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
-                        if (!empty($value2['foto_fu'])) {
-                            $tuntas[] = $value2['foto_fu'];
-                        } else {
-                            $no_tuntas[] = $value2['foto_fu'];
-                        }
-                    }
-                    $tot_temuan = count($total_temuan);
-                    $tot_tuntas = count($tuntas);
-                    $tot_no_tuntas = count($no_tuntas);
-                }
-                $dataFinding[$value1['wil']][$key]['total_temuan_ma'] = $tot_temuan;
-                $dataFinding[$value1['wil']][$key]['tuntas_ma'] = $tot_tuntas;
-                $dataFinding[$value1['wil']][$key]['no_tuntas_ma'] = $tot_no_tuntas;
-            }
-
-            foreach ($dataFinding as $key => $value) {
-                foreach ($value as $key1 => $value1) {
-                    $dataResFind[$key][$key1]['total_temuan'] = check_array('total_temuan', $value1) + check_array('total_temuan_ma', $value1);
-                    $dataResFind[$key][$key1]['tuntas'] = check_array('tuntas', $value1) + check_array('tuntas_ma', $value1);
-                    $dataResFind[$key][$key1]['no_tuntas'] = check_array('no_tuntas', $value1) + check_array('no_tuntas_ma', $value1);
-                }
-            }
-        }
-        // end finding issue
-        // dd($dataFinding);
-
-        $dataSkor = array();
-        foreach ($queryEstate as $value1) {
-            $querySidak = DB::connection('mysql2')->table('mutu_transport')
-                ->select("mutu_transport.*")
-                ->where('estate', $value1['est'])
-                // ->where('datetime', 'like', '%' . $getDate . '%')
-                ->orderBy('afdeling', 'asc')
-                ->get();
-            $DataEstate = $querySidak->groupBy(['estate', 'afdeling']);
-            // dd($DataEstate);
-            $DataEstate = json_decode($DataEstate, true);
-
-            foreach ($DataEstate as $key => $value) {
-                $skor_butir = 0;
-                $skor_restant = 0;
-                $sum_tph_sample = 0;
-                $sum_skor_bt = 0;
-                $sum_jjg = 0;
-                foreach ($value as $key2 => $value2) {
-                    $sum_bt = 0;
-                    $sum_Restan = 0;
-                    $tph_sample = 0;
-                    $listBlokPerAfd = array();
-                    foreach ($value2 as $key3 => $value3) {
-                        // if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
-                        $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
-                        // }
-                        $sum_Restan += $value3['rst'];
-                        $tph_sample = count($listBlokPerAfd);
-                        $sum_bt += $value3['bt'];
-                    }
-                    $sum_tph_sample += $tph_sample;
-                    $sum_skor_bt += $sum_bt;
-                    $sum_jjg += $sum_Restan;
-
-                    $dataSkor[$value1['wil']][$key][$key2]['bt_total'] = $sum_bt;
-                    $dataSkor[$value1['wil']][$key][$key2]['restan_total'] = $sum_Restan;
-                    $dataSkor[$value1['wil']][$key][$key2]['tph_sample'] = $tph_sample;
-                    $dataSkor[$value1['wil']][$key][$key2]['skor'] = round($sum_bt / $tph_sample, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['skor_restan'] = round($sum_Restan / $tph_sample, 2);
-                }
-                $dataSkor[$value1['wil']][$key]['bt_total'] = $sum_skor_bt;
-                $dataSkor[$value1['wil']][$key]['tph_sample_total'] = $sum_tph_sample;
-                $dataSkor[$value1['wil']][$key]['bt_tph_total'] = round($sum_skor_bt / $sum_tph_sample, 2);
-                $dataSkor[$value1['wil']][$key]['jjg_total'] = $sum_jjg;
-                $dataSkor[$value1['wil']][$key]['jjg_tph_total'] = round($sum_jjg / $sum_tph_sample, 2);
-            }
-        }
-
-        foreach ($queryEstate as $value1) {
-            $queryBuah = DB::connection('mysql2')->table('mutu_buah')
-                ->select("mutu_buah.*")
-                ->where('estate', $value1['est'])
-                // ->where('datetime', 'like', '%' . $getDate . '%')
-                ->orderBy('afdeling', 'asc')
-                ->get();
-
-            $DataMTbuah = $queryBuah->groupBy(['estate', 'afdeling']);
-            $DataMTbuah = json_decode($DataMTbuah, true);
-
-            foreach ($DataMTbuah as $key => $value) {
-                $sum_blok = 0;
-                $sum_janjang = 0;
-                $sum_jjg_mentah = 0;
-                $sum_jjg_matang = 0;
-                $sum_jjg_over = 0;
-                $sum_jjg_empty = 0;
-                $sum_jjg_abnormal = 0;
-                $sum_jjg_vcut = 0;
-                $sum_jjg_als = 0;
-                foreach ($value as $key2 => $value2) {
-                    $listBlokPerAfd = array();
-                    $janjang = 0;
-                    $Jjg_Mth = 0;
-                    $Jjg_Mtng = 0;
-                    $Jjg_Over = 0;
-                    $Jjg_Empty = 0;
-                    $Jjg_Abr = 0;
-                    $Jjg_Vcut = 0;
-                    $Jjg_Als = 0;
-                    foreach ($value2 as $key3 => $value3) {
-                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'], $listBlokPerAfd)) {
-                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'] . ' ' . $value3['tph_baris'];
-                        }
-                        $dtBlok = count($listBlokPerAfd);
-                        $janjang += $value3['jumlah_jjg'];
-                        $Jjg_Mth += $value3['bmt'];
-                        $Jjg_Mtng += $value3['bmk'];
-                        $Jjg_Over += $value3['overripe'];
-                        $Jjg_Empty += $value3['empty'];
-                        $Jjg_Abr += $value3['abnormal'];
-                        $Jjg_Vcut += $value3['vcut'];
-                        $Jjg_Als += $value3['alas_br'];
-                    }
-                    $sum_blok += $dtBlok;
-                    $sum_janjang += $janjang;
-                    $sum_jjg_mentah += $Jjg_Mth;
-                    $sum_jjg_matang += $Jjg_Mtng;
-                    $sum_jjg_over += $Jjg_Over;
-                    $sum_jjg_empty += $Jjg_Empty;
-                    $sum_jjg_abnormal += $Jjg_Abr;
-                    $sum_jjg_vcut += $Jjg_Vcut;
-                    $sum_jjg_als += $Jjg_Als;
-
-                    $dataSkor[$value1['wil']][$key][$key2]['blok_mb'] = $dtBlok;
-                    $dataSkor[$value1['wil']][$key][$key2]['alas_mb'] = $Jjg_Als;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_janjang'] = $janjang;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_mentah'] = $Jjg_Mth;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_masak'] = $Jjg_Mtng;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_over'] = $Jjg_Over;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_empty'] = $Jjg_Empty;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_abnormal'] = $Jjg_Abr;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_vcut'] = $Jjg_Vcut;
-                    $dataSkor[$value1['wil']][$key][$key2]['jml_krg_brd'] = round($dtBlok / $Jjg_Als, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMentah'] = round(($Jjg_Mth / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMasak'] = round(($Jjg_Mtng / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahOver'] = round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenPerJanjang'] = round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenVcut'] = round(($Jjg_Vcut / $janjang) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenAbr'] = round(($Jjg_Abr / $janjang) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenKrgBrd'] = round(($dtBlok / $Jjg_Als) * 100, 2);
-                }
-                $dataSkor[$value1['wil']][$key]['tot_jjg'] = $sum_janjang;
-                $dataSkor[$value1['wil']][$key]['tot_mentah'] = $sum_jjg_mentah;
-                $dataSkor[$value1['wil']][$key]['tot_matang'] = $sum_jjg_matang;
-                $dataSkor[$value1['wil']][$key]['tot_over'] = $sum_jjg_over;
-                $dataSkor[$value1['wil']][$key]['tot_empty'] = $sum_jjg_empty;
-                $dataSkor[$value1['wil']][$key]['tot_abr'] = $sum_jjg_abnormal;
-                $dataSkor[$value1['wil']][$key]['tot_vcut'] = $sum_jjg_vcut;
-                $dataSkor[$value1['wil']][$key]['tot_krg_brd'] = round($sum_blok / $sum_jjg_als, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenBuahMentah'] = round(($sum_jjg_mentah / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenBuahMasak'] = round(($sum_jjg_matang / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenBuahOver'] = round(($sum_jjg_over / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenPerJanjang'] = round(($sum_jjg_empty / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenVcut'] = round(($sum_jjg_vcut / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenAbr'] = round(($sum_jjg_abnormal / ($sum_janjang - $sum_jjg_abnormal)) * 100, 2);
-                $dataSkor[$value1['wil']][$key]['tot_PersenKrgBrd'] = round(($sum_blok / $sum_jjg_als) * 100, 2);
-            }
-        }
-
-        // dd($dataSkor);
-
         $queryMtAncak = DB::connection('mysql2')->table('mutu_ancak')
             ->select("mutu_ancak.*")
-            ->where('datetime', 'like', '%' . $getDate . '%')
+            // ->where('datetime', 'like', '%' . $getDate . '%')
             ->get();
-        $DataMtAncak = $queryMtAncak->groupBy(['estate', 'afdeling']);
-        $DataMtAncak = json_decode($DataMtAncak, true);
-        // dd($DataMtAncak);
+        // $DataMtAncak = $queryMtAncak->groupBy(['estate', 'afdeling']);
+        // $DataMtAncak = json_decode($DataMtAncak, true);
+        // // dd($DataMtAncak);
 
-        $MutuAncak = array();
-        foreach ($DataMtAncak as $key => $value) {
-            foreach ($value as $key2 => $value2) {
-                $akp = 0;
-                $skor_bTinggal = 0;
-                $brdPerjjg = 0;
-                $pokok_panen = 0;
-                $janjang_panen = 0;
-                $p_panen = 0;
-                $k_panen = 0;
-                $listBlokPerAfd = array();
-                foreach ($value2 as $key3 => $value3) {
-                    if (is_array($value3)) {
-                        if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
-                            $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['estate'] . ' ' . $value3['blok'];
-                        }
-                        $jum_ha = count($listBlokPerAfd);
-                        $pokok_panen = json_decode($value3["pokok_dipanen"], true);
-                        $jajang_panen = json_decode($value3["jjg_dipanen"], true);
-                        $brtp = json_decode($value3["brtp"], true);
-                        $brtk = json_decode($value3["brtk"], true);
-                        $brtgl = json_decode($value3["brtgl"], true);
+        // $MutuAncak = array();
+        // foreach ($DataMtAncak as $key => $value) {
+        //     foreach ($value as $key2 => $value2) {
+        //         $akp = 0;
+        //         $skor_bTinggal = 0;
+        //         $brdPerjjg = 0;
+        //         $pokok_panen = 0;
+        //         $janjang_panen = 0;
+        //         $p_panen = 0;
+        //         $k_panen = 0;
+        //         $listBlokPerAfd = array();
+        //         foreach ($value2 as $key3 => $value3) {
+        //             if (is_array($value3)) {
+        //                 if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+        //                     $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['estate'] . ' ' . $value3['blok'];
+        //                 }
+        //                 $jum_ha = count($listBlokPerAfd);
+        //                 $pokok_panen = json_decode($value3["pokok_dipanen"], true);
+        //                 $jajang_panen = json_decode($value3["jjg_dipanen"], true);
+        //                 $brtp = json_decode($value3["brtp"], true);
+        //                 $brtk = json_decode($value3["brtk"], true);
+        //                 $brtgl = json_decode($value3["brtgl"], true);
 
-                        $pokok_panen  = count($pokok_panen);
-                        $janjang_panen = array_sum($jajang_panen);
-                        $p_panen = array_sum($brtp);
-                        $k_panen = array_sum($brtk);
-                        $brtgl_panen = array_sum($brtgl);
+        //                 $pokok_panen  = count($pokok_panen);
+        //                 $janjang_panen = array_sum($jajang_panen);
+        //                 $p_panen = array_sum($brtp);
+        //                 $k_panen = array_sum($brtk);
+        //                 $brtgl_panen = array_sum($brtgl);
 
-                        // $akp = ($janjang_panen / $pokok_panen) %
-                        $akp = ($janjang_panen / $pokok_panen) * 100;
-                        $skor_bTinggal = $p_panen + $k_panen + $brtgl_panen;
-                        $brdPerjjg = $skor_bTinggal / $pokok_panen;
+        //                 // $akp = ($janjang_panen / $pokok_panen) %
+        //                 $akp = ($janjang_panen / $pokok_panen) * 100;
+        //                 $skor_bTinggal = $p_panen + $k_panen + $brtgl_panen;
+        //                 $brdPerjjg = $skor_bTinggal / $pokok_panen;
 
-                        //skore PEnggunnan Brondolan
-                        $skor_brdPerjjg = 0;
-                        if ($brdPerjjg <= 1.0) {
-                            $skor_brdPerjjg = 20;
-                        } else if ($brdPerjjg >= 1.5 && $brdPerjjg <= 2.0) {
-                            $skor_brdPerjjg = 12;
-                        } else if ($brdPerjjg >= 2.0 && $brdPerjjg <= 2.5) {
-                            $skor_brdPerjjg = 8;
-                        } else if ($brdPerjjg >= 2.5 && $brdPerjjg <= 3.0) {
-                            $skor_brdPerjjg = 4;
-                        } else if ($brdPerjjg >= 3.0 && $brdPerjjg <= 3.5) {
-                            $skor_brdPerjjg = 0;
-                        } else if ($brdPerjjg >= 4.0 && $brdPerjjg <= 4.5) {
-                            $skor_brdPerjjg = 8;
-                        } else if ($brdPerjjg >=  4.5 && $brdPerjjg <= 5.0) {
-                            $skor_brdPerjjg = 12;
-                        } else if ($brdPerjjg >=  5.0) {
-                            $skor_brdPerjjg = 16;
-                        }
+        //                 //skore PEnggunnan Brondolan
+        //                 $skor_brdPerjjg = 0;
+        //                 if ($brdPerjjg <= 1.0) {
+        //                     $skor_brdPerjjg = 20;
+        //                 } else if ($brdPerjjg >= 1.5 && $brdPerjjg <= 2.0) {
+        //                     $skor_brdPerjjg = 12;
+        //                 } else if ($brdPerjjg >= 2.0 && $brdPerjjg <= 2.5) {
+        //                     $skor_brdPerjjg = 8;
+        //                 } else if ($brdPerjjg >= 2.5 && $brdPerjjg <= 3.0) {
+        //                     $skor_brdPerjjg = 4;
+        //                 } else if ($brdPerjjg >= 3.0 && $brdPerjjg <= 3.5) {
+        //                     $skor_brdPerjjg = 0;
+        //                 } else if ($brdPerjjg >= 4.0 && $brdPerjjg <= 4.5) {
+        //                     $skor_brdPerjjg = 8;
+        //                 } else if ($brdPerjjg >=  4.5 && $brdPerjjg <= 5.0) {
+        //                     $skor_brdPerjjg = 12;
+        //                 } else if ($brdPerjjg >=  5.0) {
+        //                     $skor_brdPerjjg = 16;
+        //                 }
 
-                        $bhts = json_decode($value3["bhts"], true);
-                        $bhtm1 = json_decode($value3["bhtm1"], true);
-                        $bhtm2 = json_decode($value3["bhtm2"], true);
-                        $bhtm3 = json_decode($value3["bhtm3"], true);
+        //                 $bhts = json_decode($value3["bhts"], true);
+        //                 $bhtm1 = json_decode($value3["bhtm1"], true);
+        //                 $bhtm2 = json_decode($value3["bhtm2"], true);
+        //                 $bhtm3 = json_decode($value3["bhtm3"], true);
 
 
-                        $bhts_panen = array_sum($bhts);
-                        $bhtm1_panen = array_sum($bhtm1);
-                        $bhtm2_panen = array_sum($bhtm2);
-                        $bhtm3_oanen = array_sum($bhtm3);
+        //                 $bhts_panen = array_sum($bhts);
+        //                 $bhtm1_panen = array_sum($bhtm1);
+        //                 $bhtm2_panen = array_sum($bhtm2);
+        //                 $bhtm3_oanen = array_sum($bhtm3);
 
-                        $sumBH = $bhts_panen +  $bhtm1_panen +  $bhtm2_panen +  $bhtm3_oanen;
+        //                 $sumBH = $bhts_panen +  $bhtm1_panen +  $bhtm2_panen +  $bhtm3_oanen;
 
-                        $sumPerBH = $sumBH / ($janjang_panen + $sumBH) * 100;
+        //                 $sumPerBH = $sumBH / ($janjang_panen + $sumBH) * 100;
 
-                        $skor_bh = 0;
-                        if ($sumPerBH <=  0.0) {
-                            $skor_bh = 20;
-                        } else if ($sumPerBH >=  0.0 && $sumPerBH <= 1.0) {
-                            $skor_bh = 18;
-                        } else if ($sumPerBH >= 1 && $sumPerBH <= 1.5) {
-                            $skor_bh = 16;
-                        } else if ($sumPerBH >= 1.5 && $sumPerBH <= 2.0) {
-                            $skor_bh = 12;
-                        } else if ($sumPerBH >= 2.0 && $sumPerBH <= 2.5) {
-                            $skor_bh = 8;
-                        } else if ($sumPerBH >= 2.5 && $sumPerBH <= 3.0) {
-                            $skor_bh = 4;
-                        } else if ($sumPerBH >= 3.0 && $sumPerBH <= 3.5) {
-                            $skor_bh = 0;
-                        } else if ($sumPerBH >=  3.5 && $sumPerBH <= 3.5) {
-                            $skor_bh = 0;
-                        } else if ($sumPerBH >= 3.5 && $sumPerBH <= 4.0) {
-                            $skor_bh = 4;
-                        } else if ($sumPerBH >= 4.0 && $sumPerBH <= 4.5) {
-                            $skor_bh = 8;
-                        } else if ($sumPerBH >= 4.5 && $sumPerBH <= 5.0) {
-                            $skor_bh = 12;
-                        } else if ($sumPerBH >= 5.0) {
-                            $skor_bh = 10;
-                        }
-                    }
-                    // data untuk pelepah sengklek
-                    $ps = json_decode($value3["ps"], true);
-                    $pelepah_s = array_sum($ps);
-                    if ($pelepah_s != 0) {
-                        $perPl = ($pokok_panen / $pelepah_s) * 100;
-                    } else {
-                        $perPl = 0;
-                    }
-                    $skor_perPl = 0;
-                    if ($perPl <=  0.5) {
-                        $skor_perPl = 5;
-                    } else if ($perPl >=  0.5 && $perPl <= 1.0) {
-                        $skor_perPl = 4;
-                    } else if ($perPl >= 1.0 && $perPl <= 1.5) {
-                        $skor_perPl = 3;
-                    } else if ($perPl >= 1.5 && $perPl <= 2.0) {
-                        $skor_perPl = 2;
-                    } else if ($perPl >= 2.0 && $perPl <= 2.5) {
-                        $skor_perPl = 1;
-                    } else if ($perPl >= 2.5) {
-                        $skor_perPl = 0;
-                    }
-                }
+        //                 $skor_bh = 0;
+        //                 if ($sumPerBH <=  0.0) {
+        //                     $skor_bh = 20;
+        //                 } else if ($sumPerBH >=  0.0 && $sumPerBH <= 1.0) {
+        //                     $skor_bh = 18;
+        //                 } else if ($sumPerBH >= 1 && $sumPerBH <= 1.5) {
+        //                     $skor_bh = 16;
+        //                 } else if ($sumPerBH >= 1.5 && $sumPerBH <= 2.0) {
+        //                     $skor_bh = 12;
+        //                 } else if ($sumPerBH >= 2.0 && $sumPerBH <= 2.5) {
+        //                     $skor_bh = 8;
+        //                 } else if ($sumPerBH >= 2.5 && $sumPerBH <= 3.0) {
+        //                     $skor_bh = 4;
+        //                 } else if ($sumPerBH >= 3.0 && $sumPerBH <= 3.5) {
+        //                     $skor_bh = 0;
+        //                 } else if ($sumPerBH >=  3.5 && $sumPerBH <= 3.5) {
+        //                     $skor_bh = 0;
+        //                 } else if ($sumPerBH >= 3.5 && $sumPerBH <= 4.0) {
+        //                     $skor_bh = 4;
+        //                 } else if ($sumPerBH >= 4.0 && $sumPerBH <= 4.5) {
+        //                     $skor_bh = 8;
+        //                 } else if ($sumPerBH >= 4.5 && $sumPerBH <= 5.0) {
+        //                     $skor_bh = 12;
+        //                 } else if ($sumPerBH >= 5.0) {
+        //                     $skor_bh = 10;
+        //                 }
+        //             }
+        //             // data untuk pelepah sengklek
+        //             $ps = json_decode($value3["ps"], true);
+        //             $pelepah_s = array_sum($ps);
+        //             if ($pelepah_s != 0) {
+        //                 $perPl = ($pokok_panen / $pelepah_s) * 100;
+        //             } else {
+        //                 $perPl = 0;
+        //             }
+        //             $skor_perPl = 0;
+        //             if ($perPl <=  0.5) {
+        //                 $skor_perPl = 5;
+        //             } else if ($perPl >=  0.5 && $perPl <= 1.0) {
+        //                 $skor_perPl = 4;
+        //             } else if ($perPl >= 1.0 && $perPl <= 1.5) {
+        //                 $skor_perPl = 3;
+        //             } else if ($perPl >= 1.5 && $perPl <= 2.0) {
+        //                 $skor_perPl = 2;
+        //             } else if ($perPl >= 2.0 && $perPl <= 2.5) {
+        //                 $skor_perPl = 1;
+        //             } else if ($perPl >= 2.5) {
+        //                 $skor_perPl = 0;
+        //             }
+        //         }
 
-                $MutuAncak[$key][$key2][$key3]['pokok_sample'] = $pokok_panen;
-                $MutuAncak[$key][$key2][$key3]['jum_ha'] = $jum_ha;
-                $MutuAncak[$key][$key2][$key3]['jumlah_panen'] = $janjang_panen;
-                $MutuAncak[$key][$key2][$key3]['akp_rl'] =  number_format($akp, 2);
-                $MutuAncak[$key][$key2][$key3]['p'] = $p_panen;
-                $MutuAncak[$key][$key2][$key3]['k'] = $k_panen;
-                $MutuAncak[$key][$key2][$key3]['tgl'] = $brtgl_panen;
-                $MutuAncak[$key][$key2][$key3]['total_brd'] = $skor_bTinggal;
-                $MutuAncak[$key][$key2][$key3]['brd/jjg'] = number_format($brdPerjjg, 2);
-                $MutuAncak[$key][$key2][$key3]['skor_brd'] = number_format($skor_brdPerjjg, 2);
+        //         $MutuAncak[$key][$key2][$key3]['pokok_sample'] = $pokok_panen;
+        //         $MutuAncak[$key][$key2][$key3]['jum_ha'] = $jum_ha;
+        //         $MutuAncak[$key][$key2][$key3]['jumlah_panen'] = $janjang_panen;
+        //         $MutuAncak[$key][$key2][$key3]['akp_rl'] =  number_format($akp, 2);
+        //         $MutuAncak[$key][$key2][$key3]['p'] = $p_panen;
+        //         $MutuAncak[$key][$key2][$key3]['k'] = $k_panen;
+        //         $MutuAncak[$key][$key2][$key3]['tgl'] = $brtgl_panen;
+        //         $MutuAncak[$key][$key2][$key3]['total_brd'] = $skor_bTinggal;
+        //         $MutuAncak[$key][$key2][$key3]['brd/jjg'] = number_format($brdPerjjg, 2);
+        //         $MutuAncak[$key][$key2][$key3]['skor_brd'] = number_format($skor_brdPerjjg, 2);
 
-                $MutuAncak[$key][$key2][$key3]['s'] = $bhts_panen;
-                $MutuAncak[$key][$key2][$key3]['m1'] = $bhtm1_panen;
-                $MutuAncak[$key][$key2][$key3]['m2'] = $bhtm2_panen;
-                $MutuAncak[$key][$key2][$key3]['m3'] = $bhtm3_oanen;
-                $MutuAncak[$key][$key2][$key3]['total_jjg'] = $sumBH;
-                $MutuAncak[$key][$key2][$key3]['jjg/ji'] = number_format($sumPerBH, 2);
-                $MutuAncak[$key][$key2][$key3]['skor_bhTgl'] = $skor_bh;
+        //         $MutuAncak[$key][$key2][$key3]['s'] = $bhts_panen;
+        //         $MutuAncak[$key][$key2][$key3]['m1'] = $bhtm1_panen;
+        //         $MutuAncak[$key][$key2][$key3]['m2'] = $bhtm2_panen;
+        //         $MutuAncak[$key][$key2][$key3]['m3'] = $bhtm3_oanen;
+        //         $MutuAncak[$key][$key2][$key3]['total_jjg'] = $sumBH;
+        //         $MutuAncak[$key][$key2][$key3]['jjg/ji'] = number_format($sumPerBH, 2);
+        //         $MutuAncak[$key][$key2][$key3]['skor_bhTgl'] = $skor_bh;
 
-                $MutuAncak[$key][$key2][$key3]['jjgPS'] = $pelepah_s;
-                $MutuAncak[$key][$key2][$key3]['perPl'] =  number_format($perPl, 2);
-                $MutuAncak[$key][$key2][$key3]['skor_perPl'] = $skor_perPl;
-            }
-        }
+        //         $MutuAncak[$key][$key2][$key3]['jjgPS'] = $pelepah_s;
+        //         $MutuAncak[$key][$key2][$key3]['perPl'] =  number_format($perPl, 2);
+        //         $MutuAncak[$key][$key2][$key3]['skor_perPl'] = $skor_perPl;
+        //     }
+        // }
 
         // dd($MutuAncak);
 
@@ -3375,7 +3548,7 @@ class inspectController extends Controller
                 }
             }
         }
-        dd($RekapWIlTabel);
+        // dd($RekapWIlTabel);
 
         //end testing
         // dd($RegMTbuahBln);
@@ -3384,9 +3557,6 @@ class inspectController extends Controller
             'arrHeaderSc' => $arrHeaderSc,
             'arrHeaderTrd' => $arrHeaderTrd,
             'arrHeaderReg' => $arrHeaderReg,
-            'dataResFind' => $dataResFind,
-            'dataSkor' => $dataSkor,
-            'MutuAncak' => $MutuAncak,
             'dataPerWil' => $dataPerWil,
             'TotalperEstate' => $TotalperEstate,
             'wil_1' => $wil_1,
