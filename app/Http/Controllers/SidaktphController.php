@@ -1120,6 +1120,8 @@ class SidaktphController extends Controller
                 //untuk chart!!!
                 foreach ($queryGroup as $key => $value) {
                     $sum_bt_tph = 0;
+                    $sum_bt_jalan = 0;
+                    $sum_bt_bin = 0;
                     $skor_brd = 0;
                     $listBlokPerAfd = array();
                     foreach ($value as $val) {
@@ -1128,8 +1130,11 @@ class SidaktphController extends Controller
                         }
                         $jum_blok = count($listBlokPerAfd);
                         $sum_bt_tph += $val->bt_tph;
+                        $sum_bt_jalan += $val->bt_jalan;
+                        $sum_bt_bin += $val->bt_bin;
                     }
-                    $skor_brd = round($sum_bt_tph / $jum_blok, 2);
+                    $total_btt = ($sum_bt_tph + $sum_bt_jalan + $sum_bt_bin);
+                    $skor_brd = round($total_btt / $jum_blok, 2);
                     $arrBtTPHperEst[$key] = $skor_brd;
                 }
                 // dd($arrBtTPHperEst);

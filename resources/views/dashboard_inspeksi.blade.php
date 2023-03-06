@@ -45,6 +45,23 @@
     .tbl-fixed td:nth-child(2) {
         background: #cfcfcf;
     }
+
+    .label-estate {
+        font-size: 15pt;
+        color: white;
+    }
+
+    .label-blok {
+        font-size: 12pt;
+        color: black;
+        font-weight: bold;
+        opacity: 1;
+    }
+
+    .legend {
+    padding: 5px 5px;
+    background: white;
+    }
 </style>
 <div class="content-wrapper">
     <section class="content"><br>
@@ -582,9 +599,9 @@
                                             <th class="align-middle" bgcolor="#588434">M2</th>
                                             <th class="align-middle" bgcolor="#588434">M3</th>
                                             <th class="align-middle" bgcolor="#588434">Total JJG</th>
-                                            <th class="align-middle" bgcolor="#588434">JJG tinggal</th>
+                                            <th class="align-middle" bgcolor="#588434">%</th>
                                             <th class="align-middle" bgcolor="#588434">Skor</th>
-                                            <th class="align-middle" bgcolor="#588434">Jjg</th>
+                                            <th class="align-middle" bgcolor="#588434">Pokok    </th>
                                             <th class="align-middle" bgcolor="#588434">%</th>
                                             <th class="align-middle" bgcolor="#588434">Skor</th>
 
@@ -659,7 +676,9 @@
                                         <tr>
                                             <th rowspan="3" class="align-middle">ESTATE</th>
                                             <th colspan="5">Temuan Pemeriksaan Panen</th>
-                                            <th rowspan="3" class="align-middle">Aksi</th>
+                                            <th rowspan="3" class="align-middle">Visit 1</th>
+                                            <th rowspan="3" class="align-middle">Visit 2</th>
+                                            <th rowspan="3" class="align-middle">Visit 3</th>
                                         </tr>
                                         <tr>
                                             <th rowspan="2" class="align-middle">Jumlah</th>
@@ -683,6 +702,25 @@
                     <div class="tab-pane fade" id="nav-score" role="tabpanel" aria-labelledby="nav-score-tab">
                         <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3 border border-dark">
                             <h5><b>SCORE KUALITAS PANEN BERDASARKAN BLOK</b></h5>
+                        </div>
+
+                        <div class="d-flex flex-row-reverse mr-3">
+                            <button class="btn btn-primary mb-3" style="float: right" id="showEstMap">Show</button>
+                            <div class="col-2 mr-2" style="float: right">
+                                {{csrf_field()}}
+                                <select class="form-control" id="estDataMap">
+                                    <option value="" disabled>Pilih Estate</option>
+                                    @foreach ($estate as $key => $item)
+                                    <option value="{{ $item['est'] }}">{{ $item['est'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="ml-4 mr-4 mb-3">
+                            <div class="row text-center">
+                                <div id="map" style="width: 100%; height: 700px;"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -742,16 +780,273 @@
     $(document).ready(function () {
         changeData()
         getFindData()
-    });
 
+        setTimeout(function () {
+            map.invalidateSize()
+            removeMarkers()
+            getPlotBlok()
+            // getPlotEstate()
+        }, 2000);
+    });
     
     $("#showDataIns").click(function() {
         changeData()
     });
-
+    
     $("#showFinding").click(function(){
         getFindData()
-    }); 
+    });
+
+    var map = L.map('map').setView([-2.2745234, 111.61404248], 13);
+    
+    googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }).addTo(map);
+
+    var legendVar = ''
+
+    $('#showEstMap').click(function(){
+        map.removeControl(legendVar)
+        removeMarkers()
+        getPlotBlok()
+        // getPlotEstate()
+    });  
+    
+    var titleEstate = new Array();
+    function drawEstatePlot(est,plot){
+        var geoJsonEst = '{"type"'
+        geoJsonEst += ":"
+        geoJsonEst += '"FeatureCollection",'
+        geoJsonEst += '"features"'
+        geoJsonEst += ":"
+        geoJsonEst += '['
+
+                    geoJsonEst += '{"type"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '"Feature",'
+                    geoJsonEst += '"properties"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '{"estate"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '"' + est +'"},'
+                    geoJsonEst += '"geometry"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '{"coordinates"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '[['
+                    geoJsonEst += plot
+                    geoJsonEst += ']],"type"'
+                    geoJsonEst += ":"
+                    geoJsonEst += '"Polygon"'
+                    geoJsonEst += '}},'
+
+        geoJsonEst = geoJsonEst.substring(0, geoJsonEst.length - 1);
+        geoJsonEst += ']}'
+
+        var estate = JSON.parse(geoJsonEst)
+
+        var estateObj = L.geoJSON(estate, {
+            onEachFeature: function(feature, layer){
+                layer.myTag = 'EstateMarker'
+                var label = L.marker(layer.getBounds().getCenter(), {
+                icon: L.divIcon({
+                    className: 'label-estate',
+                    html: feature.properties.estate,
+                    iconSize: [100, 20]
+                })
+                }).addTo(map);
+                titleEstate.push(label)
+                layer.addTo(map);
+            }
+        })
+        .addTo(map);
+
+        map.fitBounds(estateObj.getBounds());
+    }
+
+    var titleBlok = new Array();
+    function drawBlokPlot(blok){
+        var getPlotStr = '{"type"'
+        getPlotStr += ":"
+        getPlotStr += '"FeatureCollection",'
+        getPlotStr += '"features"'
+        getPlotStr += ":"
+        getPlotStr += '['
+
+        for (let i = 0; i < blok.length; i++) {
+                    getPlotStr += '{"type"'
+                    getPlotStr += ":"
+                    getPlotStr += '"Feature",'
+                    getPlotStr += '"properties"'
+                    getPlotStr += ":"
+                    getPlotStr += '{"blok"'
+                    getPlotStr += ":"
+                    getPlotStr += '"'+ blok[i][1]['blok'] +'",'
+                    getPlotStr += '"estate"'
+                    getPlotStr += ":"
+                    getPlotStr += '"'+ blok[i][1]['estate'] +'",'
+                    getPlotStr += '"nilai"'
+                    getPlotStr += ":"
+                    getPlotStr += '"'+ blok[i][1]['nilai'] +'"'
+                    getPlotStr += '},'
+                    getPlotStr += '"geometry"'
+                    getPlotStr += ":"
+                    getPlotStr += '{"coordinates"'
+                    getPlotStr += ":"
+                    getPlotStr += '[['
+                    getPlotStr += blok[i][1]['latln']
+                    getPlotStr += ']],"type"'
+                    getPlotStr += ":"
+                    getPlotStr += '"Polygon"'
+                    getPlotStr += '}},'
+                }
+        getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
+        getPlotStr += ']}'
+
+        var blok = JSON.parse(getPlotStr)
+
+        var test = L.geoJSON(blok, {
+            onEachFeature: function(feature, layer){
+                layer.myTag = 'BlokMarker'
+
+                var popupContent = "<p><b>Blok</b>: " + feature.properties.blok + "</p>" ;
+
+                var label = L.marker(layer.getBounds().getCenter(), {
+                icon: L.divIcon({
+                    className: 'label-blok',
+                    html: feature.properties.nilai,
+                    iconSize: [50, 10]
+                })
+                }).addTo(map);
+                label.bindPopup(popupContent);
+
+                titleBlok.push(label)
+                layer.addTo(map);
+                layer.bindPopup(popupContent);
+            },
+            style: function(feature) {
+                var nilai = feature.properties.nilai;
+                if (nilai >= 95.0 && nilai <= 100.0) {
+                    return {
+                        fillColor: "#4874c4",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } else if (nilai >= 85.0 && nilai < 95.0) {
+                    return {
+                        fillColor: "#00ff2e",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } else if (nilai >= 75.0 && nilai < 85.0) {
+                    return {
+                        fillColor: "yellow",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } else if (nilai >= 65.0 && nilai < 75.0) {
+                    return {
+                        fillColor: "orange",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } else if (nilai == 0) {
+                    return {
+                        fillColor: "white",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } else if (nilai < 65.0) {
+                    return {
+                        fillColor: "red",
+                        color: 'black',
+                        fillOpacity: 0.7,
+                        opacity: 0.3,
+                    };
+                } 
+            }
+        })
+        .addTo(map);
+
+        map.fitBounds(test.getBounds());
+    }
+
+    var removeMarkers = function() {
+        map.eachLayer( function(layer) {
+            if (layer.myTag && layer.myTag === "EstateMarker") {
+                map.removeLayer(layer)
+            }
+            if(layer.myTag && layer.myTag === "BlokMarker"){
+                map.removeLayer(layer)
+            }
+        });
+
+        for(i=0;i<titleBlok.length;i++) {
+            map.removeLayer(titleBlok[i]);
+        }  
+        for(i=0;i<titleEstate.length;i++) {
+            map.removeLayer(titleEstate[i]);
+        } 
+    }
+
+    function getPlotEstate() {
+        var _token = $('input[name="_token"]').val();
+        var estData = $("#estDataMap").val();
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of  params) {
+            paramArr = param
+        }
+        $.ajax({
+        url:"{{ route('plotEstate') }}",
+        method:"POST",
+        data:{est:estData,  _token:_token},
+        success:function(result)
+        {
+            var estate = JSON.parse(result);
+            drawEstatePlot(estate['est'], estate['plot'])
+        }
+        })
+    }
+
+    function getPlotBlok(){
+        var _token = $('input[name="_token"]').val();
+        var estData = $("#estDataMap").val();
+        const params = new URLSearchParams(window.location.search)
+        var paramArr = [];
+        for (const param of  params) {
+            paramArr = param
+        }
+
+        $.ajax({
+        url:"{{ route('plotBlok') }}",
+        method:"POST",
+        data:{ est:estData,  _token:_token},
+        success:function(result)
+        {
+            var plot = JSON.parse(result);
+            const blokResult = Object.entries(plot['blok']);
+            const lgd = Object.entries(plot['legend']);
+            drawBlokPlot(blokResult)
+
+            var legend = L.control({ position: "bottomright" });
+            legend.onAdd = function(map) {
+                var div = L.DomUtil.create("div", "legend");
+                div.innerHTML += '<table class="table table-bordered text center" style="height:fit-content; font-size: 12px;"> <thead> <tr bgcolor="lightgrey"> <th rowspan="2" class="align-middle">Score</th><th colspan="2">Blok</th> </tr> <tr bgcolor="lightgrey"> <th>Jumlah</th> <th>%</th> </tr> </thead> <tbody><tr><td bgcolor="#4874c4">Excellent</td><td>'+lgd[0][1]+'</td><td>'+lgd[6][1]+'</td></tr><tr><td bgcolor="#00ff2e">Good</td><td>'+lgd[1][1]+'</td><td>'+lgd[7][1]+'</td></tr><tr><td bgcolor="yellow">Satisfactory</td><td>'+lgd[2][1]+'</td><td>'+lgd[8][1]+'</td></tr><tr><td bgcolor="orange">Fair</td><td>'+lgd[3][1]+'</td><td>'+lgd[9][1]+'</td></tr><tr><td bgcolor="red">Poor</td><td>'+lgd[4][1]+'</td><td>'+lgd[10][1]+'</td></tr><tr bgcolor="lightgrey"><td>TOTAL</td><td colspan="2">'+lgd[5][1]+'</td></tr></tbody></table>';
+                return div;
+            };
+            legend.addTo(map);  
+
+            legendVar = legend
+        }
+        })
+    }
 
     function changeData() {
         var regIns = $("#regDataIns").val();
@@ -810,6 +1105,8 @@
                             let itemElement5 = document.createElement('td')
                             let itemElement6 = document.createElement('td')
                             let itemElement7 = document.createElement('td')
+                            let itemElement8 = document.createElement('td')
+                            let itemElement9 = document.createElement('td')
 
                             itemElement1.innerText  = item1
                             itemElement2.innerText  = item2
@@ -817,7 +1114,9 @@
                             itemElement4.innerText  = item4
                             itemElement5.innerText  = item5
                             itemElement6.innerText  = item6
-                            itemElement7.innerHTML  =  '<a href="/cetakPDFFI/' + value2[0] + '/'+ date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                            itemElement7.innerHTML  =  '<a href="/cetakPDFFI/1/' + value2[0] + '/'+ date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                            itemElement8.innerHTML  =  '<a href="/cetakPDFFI/2/' + value2[0] + '/'+ date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                            itemElement9.innerHTML  =  '<a href="/cetakPDFFI/3/' + value2[0] + '/'+ date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
 
                             tr.appendChild(itemElement1)
                             tr.appendChild(itemElement2)
@@ -826,6 +1125,8 @@
                             tr.appendChild(itemElement5)
                             tr.appendChild(itemElement6)
                             tr.appendChild(itemElement7)
+                            tr.appendChild(itemElement8)
+                            tr.appendChild(itemElement9)
                             tbody1.appendChild(tr)
                         }
                     });

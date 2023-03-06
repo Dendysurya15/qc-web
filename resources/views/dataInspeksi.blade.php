@@ -266,35 +266,23 @@
         <td style="background-color : {{$skor_kategori_akhir_est[0]}}; color: #000000;">{{$skor_kategori_akhir_est[1]}}</td>
     </tr>
     @php
-    $bt_tph_total_wil = $bt_total_wil == 0 && $tph_total_wil == 0 ? 0 :
-    round($bt_total_wil / $tph_total_wil, 2);
-    $jjg_tph_total_wil = $jjg_total_wil == 0 && $tph_total_wil == 0 ? 0 :
-    round($jjg_total_wil / $tph_total_wil, 2);
+    $bt_tph_total_wil = $tph_total_wil == 0 ? $bt_total_wil : round($bt_total_wil / $tph_total_wil, 2);
+    $jjg_tph_total_wil = $tph_total_wil == 0 ? $jjg_total_wil : round($jjg_total_wil / $tph_total_wil, 2);
+    $tot_krg_wil = $alas_mb == 0 ? $blok_mb : round($blok_mb / $alas_mb, 2);
+    $tot_Permentah_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? $tot_mentah_wil : round(($tot_mentah_wil / ($tot_jjg_wil - $tot_abr_wil)) * 100, 2);
+    $tot_Permatang_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? $tot_matang_wil : round(($tot_matang_wil / ($tot_jjg_wil - $tot_abr_wil)) * 100, 2);
+    $tot_Perover_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? $tot_over_wil : round(($tot_over_wil / ($tot_jjg_wil - $tot_abr_wil)) * 100, 2);
+    $tot_Perjangkos_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? $tot_empty_wil : round(($tot_empty_wil / ($tot_jjg_wil - $tot_abr_wil)) * 100, 2);
+    $tot_Pervcut_wil = count_percent($tot_vcut_wil, $tot_jjg_wil);
+    $tot_Perabr_wil = count_percent($tot_abr_wil, $tot_jjg_wil);
+    $tot_Perkrg_wil = count_percent($blok_mb, $alas_mb);
 
-    $tot_krg_wil = $blok_mb == 0 && $alas_mb == 0 ? 0 : round($blok_mb / $alas_mb,
-    2);
-    $tot_Permentah_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? 0 :
-    round(($tot_mentah_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-    100, 2);
-    $tot_Permatang_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? 0
-    : round(($tot_matang_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-    100, 2);
-    $tot_Perover_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? 0
-    : round(($tot_over_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-    100, 2);
-    $tot_Perjangkos_wil = ($tot_jjg_wil - $tot_abr_wil) == 0 ? 0
-    : round(($tot_empty_wil / ($tot_jjg_wil - $tot_abr_wil)) *
-    100, 2);
-    $tot_Pervcut_wil = $tot_vcut_wil == 0 && $tot_jjg_wil == 0 ? 0 : count_percent($tot_vcut_wil, $tot_jjg_wil);
-    $tot_Perabr_wil = $tot_abr_wil == 0 && $tot_jjg_wil == 0 ? 0 : count_percent($tot_abr_wil, $tot_jjg_wil);
-    $tot_Perkrg_wil = $blok_mb == 0 && $alas_mb == 0 ? 0 : count_percent($blok_mb, $alas_mb);
-
-    $akp_real_wil = $jml_pokok_sm_wil == 0 ? $jml_jjg_panen_wil : count_percent($jml_jjg_panen_wil, $jml_pokok_sm_wil);
+    $akp_real_wil = count_percent($jml_jjg_panen_wil, $jml_pokok_sm_wil);
     $tot_brd_wil = $jml_brtp_wil + $jml_brtk_wil + $jml_brtgl_wil;
     $btr_jjg_ma_wil = $jml_jjg_panen_wil == 0 ? $tot_brd_wil : round(($tot_brd_wil / $jml_jjg_panen_wil), 2);
     $tot_bt_wil = $jml_bhts_wil + $jml_bhtm1_wil + $jml_bhtm2_wil + $jml_bhtm3_wil;
     $bt_jjg_ma_wil = ($jml_jjg_panen_wil + $tot_bt_wil) == 0 ? $tot_bt_wil : round(($tot_bt_wil / ($jml_jjg_panen_wil + $tot_bt_wil)) * 100, 2);
-    $PerPSMA_wil = $jml_pokok_sm_wil == 0 ? $jml_ps_wil : count_percent($jml_ps_wil, $jml_pokok_sm_wil);
+    $PerPSMA_wil = count_percent($jml_ps_wil, $jml_pokok_sm_wil);
     @endphp
     @endif
     @endforeach

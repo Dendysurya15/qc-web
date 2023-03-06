@@ -465,8 +465,8 @@ var will = {
 
 
 
-    console.log(firstWeek)
-    console.log(lastWeek)
+    // console.log(firstWeek)
+    // console.log(lastWeek)
     document.getElementById('startWeek').value = firstWeek
     document.getElementById('lastWeek').value = lastWeek
 });
@@ -504,11 +504,9 @@ var will = {
       const week = weekData.substring(6, 8);
       const year = weekData.substring(0, 4);
 
-      const monthNumber = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-      let dates = parseDates(weekData)[0];
-      var month = monthNumber[dates.getMonth()];
+      const month = moment(document.getElementById('dateWeek').value).subtract(-6, 'days').format("M");
 
-      const url = 'https://srs-ssms.com/sidak_tph/STPH-' + year + '-' + month + '-Week' + week + '-Reg1.pdf';
+      const url = 'https://srs-ssms.com/sidak_tph/STPH-' + year + '-0' + month + '-Week' + week + '-Reg1.pdf';
       
       $.ajax({
         url:"{{ route('downloadPDF') }}",

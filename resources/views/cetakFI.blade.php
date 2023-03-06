@@ -63,7 +63,9 @@
     <table class="table table-bordered text-center" style="width: 15%; float:right;">
         <thead>
             <tr>
-                <th>BULAN : {{ $date }}</th>
+                @if (isset($dataResult[0][$id]['datetime']))
+                <th>TANGGAL PEMERIKSAAN : {{ date("d/m/Y", strtotime($dataResult[0][$id]['datetime'])) }}</th>
+                @endif
             </tr>
         </thead>
     </table><br><br><br>
@@ -71,80 +73,101 @@
     <table class="table table-bordered text-center">
         <thead>
             <tr bgcolor="#e8ecdc">
-                <th class="align-middle" rowspan="2" width="5%">EST</th>
-                <th class="align-middle" rowspan="2" width="5%">AFD</th>
-                <th class="align-middle" rowspan="2" width="20%">ISSUE</th>
-                <th colspan="2">FOTO</th>
-                <th class="align-middle" rowspan="2" width="10%">STATUS</th>
+                <th class="align-middle" rowspan="2">EST</th>
+                <th class="align-middle" rowspan="2">AFD</th>
+                <th class="align-middle" rowspan="2">ISSUE</th>
+                <th colspan="4">FOTO</th>
+                <th class="align-middle" rowspan="2">STATUS</th>
             </tr>
             <tr bgcolor="#e8ecdc">
-                <th width="30%">BEFORE</th>
-                <th width="30%">AFTER</th>
+                <th colspan="2">BEFORE</th>
+                <th colspan="2">AFTER</th>
             </tr>
         </thead>
         <tbody>
+            @php
+            $tuntas = array();
+            $no_tuntas = array();
+            @endphp
+
             @foreach ($dataResult as $key => $item)
+            @if (isset($item[$id]))
             <tr>
-                <td class="align-middle">{{ $item[0]['estate'] }}</td>
-                <td class="align-middle">{{ $item[0]['afdeling'] }}</td>
-                <td class="align-middle">{{ $item[0]['komentar'] }}</td>
+                <td class="align-middle" width="5%">{{ $item[$id]['estate'] }}</td>
+                <td class="align-middle" width="5%">{{ $item[$id]['afdeling'] }}</td>
+                <td class="align-middle" width="20%">{{ $item[$id]['komentar'] }}</td>
 
-                <td class="align-middle">
-                @if (strpos($item[0]['foto_temuan'], 'IMT') !== false)
-                    <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mt/{{$item[0]['foto_temuan']}}" style="weight:150pt;height:150pt">
-                @elseif (strpos($item[0]['foto_temuan'], 'IMB') !== false)
-                    <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mb/{{$item[0]['foto_temuan']}}" style="weight:150pt;height:150pt">
-                @else
-                    <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$item[0]['foto_temuan']}}" style="weight:150pt;height:150pt">
-                @endif
-                </td>
-
-                @if (check_array('foto_fu', $item[0]) == 0)
-                <td class="align-middle"></td>
-                @else
-                <td class="align-middle">
-                    @if (strpos($item[0]['foto_fu'], 'IMT') !== false)
-                        <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mt/{{$item[0]['foto_fu']}}" style="weight:150pt;height:150pt">
-                    @elseif (strpos($item[0]['foto_fu'], 'IMB') !== false)
-                        <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mb/{{$item[0]['foto_fu']}}" style="weight:150pt;height:150pt">
-                    @else
-                        <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$item[0]['foto_fu']}}" style="weight:150pt;height:150pt">
-                    @endif
-                </td>
+                @if (strpos($item[$id]['foto_temuan'], 'IMT') !== false)
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mt/{{$item[$id]['foto_temuan']}}" style="weight:150pt;height:150pt"></td>
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                @elseif (strpos($item[$id]['foto_temuan'], 'IMB') !== false)
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mb/{{$item[$id]['foto_temuan']}}" style="weight:150pt;height:150pt"></td>
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                @elseif (strpos($item[$id]['foto_temuan'], 'IMA') !== false)
+                    @php 
+                    $str = substr($item[$id]['foto_temuan'], 1, -1);
+                    $foto_temuan_ma = explode(",",$str);
+                    @endphp
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[0]}}" style="weight:150pt;height:150pt"></td>
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[1]}}" style="weight:150pt;height:150pt"></td>
+                @else 
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                    <td class="align-middle" width="15%">&nbsp;</td>
                 @endif
 
-                @if (!empty($item[0]['foto_temuan']) && !empty($item[0]['foto_fu']))
-                <td class="align-middle" bgcolor="#00ff00" style="color: black;">
+                @if (isset($item[$id]['foto_fu']) && strpos($item[$id]['foto_fu'], 'IMT') !== false)
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mt/{{$item[$id]['foto_fu']}}" style="weight:150pt;height:150pt"></td>
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                @elseif (isset($item[$id]['foto_fu']) && strpos($item[$id]['foto_fu'], 'IMA') !== false)
+                    @php 
+                    $strr = substr($item[$id]['foto_fu'], 1, -1);
+                    $foto_fu_ma = explode(",",$strr);
+                    @endphp
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma[0]}}" style="weight:150pt;height:150pt"></td>
+                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma[1]}}" style="weight:150pt;height:150pt"></td>
+                @else 
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                    <td class="align-middle" width="15%">&nbsp;</td>
+                @endif
+                
+                @if (!empty($item[$id]['foto_temuan']) && !empty($item[$id]['foto_fu']) && $item[$id]['foto_fu'] != 'MB')
+                @php array_push($tuntas, '1'); @endphp
+                <td class="align-middle" bgcolor="#00ff00" style="color: black;" width="10%">
                     TUNTAS
                 </td>
-                @elseif (check_array('foto_fu', $item[0]) == 0)
-                <td class="align-middle" bgcolor="yellow" style="color: black;">
+                @elseif (!empty($item[$id]['foto_temuan']) && $item[$id]['foto_fu'] == 'MB')
+                <td class="align-middle" bgcolor="yellow" style="color: black;" width="10%">
                     BERKELANJUTAN
                 </td>
                 @else
-                <td class="align-middle" bgcolor="red" style="color: black;">
+                @php array_push($no_tuntas, '1'); @endphp
+                <td class="align-middle" bgcolor="red" style="color: black;" width="10%">
                     BELUM TUNTAS
                 </td>
                 @endif
             </tr>
+            @endif
             @endforeach
 
-            @foreach ($dataTotal as $key => $item)
+            @php
+            $tun = count($tuntas);
+            $notun = count($no_tuntas);
+            $tot = $tun + $notun;
+            @endphp
             <tr bgcolor="#e8ecdc">
                 <td colspan="3" class="align-middle">&nbsp;</td>
-                <td class="align-middle" style="font-weight: bold">TUNTAS</td>
-                <td class="align-middle">{{ $item['tuntas'] }}</td>
-                <td class="align-middle">{{ count_percent($item['tuntas'],
-                    $item['total_temuan']) }}%</td>
+                <td colspan="2" class="align-middle" style="font-weight: bold">TUNTAS</td>
+                <td colspan="2" class="align-middle">{{ $tun }}</td>
+                <td class="align-middle">{{ count_percent($tun,
+                    $tot) }}%</td>
             </tr>
             <tr bgcolor="#e8ecdc">
                 <td colspan="3" class="align-middle">&nbsp;</td>
-                <td class="align-middle" style="font-weight: bold">BELUM TUNTAS</td>
-                <td class="align-middle">{{ $item['no_tuntas'] }}</td>
-                <td class="align-middle">{{ count_percent($item['no_tuntas'],
-                    $item['total_temuan']) }}%</td>
+                <td colspan="2" class="align-middle" style="font-weight: bold">BELUM TUNTAS</td>
+                <td colspan="2" class="align-middle">{{ $notun }}</td>
+                <td class="align-middle">{{ count_percent($notun,
+                    $tot) }}%</td>
             </tr>
-            @endforeach
         </tbody>
     </table>
 </body>

@@ -4,7 +4,7 @@
 if (!function_exists('count_percent')) {
     function count_percent($skor1, $skor2)
     {
-        return round(($skor1 / $skor2) * 100, 2);
+        return $skor2 == 0 ? $skor1 : round(($skor1 / $skor2) * 100, 2);
     }
 }
 

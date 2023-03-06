@@ -119,7 +119,7 @@
                             <a href="{{ asset('/dashboard_gudang') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file"></i>
                                 <p>
-                                    Inspeksi QC Gudang
+                                    QC Gudang
                                 </p>
                             </a>
                         </li>
