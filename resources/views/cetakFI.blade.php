@@ -68,6 +68,15 @@
                 @endif
             </tr>
         </thead>
+    </table>
+    <table class="table table-bordered text-center" style="width: 5%; float:right; margin-right: 0.5%;">
+        <thead>
+            <tr>
+                @if (isset($dataResult[0][$id]['datetime']))
+                <th>VISIT : {{ $id }}</th>
+                @endif
+            </tr>
+        </thead>
     </table><br><br><br>
 
     <table class="table table-bordered text-center">
@@ -95,7 +104,19 @@
             <tr>
                 <td class="align-middle" width="5%">{{ $item[$id]['estate'] }}</td>
                 <td class="align-middle" width="5%">{{ $item[$id]['afdeling'] }}</td>
-                <td class="align-middle" width="20%">{{ $item[$id]['komentar'] }}</td>
+                <td class="align-middle" width="20%">
+                    @if (strpos($item[$id]['foto_temuan'], 'IMA') !== false)
+                        @php 
+                        $komen_ma = explode(";",$item[$id]['komentar']);
+                        @endphp
+
+                        @foreach ($komen_ma as $items)
+                            {{ $items }} <br>
+                        @endforeach
+                    @else 
+                        {{ $item[$id]['komentar'] }}
+                    @endif
+                </td>
 
                 @if (strpos($item[$id]['foto_temuan'], 'IMT') !== false)
                     <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_mt/{{$item[$id]['foto_temuan']}}" style="weight:150pt;height:150pt"></td>
@@ -105,11 +126,21 @@
                     <td class="align-middle" width="15%">&nbsp;</td>
                 @elseif (strpos($item[$id]['foto_temuan'], 'IMA') !== false)
                     @php 
-                    $str = substr($item[$id]['foto_temuan'], 1, -1);
-                    $foto_temuan_ma = explode(",",$str);
+                    $foto_temuan_ma = explode(";",$item[$id]['foto_temuan']);
+                    $foto_temuan_ma1 = explode(";",$item[$id]['foto_temuan1']);
                     @endphp
-                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[0]}}" style="weight:150pt;height:150pt"></td>
-                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[1]}}" style="weight:150pt;height:150pt"></td>
+
+                    <td class="align-middle" width="15%">
+                    @if (!empty($foto_temuan_ma[0]))
+                    <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[0]}}" style="weight:150pt;height:150pt">
+                    @endif
+                    </td>
+
+                    <td class="align-middle" width="15%">
+                    @if (!empty($foto_temuan_ma1[0]))
+                    <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_temuan_ma[0]}}" style="weight:150pt;height:150pt">
+                    @endif
+                    </td>
                 @else 
                     <td class="align-middle" width="15%">&nbsp;</td>
                     <td class="align-middle" width="15%">&nbsp;</td>
@@ -120,11 +151,21 @@
                     <td class="align-middle" width="15%">&nbsp;</td>
                 @elseif (isset($item[$id]['foto_fu']) && strpos($item[$id]['foto_fu'], 'IMA') !== false)
                     @php 
-                    $strr = substr($item[$id]['foto_fu'], 1, -1);
-                    $foto_fu_ma = explode(",",$strr);
+                    $foto_fu_ma = explode(";",$item[$id]['foto_fu']);
+                    $foto_fu_ma1 = explode(";",$item[$id]['foto_fu1']);
                     @endphp
-                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma[0]}}" style="weight:150pt;height:150pt"></td>
-                    <td class="align-middle" width="15%"><img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma[1]}}" style="weight:150pt;height:150pt"></td>
+                    
+                    <td class="align-middle" width="15%">
+                        @if (!empty($foto_fu_ma[0]))
+                        <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma[0]}}" style="weight:150pt;height:150pt">
+                        @endif
+                    </td>
+
+                    <td class="align-middle" width="15%">
+                        @if (!empty($foto_fu_ma1[0]))
+                        <img src="https://mobilepro.srs-ssms.com/storage/app/public/qc/inspeksi_ma/{{$foto_fu_ma1[0]}}" style="weight:150pt;height:150pt">
+                        @endif
+                    </td>
                 @else 
                     <td class="align-middle" width="15%">&nbsp;</td>
                     <td class="align-middle" width="15%">&nbsp;</td>

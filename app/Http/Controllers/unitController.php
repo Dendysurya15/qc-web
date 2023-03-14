@@ -319,6 +319,7 @@ class unitController extends Controller
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $regional)
+            ->where('estate.nama', '!=', 'PLASMA')
             ->get();
 
         $queryEstate = json_decode($queryEstate, true);

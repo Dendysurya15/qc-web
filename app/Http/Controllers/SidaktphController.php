@@ -19,9 +19,9 @@ class SidaktphController extends Controller
     public $search;
     public function index(Request $request)
     {
-        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->pluck('est');
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->pluck('est');
 
-        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->get();
         $queryEste = $queryEste->groupBy(function ($item) {
             return $item->wil;
         });
@@ -38,6 +38,7 @@ class SidaktphController extends Controller
             ) //buat mengambil data di estate db dan willayah db
 
             ->join('estate', 'estate.id', '=', 'afdeling.estate') //kemudian di join untuk mengambil est perwilayah
+            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
             ->get();
 
         $queryAfd = json_decode($queryAfd, true);
@@ -236,9 +237,9 @@ class SidaktphController extends Controller
         $queryReg = DB::connection('mysql2')->table('wil')->whereIn('regional', [1])->pluck('regional');
 
         // dapatkan data estate dari table estate dengan wilayah 1 , 2 , 3
-        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->get();
         // dd($queryEst);
-        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->get();
         $queryEste = $queryEste->groupBy(function ($item) {
             return $item->wil;
         });
@@ -255,6 +256,7 @@ class SidaktphController extends Controller
             ) //buat mengambil data di estate db dan willayah db
 
             ->join('estate', 'estate.id', '=', 'afdeling.estate') //kemudian di join untuk mengambil est perwilayah
+            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
             ->get();
 
         $queryAfd = json_decode($queryAfd, true);
@@ -296,6 +298,7 @@ class SidaktphController extends Controller
             ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
             ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
             ->whereBetween('sidak_tph.datetime', [$firstWeek, $lastWeek])
+            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
             // ->where('sidak_tph.datetime', 'LIKE', '%' . $request->$firstDate . '%')
             ->get();
         //     ->get();
@@ -304,6 +307,7 @@ class SidaktphController extends Controller
             ->whereIn('estate.wil', [1, 2, 3])
             ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
             ->whereBetween('sidak_tph.datetime', [$firstWeek, $lastWeek])
+            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
             // ->where('sidak_tph.datetime', 'LIKE', '%' . $request->$firstDate . '%')
             ->get();
         // dd($queryAFD);

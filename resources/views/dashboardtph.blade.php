@@ -61,7 +61,7 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-3">
         <div class="card">
           <div class="card-body">
             <div class="table-responsive">
@@ -97,7 +97,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-3">
         <div class="card">
           <div class="card-body">
             <div class="table-responsive">
@@ -141,7 +141,7 @@
           </div>
         </div>
       </div>
-      <div class=" col-sm-4">
+      <div class="col-sm-3">
         <div class="card">
           <div class="card-body">
             <div class="table-responsive">
@@ -182,7 +182,42 @@
           </div>
         </div>
       </div>
+      <div class="col-sm-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table id="table1" class="tableRekap table table-hover table-bordered table-sm table-light border-dark">
 
+                <thead>
+                  <tr>
+                    <th colspan="6" class="text-center" style="background-color : yellow;">
+                      PLASMA
+                    </th>
+                  </tr>
+                  <tr>
+
+                    <th rowspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center p-3">
+                      KEBUN
+                    </th>
+                    <th rowspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center p-3">AFD
+                    </th>
+                    <th rowspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center p-3">NAMA
+                    </th>
+                    <th colspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">Todate</th>
+
+                  </tr>
+                  <tr>
+                    <th style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">Score</th>
+                    <th style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">Rank</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody4">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="card">
       <div class="card-body">
@@ -304,9 +339,7 @@
 
     var estate = '['
     list_estate.forEach(element => {
-        if (element != 'CWS') {
             estate += '"' +element + '",'
-        }
           });
     estate = estate.substring(0, estate.length - 1);
     estate += ']'
@@ -653,9 +686,7 @@ var will = {
                 //brondolan tgl
               var valBtTph = '['
               listBtTph.forEach(element => {
-                if (element[0] != 'CWS') {
                 valBtTph += '"' +element[1] + '",'
-                }
               });
               valBtTph = valBtTph.substring(0, valBtTph.length - 1);
               valBtTph += ']'
@@ -663,9 +694,7 @@ var will = {
                 //karung tgl
               var valKRtgl = '['
               listKRTph.forEach(element => {
-                if (element[0] != 'CWS') {
                 valKRtgl += '"' +element[1] + '",'
-                }
               });
               valKRtgl = valKRtgl.substring(0, valKRtgl.length - 1);
               valKRtgl += ']'
@@ -673,9 +702,7 @@ var will = {
                 //buah tinggal
               var valBHtgl = '['
               lisBHtph.forEach(element => {
-                if (element[0] != 'CWS') {
                 valBHtgl += '"' +element[1] + '",'
-                }
               });
               valBHtgl = valBHtgl.substring(0, valBHtgl.length - 1);
               valBHtgl += ']'
@@ -685,9 +712,7 @@ var will = {
                 
               var valRSnone = '['
               listRStph.forEach(element => {
-                if (element[0] != 'CWS') {
                 valRSnone += '"' +element[1] + '",'
-                }
               });
               valRSnone = valRSnone.substring(0, valRSnone.length - 1);
               valRSnone += ']'
