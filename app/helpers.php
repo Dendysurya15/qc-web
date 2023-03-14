@@ -224,6 +224,25 @@ if (!function_exists('skor_palepah_ma')) {
     }
 }
 
+if (!function_exists('skor_vcut_mb')) {
+    function skor_vcut_mb($skor)
+    {
+
+        if ($skor <= 2.0) {
+            return  5;
+        } else if ($skor >= 2.0 && $skor <= 4.0) {
+            return  4;
+        } else if ($skor >= 4.0 && $skor <= 6.0) {
+            return  3;
+        } else if ($skor >= 6.0 && $skor <= 8.0) {
+            return  2;
+        } else if ($skor >= 8.0 && $skor <= 10.0) {
+            return  1;
+        } else if ($skor >= 10.0) {
+            return  0;
+        }
+    }
+}
 if (!function_exists('skor_kategori_akhir')) {
     function skor_kategori_akhir($skor)
     {
@@ -257,6 +276,104 @@ if (!function_exists('check_array')) {
         if (array_key_exists($key, $value)) {
             return $value[$key];
         } else {
+            return 0;
+        }
+    }
+}
+
+
+//buat sidak tph
+
+if (!function_exists('skorBRDsidak')) {
+    function skorBRDsidak($skor)
+    {
+        if ($skor <= 18) {
+            return 30;
+        } else if ($skor >= 18 && $skor <= 30) {
+            return 26;
+        } else if ($skor >= 30 && $skor <= 42) {
+            return 22;
+        } else if ($skor >= 42 && $skor <= 54) {
+            return 18;
+        } else if ($skor >= 54 && $skor <= 66) {
+            return 14;
+        } else if ($skor >= 66 && $skor <= 78) {
+            return 10;
+        } else if ($skor >= 78 && $skor <= 90) {
+            return 6;
+        } else if ($skor >= 96) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('skorKRsidak')) {
+    function skorKRsidak($skor)
+    {
+        if ($skor <= 0) {
+            return 20;
+        } else if ($skor >= 0 && $skor <= 3) {
+            return 17;
+        } else if ($skor >= 3 && $skor <= 6) {
+            return 14;
+        } else if ($skor >= 6 && $skor <= 9) {
+            return 11;
+        } else if ($skor >= 9 && $skor <= 12) {
+            return 8;
+        } else if ($skor >= 12 && $skor <= 15) {
+            return 5;
+        } else if ($skor >= 15 && $skor <= 18) {
+            return 2;
+        } else if ($skor >= 18) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('skorBHsidak')) {
+    function skorBHsidak($skor)
+    {
+        if ($skor <= 0) {
+            return 20;
+        } else if ($skor >= 0 && $skor <= 3) {
+            return 17;
+        } else if ($skor >= 3 && $skor <= 6) {
+            return 14;
+        } else if ($skor >= 6 && $skor <= 9) {
+            return 11;
+        } else if ($skor >= 9 && $skor <= 12) {
+            return 8;
+        } else if ($skor >= 12 && $skor <= 15) {
+            return 5;
+        } else if ($skor >= 15 && $skor <= 18) {
+            return 2;
+        } else if ($skor >= 18) {
+            return 0;
+        }
+    }
+}
+
+
+if (!function_exists('skorRSsidak')) {
+    function skorRSsidak($skor)
+    {
+        if ($skor <= 0) {
+            return 30;
+        } else if ($skor >= 0 && $skor <= 3) {
+            return 26;
+        } else if ($skor >= 3 && $skor <= 6) {
+            return 22;
+        } else if ($skor >= 6 && $skor <= 9) {
+            return 18;
+        } else if ($skor >= 9 && $skor <= 12) {
+            return 14;
+        } else if ($skor >= 12 && $skor <= 15) {
+            return 10;
+        } else if ($skor >= 15 && $skor <= 18) {
+            return 6;
+        } else if ($skor >= 18 && $skor <= 21) {
+            return 2;
+        } else if ($skor >= 21) {
             return 0;
         }
     }

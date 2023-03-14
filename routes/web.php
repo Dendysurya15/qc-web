@@ -65,4 +65,8 @@ Route::post('/plotEstate', [inspectController::class, 'plotEstate'])->name('plot
 Route::post('/plotBlok', [inspectController::class, 'plotBlok'])->name('plotBlok');
 // Route::post('/filter', [inspectController::class, 'filter']);
 
+
 Route::get('/filter', [inspectController::class, 'filter'])->name('filter');
+Route::get('/graphfilter', [inspectController::class, 'graphfilter'])->name('graphfilter');
+Route::get('/filterTahun', [inspectController::class, 'filterTahun'])->name('filterTahun');
+Route::get('/scorebymap', [inspectController::class, 'scorebymap'])->name('scorebymap');
