@@ -70,3 +70,10 @@ Route::get('/filter', [inspectController::class, 'filter'])->name('filter');
 Route::get('/graphfilter', [inspectController::class, 'graphfilter'])->name('graphfilter');
 Route::get('/filterTahun', [inspectController::class, 'filterTahun'])->name('filterTahun');
 Route::get('/scorebymap', [inspectController::class, 'scorebymap'])->name('scorebymap');
+
+Route::get('/listktu', [unitController::class, 'listktu'])->name('listktu');
+Route::post('/tambahKTU', [unitController::class, 'tambahKTU'])->name('tambahKTU');
+Route::post('/updateKTU', [unitController::class, 'updateKTU'])->name('updateKTU');
+Route::post('/hapusKTU', [unitController::class, 'hapusKTU'])->name('hapusKTU');
+
+Route::post('/hapusDetailSidak', [SidaktphController::class, 'hapusDetailSidak'])->name('hapusDetailSidak');

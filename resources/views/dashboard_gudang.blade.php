@@ -139,7 +139,11 @@
                     <option value="2022">2022</option>
                 </select>
             </div>
-
+            <div class="col-2">
+                @if (session('user_name') == 'Dennis Irawan')
+                <a href="{{ route('listktu') }}" class="btn btn-success mr-2">List KTU</a>
+                @endif
+            </div>
         </div>
         <br>
         <div class="container-fluid">
@@ -265,9 +269,9 @@
                     var cell3 = row.insertCell(i);
                     if (parserowReg[0] == 1) {
                         reg = 'I'
-                    }else if(parserowReg[0] == 2){
+                    } else if (parserowReg[0] == 2) {
                         reg = 'II'
-                    }else if(parserowReg[0] == 3){
+                    } else if (parserowReg[0] == 3) {
                         reg = 'III'
                     }
                     cell3.innerHTML = "<b>SUMMARY SCORE GUDANG REGIONAL - " + reg + "</b>";
@@ -387,10 +391,10 @@
                             }
 
                             var item_element = document.createElement('td')
-                            
+
                             // switch (childArrView[j][1]) {
                             //     case 'EXCELLENT':
-                                    
+
                             //         item_element.setAttribute('class','excelent')
                             //         break;
                             //     case 'Good':
@@ -405,7 +409,7 @@
                             //     case 'Poor':
                             //     item_element.setAttribute('class','poor')
                             //         break;
-                            
+
                             //     default:
                             //         break;
                             // }
@@ -419,34 +423,30 @@
                         } else {
                             var item = childArrView[j][1]
 
-                           
-                         
-                           
+
+
+
                             var item_element = 'item_element' + arrResult[i][0]
 
                             var item_element = document.createElement('td')
-                          
-                            if(item == 'Excellent'){
-                                item_element.setAttribute("class", "Excellent" );
+
+                            if (item == 'Excellent') {
+                                item_element.setAttribute("class", "Excellent");
+                            } else if (item == 'Good') {
+                                item_element.setAttribute("class", "Good");
+                            } else if (item == 'Satisfactory') {
+                                item_element.setAttribute("class", "Satisfactory");
+                            } else if (item == 'Fair') {
+                                item_element.setAttribute("class", "Fair");
+                            } else if (item == 'Poor') {
+                                item_element.setAttribute("class", "Poor");
                             }
-                            else if(item == 'Good'){
-                                item_element.setAttribute("class", "Good" );
-                            }
-                            else if(item == 'Satisfactory'){
-                                item_element.setAttribute("class", "Satisfactory" );
-                            }
-                            else if(item == 'Fair'){
-                                item_element.setAttribute("class", "Fair" );
-                            }
-                            else if(item == 'Poor'){
-                                item_element.setAttribute("class", "Poor" );
-                            }
-                           
+
                             item_element.innerText = item
                             tr.appendChild(item_element);
                         }
 
-                        
+
                     }
                     // });
                     list_element.appendChild(tr)

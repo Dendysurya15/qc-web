@@ -1471,4 +1471,111 @@ class unitController extends Controller
         DB::connection('mysql2')->table('qc_gudang')->delete($id);
         return redirect()->route('dashboard_gudang');
     }
+
+    public function listktu(Request $request)
+    {
+        $query = DB::connection('mysql2')->table('pekerja')
+            ->select('pekerja.*')
+            ->get();
+
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+        $queryAfd = DB::connection('mysql2')->table('afdeling')->select('nama')->groupBy('nama')->get();
+        // dd($query, $queryEst);
+        $ktu = array();
+        foreach ($query as $key => $value) {
+            foreach ($queryEst as $key1 => $value1) if ($value->unit == $value1->id) {
+                $ktu[$key]['id'] = $value->id;
+                $ktu[$key]['nama'] = $value->nama;
+                $ktu[$key]['jabatan'] = $value->jabatan;
+                $ktu[$key]['unit'] = $value1->nama;
+            }
+        }
+        // dd($ktu, $query);
+
+        return view('listktu', ['pekerja' => $ktu, 'estate' => $queryEst, 'afdeling' => $queryAfd]);
+    }
+
+    public function tambahKTU(Request $request)
+    {
+
+        $Reg = $request->input('est');
+
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+
+        $rog = [];
+        foreach ($queryEst as $key => $value) {
+            if ($Reg == $value->est) {
+                $rog = $value->id;
+                break;
+            }
+        }
+
+        if (empty($rog)) {
+            return redirect()->route('listktu')->with('error', 'Gagal ditambahkan, estate tidak valid!');
+        }
+
+        $jabatan = "KTU " . $request->input('jabatan');
+        $query = DB::connection('mysql2')->table('pekerja')
+            ->where('unit', $rog)
+            ->where('jabatan', $request->input('jabatan'))
+            ->first();
+
+        if ($query) {
+            return redirect()->route('listktu')->with('error', 'Gagal ditambahkan, KTU dengan estate dan jabatan tersebut sudah ada!');
+        }
+
+        DB::connection('mysql2')->table('pekerja')->insert([
+            'nama' => $request->input('nama'),
+            'unit' => $rog,
+            'jabatan' => $request->input('jabatan')
+        ]);
+
+        return redirect()->route('listktu')->with('status', 'Data KTU berhasil ditambahkan!');
+    }
+
+    public function updateKTU(Request $request)
+    {
+        //     $est = $request->input('est');
+
+        $Reg = $request->input('est');
+
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->get();
+
+        $rog = [];
+        foreach ($queryEst as $key => $value) {
+            if ($Reg == $value->est) {
+                $rog = $value->id;
+                break;
+            }
+        }
+
+        if (empty($rog)) {
+            return redirect()->route('listktu')->with('error', 'Gagal ditambahkan, estate tidak valid!');
+        }
+        $nama = $request->input('nama');
+        $jabatan = $request->input('jabatan');
+        $id = $request->input('id');
+
+        // $query = DB::connection('mysql2')->table('pekerja')
+        //     ->where('id', $id)
+        //     ->first();
+
+
+        // dd($query);
+        // dd($nama, $jabatan, $id, $rog);
+        // Update user information in the database
+        DB::connection('mysql2')->table('pekerja')->where('id', $id)->update([
+            'nama' => $nama,
+            'unit' => $rog,
+            'jabatan' => $jabatan
+        ]);
+
+        return redirect()->route('listktu')->with('status', 'Data KTU berhasil diperbarui!');
+    }
+
+    public function hapusKTU(Request $request)
+    {
+        DB::connection('mysql2')->table('pekerja')->where('id', $request->input('id'))->delete();
+        return redirect()->route('listktu')->with('status', 'Data KTU berhasil dihapus!');
+    }
 }

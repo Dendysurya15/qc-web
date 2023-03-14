@@ -9,6 +9,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Random;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+require '../app/helpers.php';
+
 class inspectController extends Controller
 {
     public function plotEstate(Request $request)
@@ -411,6 +413,7 @@ class inspectController extends Controller
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $request->get('regional'))
+            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
             ->get();
 
         $queryEstate = json_decode($queryEstate, true);
@@ -422,6 +425,7 @@ class inspectController extends Controller
                 ->select("mutu_transport.*")
                 ->where('estate', $value1['est'])
                 ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->where('estate', 'not like', '%Plasma%')
                 ->get();
             $dataMTFI = $queryMTFI->groupBy('estate');
             $dataMTFI = json_decode($dataMTFI, true);
@@ -430,6 +434,7 @@ class inspectController extends Controller
                 ->select("mutu_ancak.*")
                 ->where('estate', $value1['est'])
                 ->where('datetime', 'like', '%' . $request->get('date') . '%')
+                ->where('estate', 'not like', '%Plasma%')
                 ->get();
             $dataMAFI = $queryMAFI->groupBy('estate');
             $dataMAFI = json_decode($dataMAFI, true);
@@ -733,7 +738,12 @@ class inspectController extends Controller
                     $dataSkor[$value1['wil']][$key][$key2]['k_ma'] = $jml_brtk;
                     $dataSkor[$value1['wil']][$key][$key2]['gl_ma'] = $jml_brtgl;
                     $dataSkor[$value1['wil']][$key][$key2]['total_brd_ma'] = $tot_brd;
-                    $dataSkor[$value1['wil']][$key][$key2]['btr_jjg_ma'] = round(($tot_brd / $jml_jjg_panen), 2);
+                    if ($jml_jjg_panen != 0) {
+                        $dataSkor[$value1['wil']][$key][$key2]['btr_jjg_ma'] = round(($tot_brd / $jml_jjg_panen), 2);
+                    } else {
+                        $dataSkor[$value1['wil']][$key][$key2]['btr_jjg_ma'] = 0;
+                    }
+
                     $dataSkor[$value1['wil']][$key][$key2]['bhts_ma'] = $jml_bhts;
                     $dataSkor[$value1['wil']][$key][$key2]['bhtm1_ma'] = $jml_bhtm1;
                     $dataSkor[$value1['wil']][$key][$key2]['bhtm2_ma'] = $jml_bhtm2;
@@ -2465,6 +2475,8 @@ class inspectController extends Controller
             'FinalTahun' => $FinalTahun
         ]);
     }
+
+
 
 
     public function filter(Request $request)
@@ -5294,23 +5306,6 @@ class inspectController extends Controller
 
         $plasmaGM = array_values($plasmaGM);
 
-        $ancakTesting = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
-            ->where('datetime', 'like', '%' . $date . '%')
-            ->where('mutu_ancak.estate', $est)
-            ->where('mutu_ancak.afdeling', $afd)
-            ->get();
-
-        $ancakTesting = $ancakTesting->groupBy(['estate', 'afdeling']);
-        $ancakTesting = json_decode($ancakTesting, true);
-
-        if ($ancakTesting != null && count($ancakTesting) > 0) {
-            $ancakTesting = json_decode($ancakTesting, true);
-        } else {
-            $ancakTesting = 'zonk';
-        }
-
-
         // dd($plasmaGM);
         $arrView = array();
 
@@ -5330,7 +5325,7 @@ class inspectController extends Controller
         $arrView['data_Est2'] =  $FormatTabEst2;
         $arrView['data_Est3'] =  $FormatTabEst3;
         $arrView['data_GM'] =  $RHGM;
-        $arrView['ancakTesting'] =  $ancakTesting;
+        // $arrView['queryEste'] =  $queryEste;
         // dd($queryEste);
 
         $arrView['list_estate'] =  $queryEsta;

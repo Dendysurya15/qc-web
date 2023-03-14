@@ -1922,7 +1922,7 @@ class SidaktphController extends Controller
             ->whereBetween('sidak_tph.datetime', [$start, $last])
             ->get();
 
-        if($blok != 'Semua Blok'){
+        if ($blok != 'Semua Blok') {
             $query = $query->where('blok', $blok);
         }
 
@@ -2031,10 +2031,10 @@ class SidaktphController extends Controller
                     $result_list_blok[$key][$data] = $data;
                 } else if (strpos($data, 'CBI') !== false) {
                     $result_list_blok[$key][$data] = substr($data, 0, -4);
-                } else if (strpos($data, 'CB') !== false){
+                } else if (strpos($data, 'CB') !== false) {
                     $sliced = substr_replace($data, '', 1, 1);
                     $result_list_blok[$key][$data] = substr($sliced, 0, -3);
-                } 
+                }
             }
         }
 
@@ -2074,7 +2074,7 @@ class SidaktphController extends Controller
                     ->whereIn('blok.afdeling', $listIdAfd)
                     ->get();
 
-                    // dd($newData, $data);
+                // dd($newData, $data);
 
                 $latln = '';
                 foreach ($query as $key3 => $val) {
@@ -2103,5 +2103,32 @@ class SidaktphController extends Controller
         $plot['blok'] = $blokLatLn;
         // dd($plot);
         echo json_encode($plot);
+    }
+
+
+    public function hapusDetailSidak(Request $request)
+    {
+        $ids = $request->input('ids');
+        $start = $request->input('start');
+        $last = $request->input('last');
+        $est = $request->input('est');
+        $afd = $request->input('afd');
+
+        if (is_array($ids)) {
+            // Delete each item with the corresponding id
+            foreach ($ids as $id) {
+                DB::connection('mysql2')->table('sidak_tph')
+                    ->where('id', $id)
+                    ->delete();
+            }
+        } else {
+            // If only one id is present, delete the item with that id
+            DB::connection('mysql2')->table('sidak_tph')
+                ->where('id', $ids)
+                ->delete();
+        }
+
+        session()->flash('status', 'Data Sidak berhasil dihapus!');
+        return redirect()->route('detailSidakTph', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last]);
     }
 }
