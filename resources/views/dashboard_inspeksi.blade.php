@@ -405,42 +405,14 @@
                                             </tr>
                                         </thead>
                                         <tbody id="tb_tahun">
-                                            @foreach ($FinalTahun as $key => $value)
-                                            <tr>
-                                                <td>No -</td>
-                                                <td>-</td>
-                                                <td>{{ $key }}</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                <td>-</td>
-                                                @foreach ($value as $key1 => $value2)
 
-
-                                                {{-- <td>{{ $key1['January'] $value2['skor_final'] ?? '' }}</td> --}}
-
-                                                {{-- <td>{{ $key1['February'] $value2['skor_final'] ?? '' }}</td> --}}
-
-                                                @endforeach
-                                            </tr>
-                                            @endforeach
 
                                         </tbody>
-                                    </table>
-                                    <table class="table table-bordered" style="font-size: 13px">
+
                                         <thead>
                                             <tr>
-                                                <td colspan="{{ count($arrHeader) }}"></td>
+
+                                                <th colspan='17' style="background-color: white;"></th>
                                             </tr>
                                             <tr>
                                                 @foreach ($arrHeaderSc as $key => $item)
@@ -454,30 +426,15 @@
                                             </tr>
                                         </thead>
                                         <tbody id="tablewil">
-                                            <tr>
-                                                <td colspan="3">I</td>
-                                                <td>Kinan Efran Harahap</td>
-                                                <td bgcolor="blue" style="color: white">100</td>
-                                                <td bgcolor="blue" style="color: white">99.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">100.0</td>
-                                                <td bgcolor="green" style="color: white">89.0</td>
-                                                <td bgcolor="yellow">78.0</td>
-                                                <td bgcolor="green" style="color: white">85.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="green" style="color: white">94.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="blue" style="color: white">97.0</td>
-                                                <td bgcolor="green" style="color: white">93.7</td>
-                                            </tr>
+
                                         </tbody>
-                                    </table>
-                                    <table class="table table-bordered" style="font-size: 13px">
+
                                         <thead>
                                             <tr>
-                                                <td colspan="{{ count($arrHeader) }}"></td>
+
+                                                <th colspan='17' style="background-color: white;"></th>
                                             </tr>
+
                                             <tr>
                                                 @foreach ($arrHeaderReg as $key => $item)
                                                 @if ($key == 0)
@@ -490,27 +447,14 @@
                                             </tr>
                                         </thead>
                                         <tbody id="reg">
-                                            <tr>
-                                                <td colspan="3">I</td>
-                                                <td>Kinan Efran Harahap</td>
-                                                <td bgcolor="blue" style="color: white">100</td>
-                                                <td bgcolor="blue" style="color: white">99.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">100.0</td>
-                                                <td bgcolor="green" style="color: white">89.0</td>
-                                                <td bgcolor="yellow">78.0</td>
-                                                <td bgcolor="green" style="color: white">85.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="green" style="color: white">94.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="blue" style="color: white">97.0</td>
-                                                <td bgcolor="green" style="color: white">93.7</td>
-                                            </tr>
+
                                         </tbody>
-                                    </table>
-                                    <table class="table table-bordered" style="font-size: 13px">
+
                                         <thead>
+                                            <tr>
+
+                                                <th colspan='17' style="background-color: white;"></th>
+                                            </tr>
                                             <tr>
                                                 @foreach ($arrHeaderTrd as $item)
                                                 <th>{{ $item }}</th>
@@ -519,27 +463,10 @@
                                             </tr>
                                         </thead>
                                         <tbody id="rekapAFD">
-                                            <tr>
-                                                <td>1</td>
-                                                <td>BGE</td>
-                                                <td>OA</td>
-                                                <td>Eko Nuri W.</td>
-                                                <td bgcolor="blue" style="color: white">100</td>
-                                                <td bgcolor="blue" style="color: white">99.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">100.0</td>
-                                                <td bgcolor="green" style="color: white">89.0</td>
-                                                <td bgcolor="yellow">78.0</td>
-                                                <td bgcolor="green" style="color: white">85.0</td>
-                                                <td bgcolor="blue" style="color: white">95.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="green" style="color: white">94.0</td>
-                                                <td bgcolor="blue" style="color: white">96.0</td>
-                                                <td bgcolor="blue" style="color: white">97.0</td>
-                                                <td bgcolor="green" style="color: white">93.7</td>
-                                            </tr>
+
                                         </tbody>
                                     </table>
+
                                 </div>
                             </div>
                             <div class="row">
@@ -856,6 +783,8 @@
         getFindData()
         dataDashboard()
         dashboard_tahun()
+        graphFilter()
+
 
         setTimeout(function() {
             map.invalidateSize()
@@ -1694,15 +1623,17 @@
                     }
 
 
-                    if (item4 != 0 && item4 != 90) {
-                        itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
-                    } else {
-                        itemElement4.innerText = item4
-                    }
+                    // if (item4 != 0 && item4 != 90) {
+                    //     itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
+                    // } else {
+                    //     itemElement4.innerText = item4
+                    // }
 
-                    // itemElement4.innerText = item4
+                    itemElement4.innerText = item4
                     itemElement1.innerText = item1
-                    itemElement2.innerText = item2
+                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+
+                    // itemElement2.innerText = item2
                     itemElement3.innerText = item3
                     //   itemElement4.innerText  = item4
                     itemElement5.innerText = item5
@@ -1897,15 +1828,17 @@
 
 
 
-                    if (item4 != 0 && item4 != 90) {
-                        itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
-                    } else {
-                        itemElement4.innerText = item4
-                    }
+                    // if (item4 != 0 && item4 != 90) {
+                    //     itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
+                    // } else {
+                    //     itemElement4.innerText = item4
+                    // }
                     itemElement1.innerText = item1
-                    itemElement2.innerText = item2
+                    // itemElement2.innerText = item2
+                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+
                     itemElement3.innerText = item3
-                    //   itemElement4.innerText  = item4
+                    itemElement4.innerText = item4
                     itemElement5.innerText = item5
 
                     tr.appendChild(itemElement1)
@@ -2093,15 +2026,17 @@
 
 
 
-                    if (item4 != 0 && item4 != 90) {
-                        itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
-                    } else {
-                        itemElement4.innerText = item4
-                    }
+                    // if (item4 != 0 && item4 != 90) {
+                    //     itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
+                    // } else {
+                    //     itemElement4.innerText = item4
+                    // }
                     itemElement1.innerText = item1
-                    itemElement2.innerText = item2
+                    // itemElement2.innerText = item2
+                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+
                     itemElement3.innerText = item3
-                    //   itemElement4.innerText  = item4
+                    itemElement4.innerText = item4
                     itemElement5.innerText = item5
 
                     tr.appendChild(itemElement1)
@@ -2345,15 +2280,17 @@
                     }
 
 
-                    if (item4 != 0 || item4 != 90) {
-                        itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
-                    } else {
-                        itemElement4.innerText = item4
-                    }
+                    // if (item4 != 0 || item4 != 90) {
+                    //     itemElement4.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '">' + element['skor'] + ' </a>'
+                    // } else {
+                    //     itemElement4.innerText = item4
+                    // }
                     itemElement1.innerText = item1
-                    itemElement2.innerText = item2
+                    // itemElement2.innerText = item2
+                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+
                     itemElement3.innerText = item3
-                    //   itemElement4.innerText  = item4
+                    itemElement4.innerText = item4
                     itemElement5.innerText = item5
 
                     tr.appendChild(itemElement1)
@@ -2959,22 +2896,6 @@
 
                     let item1 = element[0];
 
-                    // let item2;
-
-                    // console.log(item1);
-                    // filteredAssistants.forEach((element, index) => {
-                    //     const assistantEstate = element['est'];
-                    //     const assistantAfd = element['afd'];
-                    //     // console.log(assistantEstate)
-
-                    //     if (assistantEstate === item3) {
-                    //         item2 = element['nama'];
-                    //     }
-                    // });
-
-                    // if (item2 === undefined) {
-                    //     item2 = '-';
-                    // }
                     let item2 = namaGM[item1];
                     if (item2 === undefined) {
                         item2 = '-';
@@ -3039,7 +2960,7 @@
                 });
 
                 var plasmaWil = RekapBulanPlasma;
-                console.log(plasmaWil);
+                // console.log(plasmaWil);
 
 
                 if (regInpt === '1') {
@@ -3175,6 +3096,7 @@
 
                 ///table untuk rekap perafd
                 var arrAFD = RekapBulanAFD;
+                console.log(arrAFD);
 
                 var arrAFDTH = RekapTahunAFD;
                 //   console.log(arrAFDTH)
@@ -3456,7 +3378,10 @@
 
 
     document.getElementById('GraphFilter').onclick = function() {
+        graphFilter()
+    }
 
+    function graphFilter() {
         var est = ''
         var yearGraph = ''
         var est = document.getElementById('estData').value
@@ -3541,6 +3466,5 @@
                 ])
             }
         });
-
     }
 </script>

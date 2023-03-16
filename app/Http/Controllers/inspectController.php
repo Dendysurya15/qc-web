@@ -12286,4 +12286,41 @@ class inspectController extends Controller
         echo json_encode($arrView); //di decode ke dalam bentuk json dalam vaiavel arrview yang dapat menampung banyak isi array
         exit();
     }
+
+    public function detailInpeksi($est, $afd, $date)
+    {
+        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak')
+            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_ancak.estate', $est)
+            ->where('mutu_ancak.afdeling', $afd)
+            ->get();
+
+        $mutuAncak = $mutuAncak->groupBy(['estate', 'afdeling']);
+        $mutuAncak = json_decode($mutuAncak, true);
+
+        $mutuBuah = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*", DB::raw('DATE_FORMAT(mutu_buah.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_buah.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_buah.estate', $est)
+            ->where('mutu_buah.afdeling', $afd)
+
+            ->get();
+        $mutuBuah = $mutuBuah->groupBy(['estate', 'afdeling']);
+        $mutuBuah = json_decode($mutuBuah, true);
+
+        $mutuTransport = DB::connection('mysql2')->table('mutu_transport')
+            ->select("mutu_transport.*", DB::raw('DATE_FORMAT(mutu_transport.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_transport.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_transport.estate', $est)
+            ->where('mutu_transport.afdeling', $afd)
+
+            ->get();
+        $mutuTransport = $mutuTransport->groupBy(['estate', 'afdeling']);
+        $mutuTransport = json_decode($mutuTransport, true);
+
+        // dd($mutuBuah, $mutuTransport, $mutuAncak);
+        return view('detailInpeksi', ['est' => $est, 'afd' => $afd, 'date' => $date, 'ancak' => $mutuAncak, 'buah' => $mutuBuah, 'transport' => $mutuTransport]);
+        // return view('detailInpeksi', ['est' => $est, 'afd' => $afd, 'date' => $date, 'reg' => $reg, 'data' => $datas, 'img' => $imgNew]);
+    }
 }

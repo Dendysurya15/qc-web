@@ -30,7 +30,7 @@
 
   <div class="d-flex justify-content-center">
     <div class="row mt-3 text-uppercase">
-      <h1>Sidak Pemeriksaan TPH Regional - I</h1>
+      <h1>Sidak Pemeriksaan TPH Regional-I</h1>
     </div>
   </div>
 
@@ -54,8 +54,7 @@
 
   {{-- Data untuk Table --}}
   <section class="content mt-3">
-    <div class="d-flex justify-content-center text-center border border-secondary border-2"
-      style="background-color: #e8ecdc">
+    <div class="d-flex justify-content-center text-center border border-secondary border-2" style="background-color: #e8ecdc">
       <h3>REKAPITULASI RANKING NILAI SIDAK PEMERIKSAAN TPH</h3>
 
     </div>
@@ -141,7 +140,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class=" col-sm-3">
         <div class="card">
           <div class="card-body">
             <div class="table-responsive">
@@ -182,16 +181,16 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-3">
+      <div class=" col-sm-3">
         <div class="card">
           <div class="card-body">
             <div class="table-responsive">
-              <table id="table1" class="tableRekap table table-hover table-bordered table-sm table-light border-dark">
+              <table id="table3" class="tableRekap table table-hover table-bordered table-sm table-light border-dark">
 
                 <thead>
                   <tr>
                     <th colspan="6" class="text-center" style="background-color : yellow;">
-                      PLASMA
+                      Plasma
                     </th>
                   </tr>
                   <tr>
@@ -203,7 +202,8 @@
                     </th>
                     <th rowspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center p-3">NAMA
                     </th>
-                    <th colspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">Todate</th>
+                    <th colspan="2" style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">
+                      Todate</th>
 
                   </tr>
                   <tr>
@@ -211,7 +211,11 @@
                     <th style="background-color : #1D43A2; color: #FFFFFF;" class="text-center">Rank</th>
                   </tr>
                 </thead>
-                <tbody id="tbody4">
+                <tbody id="plasma">
+                  <tr>
+
+                  </tr>
+
                 </tbody>
               </table>
             </div>
@@ -239,9 +243,8 @@
   {{-- Data untuk chart --}}
   <section class="content mt-3 pb-4">
 
-    <div class="d-flex justify-content-center text-center border border-secondary border-2"
-      style="background-color: #e8ecdc">
-      <h3> Grafik Sidak TPH berdasarkan Estate</h3>
+    <div class="d-flex justify-content-center text-center border border-secondary border-2" style="background-color: #e8ecdc">
+      <h3>Grafik Sidak TPH berdasarkan Estate</h3>
     </div>
     {{-- chart bag 1 --}}
     <div class="row" id="chart">
@@ -278,8 +281,7 @@
         </div>
       </div>
     </div><br>
-    <div class="d-flex justify-content-center text-center border border-secondary border-2"
-      style="background-color: #e8ecdc">
+    <div class="d-flex justify-content-center text-center border border-secondary border-2" style="background-color: #e8ecdc">
       <h3>Grafik Sidak TPH berdasarkan Wilayah</h3>
     </div>
 
@@ -326,11 +328,8 @@
 </div>
 @include('layout/footer')
 
-
-
-
 <script type="text/javascript">
-  $(document).ready(function () {
+  $(document).ready(function() {
 
     ///membuat temp data value 0 untuk chart ketika ganti tanggal tidak ada data
     var list_estate = <?php echo json_encode($list_estate); ?>;
@@ -339,186 +338,184 @@
 
     var estate = '['
     list_estate.forEach(element => {
-            estate += '"' +element + '",'
-          });
+      estate += '"' + element + '",'
+    });
     estate = estate.substring(0, estate.length - 1);
     estate += ']'
 
     var wilayah = '['
     list_wilayah.forEach(element => {
-            wilayah += '"' +element + '",'
-          });
+      wilayah += '"' + element + '",'
+    });
     wilayah = wilayah.substring(0, wilayah.length - 1);
     wilayah += ']'
     // console.log(wilayah)     
 
     //buat grafik temporary untuk value 0 untuk estate
     var estateJson = JSON.parse(estate)
-    // console.log(estateJson)     
-        var options = {
-          
-           series: [
-    	{ name: '',
-       data: [0, 0 , 0, 0, 0, 0, 0 , 0 ,0 , 0 , 0 , 0] }
-         ],
-            chart: {
-              background: '#ffffff',
-            height: 350,
-            type: 'bar'
-            },
-            plotOptions: {
-    bar: {
-        distributed: true
-    }
-  },
-  colors: [
-  '#00FF00',
-  '#00FF00',
-  '#00FF00',
-  '#00FF00',
-   '#3063EC', 
-   '#3063EC', 
-   '#3063EC', 
-   '#3063EC', 
-   '#FF8D1A', 
-   '#FF8D1A', 
-   '#FF8D1A', 
-   '#FF8D1A'
-  ],
-  //  '#3063EC', '#3063EC',  '#3063EC', '#3063EC',
-  //  'FF8D1A', 'FF8D1A', 'FF8D1A', 'FF8D1A'],
-   // warna merah, hijau, biru, kuning, hijau muda, ungu, abu-abu, maroon
-            // colors:['#1565c0', '#b71c1c', '#9C27B0'],
-            stroke: {
-            curve: 'smooth'
-            },
-            xaxis: {
-            labels: {
-                rotate: -50,
-                rotateAlways: true,
-            },
-            type: '',
-            categories: estateJson
+    // console.log(estate)     
+    var options = {
+
+      series: [{
+        name: '',
+        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      }],
+      chart: {
+        background: '#ffffff',
+        height: 350,
+        type: 'bar'
+      },
+      plotOptions: {
+        bar: {
+          distributed: true
         }
+      },
+      colors: [
+        '#00FF00',
+        '#00FF00',
+        '#00FF00',
+        '#00FF00',
+        '#3063EC',
+        '#3063EC',
+        '#3063EC',
+        '#3063EC',
+        '#FF8D1A',
+        '#FF8D1A',
+        '#FF8D1A',
+        '#FF8D1A'
+      ],
+      //  '#3063EC', '#3063EC',  '#3063EC', '#3063EC',
+      //  'FF8D1A', 'FF8D1A', 'FF8D1A', 'FF8D1A'],
+      // warna merah, hijau, biru, kuning, hijau muda, ungu, abu-abu, maroon
+      // colors:['#1565c0', '#b71c1c', '#9C27B0'],
+      stroke: {
+        curve: 'smooth'
+      },
+      xaxis: {
+        labels: {
+          rotate: -50,
+          rotateAlways: true,
+        },
+        type: '',
+        categories: estateJson
+      }
     };
     //buat grafik dengan value 0 dengan wilayah
     var willJson = JSON.parse(wilayah)
 
-var will = {
-    series: [{
-    name: '',
-    data: [0, 0 , 0]
-    }],
-    chart: {
-    height: 250,
-    background: '#E2EAEA',
-    type: 'bar'
-    },
-    plotOptions: {
-    bar: {
-      // horizontal: false
-      distributed: true
-    }
-  },
-    colors:['#E6F011', '#0F0F0E', '#0068A3'],
-    stroke: {
-    curve: 'smooth'
-    },
-    xaxis: {
-    type: 'string',
-    categories: willJson
-}
-};
+    var will = {
+      series: [{
+        name: '',
+        data: [0, 0, 0]
+      }],
+      chart: {
+        height: 250,
+        background: '#E2EAEA',
+        type: 'bar'
+      },
+      plotOptions: {
+        bar: {
+          // horizontal: false
+          distributed: true
+        }
+      },
+      colors: ['#E6F011', '#0F0F0E', '#0068A3'],
+      stroke: {
+        curve: 'smooth'
+      },
+      xaxis: {
+        type: 'string',
+        categories: willJson
+      }
+    };
 
     //render chart perestate temporary/ 0 value
-      var renderChartTph = new ApexCharts(document.querySelector("#bttinggal"), options);
-      renderChartTph.render();
+    var renderChartTph = new ApexCharts(document.querySelector("#bttinggal"), options);
+    renderChartTph.render();
 
-      var renderChartKarung = new ApexCharts(document.querySelector("#karung"), options);
-      renderChartKarung.render();
+    var renderChartKarung = new ApexCharts(document.querySelector("#karung"), options);
+    renderChartKarung.render();
 
-      var renderChartBuahTglTph = new ApexCharts(document.querySelector("#btt_tgl"), options);
-      renderChartBuahTglTph.render();
+    var renderChartBuahTglTph = new ApexCharts(document.querySelector("#btt_tgl"), options);
+    renderChartBuahTglTph.render();
 
-      var renderChartBuahRestanNone = new ApexCharts(document.querySelector("#rst_none"), options);
-      renderChartBuahRestanNone.render();
+    var renderChartBuahRestanNone = new ApexCharts(document.querySelector("#rst_none"), options);
+    renderChartBuahRestanNone.render();
 
-   //render chart perwilayah temporary /0 value
-      var will_btt = new ApexCharts(document.querySelector("#btt_id"), will);
-      will_btt.render();
+    //render chart perwilayah temporary /0 value
+    var will_btt = new ApexCharts(document.querySelector("#btt_id"), will);
+    will_btt.render();
 
-      var renderChartKarungWil = new ApexCharts(document.querySelector("#karung_id"), will);
-      renderChartKarungWil.render();
+    var renderChartKarungWil = new ApexCharts(document.querySelector("#karung_id"), will);
+    renderChartKarungWil.render();
 
-      var renderChartBuahTglTphWil = new ApexCharts(document.querySelector("#bttTglTph_id"), will);
-      renderChartBuahTglTphWil.render();
+    var renderChartBuahTglTphWil = new ApexCharts(document.querySelector("#bttTglTph_id"), will);
+    renderChartBuahTglTphWil.render();
 
-      var renderChartBuahRestanNoneWil = new ApexCharts(document.querySelector("#rst_none_id"), will);
-      renderChartBuahRestanNoneWil.render();
-      
-   //////
-   getDataTph()
+    var renderChartBuahRestanNoneWil = new ApexCharts(document.querySelector("#rst_none_id"), will);
+    renderChartBuahRestanNoneWil.render();
 
-   $("#dateWeek").change(function(event){
-    var firstWeek = ''
-    var lastWeek = ''
-    var _token = $('input[name="_token"]').val();
-    
-    var weekData = document.getElementById('dateWeek').value
+    //////
+    getDataTph()
 
-    const year = weekData.substring(0, 4);
-    const week = weekData.substring(6, 8);
+    $("#dateWeek").change(function(event) {
+      var firstWeek = ''
+      var lastWeek = ''
+      var _token = $('input[name="_token"]').val();
 
-    const date = new Date(year, 0, 1);
-    const date2 = new Date(year, 0, 1);
+      var weekData = document.getElementById('dateWeek').value
 
-    var getDateFirst =  date.setDate(date.getDate() + (week - 1) * 7 );
-    var getDateLast =  date.setDate(date2.getDate() + (week - 1) * 7 );
-  // first week
-    var getDateFirst = new Date(getDateFirst)
-    var convertFirstWeek = getDateFirst.setDate(getDateFirst.getDate() + 2)
-    //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
-    //ke format Tahun/bulan/hari
-    var firstWeekCon = new Date(convertFirstWeek);
-    let firstWeekData = JSON.stringify(firstWeekCon)
-    firstWeek = firstWeekData.slice(1,11) 
+      const year = weekData.substring(0, 4);
+      const week = weekData.substring(6, 8);
 
-    
+      const date = new Date(year, 0, 1);
+      const date2 = new Date(year, 0, 1);
 
-    // firstWeek = new Date(test2)
-
-  //last week
-    var getDateLast = new Date(getDateLast)
-    var convertLastWeek = getDateLast.setDate(getDateLast.getDate() + 8)
-    //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
-    //ke format Tahun/bulan/hari
-    var lastWeekCon = new Date(convertLastWeek);
-    let lastWeekData = JSON.stringify(lastWeekCon)
-    lastWeek = lastWeekData.slice(1,11) 
+      var getDateFirst = date.setDate(date.getDate() + (week - 1) * 7);
+      var getDateLast = date.setDate(date2.getDate() + (week - 1) * 7);
+      // first week
+      var getDateFirst = new Date(getDateFirst)
+      var convertFirstWeek = getDateFirst.setDate(getDateFirst.getDate() + 2)
+      //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
+      //ke format Tahun/bulan/hari
+      var firstWeekCon = new Date(convertFirstWeek);
+      let firstWeekData = JSON.stringify(firstWeekCon)
+      firstWeek = firstWeekData.slice(1, 11)
 
 
 
-    // console.log(firstWeek)
-    // console.log(lastWeek)
-    document.getElementById('startWeek').value = firstWeek
-    document.getElementById('lastWeek').value = lastWeek
-});
+      // firstWeek = new Date(test2)
 
- 
+      //last week
+      var getDateLast = new Date(getDateLast)
+      var convertLastWeek = getDateLast.setDate(getDateLast.getDate() + 8)
+      //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
+      //ke format Tahun/bulan/hari
+      var lastWeekCon = new Date(convertLastWeek);
+      let lastWeekData = JSON.stringify(lastWeekCon)
+      lastWeek = lastWeekData.slice(1, 11)
+
+
+      document.getElementById('startWeek').value = firstWeek
+      document.getElementById('lastWeek').value = lastWeek
+    });
 
 
 
-    document.getElementById('btnShow').onclick = function(){
+
+
+    document.getElementById('btnShow').onclick = function() {
       $('#tbody1').empty()
       $('#tbody2').empty()
       $('#tbody3').empty()
+      $('#plasma').empty()
       $('#tbodySkorRH').empty()
-      
+
       getDataTph()
     }
 
     let parseDates = (inp) => {
-      let year = parseInt(inp.slice(0,4), 10);
+      let year = parseInt(inp.slice(0, 4), 10);
       let week = parseInt(inp.slice(6), 10);
       let day = (1 + (week - 1) * 7);
       let dayOffset = new Date(year, 0, 1).getDay();
@@ -529,27 +526,29 @@ var will = {
       return days;
     }
 
-    document.getElementById('btnExport').onclick = function(){
+    document.getElementById('btnExport').onclick = function() {
       var _token = $('input[name="_token"]').val();
 
       var weekData = document.getElementById('dateWeek').value
-      
+
       const week = weekData.substring(6, 8);
       const year = weekData.substring(0, 4);
 
       const month = moment(document.getElementById('dateWeek').value).subtract(-6, 'days').format("M");
 
       const url = 'https://srs-ssms.com/sidak_tph/STPH-' + year + '-0' + month + '-Week' + week + '-Reg1.pdf';
-      
+
       $.ajax({
-        url:"{{ route('downloadPDF') }}",
-        method:"POST",
-        data:{ url:url, _token:_token},
-        success:function(result)
-        {
+        url: "{{ route('downloadPDF') }}",
+        method: "POST",
+        data: {
+          url: url,
+          _token: _token
+        },
+        success: function(result) {
           var parseResult = JSON.parse(result)
           if (parseResult['status'] == 200) {
-            window.open(parseResult['url'],'_blank');
+            window.open(parseResult['url'], '_blank');
           } else {
             alert('FILE PDF BELUM TERSEDIA!');
             // window.location = "/dashboardtph";
@@ -558,11 +557,11 @@ var will = {
       });
     }
 
-    function getDataTph () {
+    function getDataTph() {
       var firstWeek = ''
       var lastWeek = ''
       var _token = $('input[name="_token"]').val();
-      
+
       var weekData = document.getElementById('dateWeek').value
 
       const year = weekData.substring(0, 4);
@@ -571,1040 +570,1272 @@ var will = {
       const date = new Date(year, 0, 1);
       const date2 = new Date(year, 0, 1);
 
-      var getDateFirst =  date.setDate(date.getDate() + (week - 1) * 7 );
-      var getDateLast =  date.setDate(date2.getDate() + (week - 1) * 7 );
-    // first week
+      var getDateFirst = date.setDate(date.getDate() + (week - 1) * 7);
+      var getDateLast = date.setDate(date2.getDate() + (week - 1) * 7);
+      // first week
       var getDateFirst = new Date(getDateFirst)
       var convertFirstWeek = getDateFirst.setDate(getDateFirst.getDate() + 2)
       //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
       //ke format Tahun/bulan/hari
       var firstWeekCon = new Date(convertFirstWeek);
       let firstWeekData = JSON.stringify(firstWeekCon)
-      firstWeek = firstWeekData.slice(1,11) 
-      
+      firstWeek = firstWeekData.slice(1, 11)
+
 
       // firstWeek = new Date(test2)
 
-    //last week
+      //last week
       var getDateLast = new Date(getDateLast)
       var convertLastWeek = getDateLast.setDate(getDateLast.getDate() + 8)
       //mengubah data dari Mon Jan 16 2023 00:00:00 GMT+0700 (Western Indonesia Time) convert javascript to YYYY/MM/DD
       //ke format Tahun/bulan/hari
       var lastWeekCon = new Date(convertLastWeek);
       let lastWeekData = JSON.stringify(lastWeekCon)
-      lastWeek = lastWeekData.slice(1,11) 
+      lastWeek = lastWeekData.slice(1, 11)
 
       // console.log(firstWeek)
-        $.ajax({
-            
-            url:"{{ route('getBtTph') }}",
-            method:"POST",
-            data:{ start:firstWeek,finish:lastWeek, _token:_token},
-            success:function(result)
-            {
-              
-            // Check if the result is an empty object
-            if($.isEmptyObject(result)) {
-              result = null;
+      $.ajax({
 
-              renderChartTph.updateSeries([{
-                      name: 'Brondolan/Blok Tinggal di TPH',
-                      data: [0, 0 , 0, 0, 0, 0, 0 , 0 ,0 , 0 , 0 , 0]
-                  }])
+        url: "{{ route('getBtTph') }}",
+        method: "POST",
+        data: {
+          start: firstWeek,
+          finish: lastWeek,
+          _token: _token
+        },
+        success: function(result) {
 
-                  renderChartKarung.updateSeries([{
-                name: 'Karung/Blok  Berisi Brondolan',
-                data: [0, 0 , 0, 0, 0, 0, 0 , 0 ,0 , 0 , 0 , 0]
-              }])
+          // Check if the result is an empty object
+          if ($.isEmptyObject(result)) {
+            result = null;
 
-                  
-              renderChartBuahTglTph.updateSeries([{
-                name: 'Buah/Blok  Tinggal TPH',
-                data: [0, 0 , 0, 0, 0, 0, 0 , 0 ,0 , 0 , 0 , 0]
-              }])
-                
-              renderChartBuahRestanNone.updateSeries([{
-                name: 'Restan/Blok  Tidak dilaporkan',
-                data: [0, 0 , 0, 0, 0, 0, 0 , 0 ,0 , 0 , 0 , 0]
-              }])
+            renderChartTph.updateSeries([{
+              name: 'Brondolan/Blok Tinggal di TPH',
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }])
 
-                //perwilawyah
-              will_btt.updateSeries([{
-                name: 'Brondolan Tinggal di TPH',
-                data: [0, 0 , 0]
-              }])
-
-              renderChartKarungWil.updateSeries([{
-                name: 'Karung Tinggal di TPH',
-                data: [0, 0 , 0]
-              }])
-
-              
-              renderChartBuahTglTphWil.updateSeries([{
-                name: 'Buah Tinggal Di TPH',
-                data: [0, 0 , 0]
-              }])
-
-                    
-              renderChartBuahRestanNoneWil.updateSeries([{
-                name: 'Buah Restan Tidak di Laporkan',
-                data: [0, 0 , 0]
-              }])
-            } else {
-              //parsing result ke json untuk dalam estate
-              var parseResult = JSON.parse(result)
-
-              // console.log(parseResult)
-              // ubah json ke array agar bisa di for atau foreach
-              var listBtTph = Object.entries(parseResult['val_bt_tph']) //parsing data brondolan ke dalam var list
-              // console.log(listBtTph)
-              var listKRTph = Object.entries(parseResult['val_kr_tph'])//parsing data karung isi brondolan ke dalam var list
-              var lisBHtph = Object.entries(parseResult['val_bh_tph'])//parsing data buah tinggal ke dalam var list
-              // console.log(listKRTph)
-              var listRStph = Object.entries(parseResult['val_rs_tph']) //parse data dari restand tidak di laporkan
-              var listEstate = Object.entries(parseResult['list_estate'])////pasring data estate ke dalam var list
-          
-
-                  //parsing result ke json untuk dalam wilayah   
-              var listBtTphWil = Object.entries(parseResult['val_bt_tph_wil']) //parsing data brondolan ke dalam var list
-              // console.log(listBtTph)
-              var listKRTphWil = Object.entries(parseResult['val_kr_tph_wil'])//parsing data karung isi brondolan ke dalam var list
-              var lisBHtphWil = Object.entries(parseResult['val_bh_tph_wil'])//parsing data buah tinggal ke dalam var list
-              // console.log(listKRTph)
-              var listRStphWil = Object.entries(parseResult['val_rs_tph_wil']) //parse data dari restand tidak di laporkan     
-              var listWill = Object.entries(parseResult['list_wilayah']) //parse data dari restand tidak di laporkan
-              //list untuk table di parse ke json
-        
-              var list_all_wil = Object.entries(parseResult['list_all_wil']) 
-              var list_all_est = Object.entries(parseResult['list_all_est'])
-               var list_skor_gm = Object.entries(parseResult['list_skor_gm']) 
-               var list_skor_rh = Object.entries(parseResult['list_skor_rh']) 
-
-            
-    
-              //mnghitung dan mengurai string dengan substrack untuk chart
-                //brondolan tgl
-              var valBtTph = '['
-              listBtTph.forEach(element => {
-                valBtTph += '"' +element[1] + '",'
-              });
-              valBtTph = valBtTph.substring(0, valBtTph.length - 1);
-              valBtTph += ']'
-              var valBtTphJson = JSON.parse(valBtTph)
-                //karung tgl
-              var valKRtgl = '['
-              listKRTph.forEach(element => {
-                valKRtgl += '"' +element[1] + '",'
-              });
-              valKRtgl = valKRtgl.substring(0, valKRtgl.length - 1);
-              valKRtgl += ']'
-              var valKRTtphJson = JSON.parse(valKRtgl)
-                //buah tinggal
-              var valBHtgl = '['
-              lisBHtph.forEach(element => {
-                valBHtgl += '"' +element[1] + '",'
-              });
-              valBHtgl = valBHtgl.substring(0, valBHtgl.length - 1);
-              valBHtgl += ']'
-              var valBHtglJson = JSON.parse(valBHtgl)
-              // console.log(valBHtglJson)
-                //buah restan tidak di laporkan
-                
-              var valRSnone = '['
-              listRStph.forEach(element => {
-                valRSnone += '"' +element[1] + '",'
-              });
-              valRSnone = valRSnone.substring(0, valRSnone.length - 1);
-              valRSnone += ']'
-              var valRSnoneJson = JSON.parse(valRSnone)
+            renderChartKarung.updateSeries([{
+              name: 'Karung/Blok  Berisi Brondolan',
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }])
 
 
-              ///// mengubah data estate agar bisa mengurangi nilai
-              var categoryEst = '['
-              listEstate.forEach(element => {
-                categoryEst += '"' +element [1]['est'] + '",'
-              });
-              categoryEst = categoryEst.substring(0, categoryEst.length - 1);
-              categoryEst += ']'
-              // console.log(categoryEst)
-              var categoryEstJson = JSON.parse(categoryEst)
+            renderChartBuahTglTph.updateSeries([{
+              name: 'Buah/Blok  Tinggal TPH',
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }])
 
-              /// mengubah data wilayah agar bisa mengurangi nilai
-                //brondolan tgl
-                var valBtTphWil = '['
-              listBtTphWil.forEach(element => {
-                valBtTphWil += '"' +element[1] + '",'
-              });
-              valBtTphWil = valBtTphWil.substring(0, valBtTphWil.length - 1);
-              valBtTphWil += ']'
-              var valBtTphWilJson = JSON.parse(valBtTphWil)
-              var arrayvalBtTphWilJson = valBtTphWilJson;
-                    for (let i = 0; i < arrayvalBtTphWilJson.length; i++) {
-                
-                      arrayvalBtTphWilJson.splice(3);
-                
-                  }
-              // console.log(array)
-              //karung tinggal
-              var valKRtglWil = '['
-              listKRTphWil.forEach(element => {
-                valKRtglWil += '"' +element[1] + '",'
-              });
-              valKRtglWil = valKRtglWil.substring(0, valKRtglWil.length - 1);
-              valKRtglWil += ']'
-              var valKRtglWilJson = JSON.parse(valKRtglWil)
-              var arrayvalKRtglWilJson = valKRtglWilJson;
-                    for (let i = 0; i < arrayvalKRtglWilJson.length; i++) {
-                
-                      arrayvalKRtglWilJson.splice(3);
-                
-                  }
-              // console.log(valKRtglWilJson)
-              //buah tinggal
-              var valBHtglWil = '['
-              lisBHtphWil.forEach(element => {
-                valBHtglWil += '"' +element[1] + '",'
-              });
-              valBHtglWil = valBHtglWil.substring(0, valBHtglWil.length - 1);
-              valBHtglWil += ']'
-              var valBHtglWilJson = JSON.parse(valBHtglWil)
-              var arrayvalBHtglWilJson = valBHtglWilJson;
-                    for (let i = 0; i < arrayvalBHtglWilJson.length; i++) {
-                  {
-                    arrayvalBHtglWilJson.splice(3);
-                    }
-                  }
+            renderChartBuahRestanNone.updateSeries([{
+              name: 'Restan/Blok  Tidak dilaporkan',
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }])
 
-              //buah restant
-              var valRSnoneWil = '['
-              listRStphWil.forEach(element => {
-                valRSnoneWil += '"' +element[1] + '",'
-              });
-              valRSnoneWil = valRSnoneWil.substring(0, valRSnoneWil.length - 1);
-              valRSnoneWil += ']'
-              var valRSnoneWilJson = JSON.parse(valRSnoneWil)
-              var arrayvalRSnoneWilJson = valRSnoneWilJson;
-                    for (let i = 0; i < arrayvalRSnoneWilJson.length; i++) {
-                      arrayvalRSnoneWilJson.splice(3);
-                        }
-                  
-            
-              var categoryWill = '['
-              listWill.forEach(element => {
-                categoryWill += '"' +element [1]['nama'] + '",'
-              });
-              categoryWill = categoryWill.substring(0, categoryWill.length - 1);
-              categoryWill += ']'
-              var categoryWillJson = JSON.parse(categoryWill)
-              // console.log(categoryWillJson)
-              
-              //bagian untuk update chart ketika chart tidak ada isinya menjadi nilai 0
+            //perwilawyah
+            will_btt.updateSeries([{
+              name: 'Brondolan Tinggal di TPH',
+              data: [0, 0, 0]
+            }])
+
+            renderChartKarungWil.updateSeries([{
+              name: 'Karung Tinggal di TPH',
+              data: [0, 0, 0]
+            }])
+
+
+            renderChartBuahTglTphWil.updateSeries([{
+              name: 'Buah Tinggal Di TPH',
+              data: [0, 0, 0]
+            }])
+
+
+            renderChartBuahRestanNoneWil.updateSeries([{
+              name: 'Buah Restan Tidak di Laporkan',
+              data: [0, 0, 0]
+            }])
+          } else {
+            //parsing result ke json untuk dalam estate
+            var parseResult = JSON.parse(result)
+
+            // console.log(parseResult)
+            // ubah json ke array agar bisa di for atau foreach
+            var listBtTph = Object.entries(parseResult['val_bt_tph']) //parsing data brondolan ke dalam var list
+            // console.log(listBtTph)
+            var listKRTph = Object.entries(parseResult['val_kr_tph']) //parsing data karung isi brondolan ke dalam var list
+            var lisBHtph = Object.entries(parseResult['val_bh_tph']) //parsing data buah tinggal ke dalam var list
+            // console.log(listKRTph)
+            var listRStph = Object.entries(parseResult['val_rs_tph']) //parse data dari restand tidak di laporkan
+            var listEstate = Object.entries(parseResult['list_estate']) ////pasring data estate ke dalam var list
+
+
+            //parsing result ke json untuk dalam wilayah   
+            var listBtTphWil = Object.entries(parseResult['val_bt_tph_wil']) //parsing data brondolan ke dalam var list
+            // console.log(listBtTph)
+            var listKRTphWil = Object.entries(parseResult['val_kr_tph_wil']) //parsing data karung isi brondolan ke dalam var list
+            var lisBHtphWil = Object.entries(parseResult['val_bh_tph_wil']) //parsing data buah tinggal ke dalam var list
+            // console.log(listKRTph)
+            var listRStphWil = Object.entries(parseResult['val_rs_tph_wil']) //parse data dari restand tidak di laporkan     
+            var listWill = Object.entries(parseResult['list_wilayah']) //parse data dari restand tidak di laporkan
+            //list untuk table di parse ke json
+
+            var list_all_wil = Object.entries(parseResult['list_all_wil'])
+            var list_all_est = Object.entries(parseResult['list_all_est'])
+            var list_skor_gm = Object.entries(parseResult['list_skor_gm'])
+            var list_skor_rh = Object.entries(parseResult['list_skor_rh'])
+            var list_skor_gmNew = Object.entries(parseResult['list_skor_gmNew'])
+            const plasma = Object.entries(parseResult['PlasmaWIl']);
+            const plasmaEM = Object.entries(parseResult['PlasmaEM']);
+            const plasmaGM = Object.entries(parseResult['plasmaGM']);
+
+            const newPlasma = plasma.map(([_, data]) => ({
+
+              est: data.est,
+              afd: data.afd,
+              nama: data.nama,
+              skor: data.skor,
+              rank: data.rank,
+
+            }));
+            // console.log(newPlasma);
+            const newPlasmaEM = plasmaEM.map(([_, data]) => ({
+
+              est: data.est,
+              afd: data.afd,
+              nama: data.namaEM,
+              skor: data.Skor,
+
+              // namaEM: namaEM,
+              // namaGM: namaGM,
+            }));
+            const newPlasmaGM = plasmaGM.map(([_, data]) => ({
+
+              est: data.est,
+              afd: data.afd,
+              nama: data.namaGM,
+              skor: data.Skor,
+
+              // namaEM: namaEM,
+              // namaGM: namaGM,
+            }));
+
+
+
+            var plasmaGMe = document.getElementById('plasma');
+            var arrPlasmaGM = newPlasma
+            arrPlasmaGM.forEach(element => {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              //   let item2 = 'GM'
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+              // let item6 = newPlasmaEM['EM']
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              }
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              plasmaGMe.appendChild(tr)
+              // }
+            });
+
+            var plasmaGMe = document.getElementById('plasma');
+            var arrPlasmaGM = newPlasmaEM
+            arrPlasmaGM.forEach(element => {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              //   let item2 = 'GM'
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = ''
+              // let item6 = newPlasmaEM['EM']
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+              itemElement1.style.backgroundColor = "#e8ecdc";
+              itemElement2.style.backgroundColor = "#e8ecdc";
+              itemElement3.style.backgroundColor = "#e8ecdc";
+
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              }
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              plasmaGMe.appendChild(tr)
+              // }
+            });
+
+            var plasmaGMe = document.getElementById('plasma');
+            var arrPlasmaGM = newPlasmaGM
+            arrPlasmaGM.forEach(element => {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              //   let item2 = 'GM'
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = ''
+              // let item6 = newPlasmaEM['EM']
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              itemElement1.style.backgroundColor = "#e8ecdc";
+              itemElement2.style.backgroundColor = "#e8ecdc";
+              itemElement3.style.backgroundColor = "#e8ecdc";
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              }
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              plasmaGMe.appendChild(tr)
+              // }
+            });
+
+            //mnghitung dan mengurai string dengan substrack untuk chart
+            //brondolan tgl
+            var valBtTph = '['
+            listBtTph.forEach(element => {
+              if (element[0] != 'CWS') {
+                valBtTph += '"' + element[1] + '",'
+              }
+            });
+            valBtTph = valBtTph.substring(0, valBtTph.length - 1);
+            valBtTph += ']'
+            var valBtTphJson = JSON.parse(valBtTph)
+            //karung tgl
+            var valKRtgl = '['
+            listKRTph.forEach(element => {
+              if (element[0] != 'CWS') {
+                valKRtgl += '"' + element[1] + '",'
+              }
+            });
+            valKRtgl = valKRtgl.substring(0, valKRtgl.length - 1);
+            valKRtgl += ']'
+            var valKRTtphJson = JSON.parse(valKRtgl)
+            //buah tinggal
+            var valBHtgl = '['
+            lisBHtph.forEach(element => {
+              if (element[0] != 'CWS') {
+                valBHtgl += '"' + element[1] + '",'
+              }
+            });
+            valBHtgl = valBHtgl.substring(0, valBHtgl.length - 1);
+            valBHtgl += ']'
+            var valBHtglJson = JSON.parse(valBHtgl)
+            // console.log(valBHtglJson)
+            //buah restan tidak di laporkan
+
+            var valRSnone = '['
+            listRStph.forEach(element => {
+              if (element[0] != 'CWS') {
+                valRSnone += '"' + element[1] + '",'
+              }
+            });
+            valRSnone = valRSnone.substring(0, valRSnone.length - 1);
+            valRSnone += ']'
+            var valRSnoneJson = JSON.parse(valRSnone)
+
+
+            ///// mengubah data estate agar bisa mengurangi nilai
+            var categoryEst = '['
+            listEstate.forEach(element => {
+              categoryEst += '"' + element[1]['est'] + '",'
+            });
+            categoryEst = categoryEst.substring(0, categoryEst.length - 1);
+            categoryEst += ']'
+            // console.log(categoryEst)
+            var categoryEstJson = JSON.parse(categoryEst)
+
+            /// mengubah data wilayah agar bisa mengurangi nilai
+            //brondolan tgl
+            var valBtTphWil = '['
+            listBtTphWil.forEach(element => {
+              valBtTphWil += '"' + element[1] + '",'
+            });
+            valBtTphWil = valBtTphWil.substring(0, valBtTphWil.length - 1);
+            valBtTphWil += ']'
+            var valBtTphWilJson = JSON.parse(valBtTphWil)
+            var arrayvalBtTphWilJson = valBtTphWilJson;
+            for (let i = 0; i < arrayvalBtTphWilJson.length; i++) {
+
+              arrayvalBtTphWilJson.splice(3);
+
+            }
+            // console.log(array)
+            //karung tinggal
+            var valKRtglWil = '['
+            listKRTphWil.forEach(element => {
+              valKRtglWil += '"' + element[1] + '",'
+            });
+            valKRtglWil = valKRtglWil.substring(0, valKRtglWil.length - 1);
+            valKRtglWil += ']'
+            var valKRtglWilJson = JSON.parse(valKRtglWil)
+            var arrayvalKRtglWilJson = valKRtglWilJson;
+            for (let i = 0; i < arrayvalKRtglWilJson.length; i++) {
+
+              arrayvalKRtglWilJson.splice(3);
+
+            }
+            // console.log(valKRtglWilJson)
+            //buah tinggal
+            var valBHtglWil = '['
+            lisBHtphWil.forEach(element => {
+              valBHtglWil += '"' + element[1] + '",'
+            });
+            valBHtglWil = valBHtglWil.substring(0, valBHtglWil.length - 1);
+            valBHtglWil += ']'
+            var valBHtglWilJson = JSON.parse(valBHtglWil)
+            var arrayvalBHtglWilJson = valBHtglWilJson;
+            for (let i = 0; i < arrayvalBHtglWilJson.length; i++) {
+              {
+                arrayvalBHtglWilJson.splice(3);
+              }
+            }
+
+            //buah restant
+            var valRSnoneWil = '['
+            listRStphWil.forEach(element => {
+              valRSnoneWil += '"' + element[1] + '",'
+            });
+            valRSnoneWil = valRSnoneWil.substring(0, valRSnoneWil.length - 1);
+            valRSnoneWil += ']'
+            var valRSnoneWilJson = JSON.parse(valRSnoneWil)
+            var arrayvalRSnoneWilJson = valRSnoneWilJson;
+            for (let i = 0; i < arrayvalRSnoneWilJson.length; i++) {
+              arrayvalRSnoneWilJson.splice(3);
+            }
+
+
+            var categoryWill = '['
+            listWill.forEach(element => {
+              categoryWill += '"' + element[1]['nama'] + '",'
+            });
+            categoryWill = categoryWill.substring(0, categoryWill.length - 1);
+            categoryWill += ']'
+            var categoryWillJson = JSON.parse(categoryWill)
+            // console.log(categoryWillJson)
+
+            //bagian untuk update chart ketika chart tidak ada isinya menjadi nilai 0
             //persetate
-              renderChartTph.updateSeries([{
-                    name: 'Brondolan/Blok Tinggal di TPH',
-                    data: valBtTphJson
-                }])
+            renderChartTph.updateSeries([{
+              name: 'Brondolan/Blok Tinggal di TPH',
+              data: valBtTphJson
+            }])
 
-                renderChartKarung.updateSeries([{
+            renderChartKarung.updateSeries([{
               name: 'Karung/Blok  Berisi Brondolan',
               data: valKRTtphJson
             }])
 
-                
+
             renderChartBuahTglTph.updateSeries([{
               name: 'Buah/Blok  Tinggal TPH',
               data: valBHtglJson
             }])
-              
+
             renderChartBuahRestanNone.updateSeries([{
               name: 'Restan/Blok  Tidak dilaporkan',
               data: valRSnoneJson
             }])
 
-              //perwilawyah
+            //perwilawyah
             will_btt.updateSeries([{
               name: 'Brondolan Tinggal di TPH',
               data: arrayvalBtTphWilJson
             }])
-            
+
             renderChartKarungWil.updateSeries([{
               name: 'Karung Tinggal di TPH',
               data: arrayvalKRtglWilJson
             }])
 
-            
+
             renderChartBuahTglTphWil.updateSeries([{
               name: 'Buah Tinggal Di TPH',
               data: arrayvalBHtglWilJson
             }])
 
-                  
+
             renderChartBuahRestanNoneWil.updateSeries([{
               name: 'Buah Restan Tidak di Laporkan',
               data: arrayvalRSnoneWilJson
             }])
 
 
-    //          //untuk table
-              //table wil 1
-            var arrTbody1 = list_all_wil[0][1]
+            //          //untuk table
+            //table wil 1
+
+            function filterArrayByEst(array) {
+              return array.filter(obj => obj.est !== 'Plasma1');
+            }
+            const originalArray = list_all_wil[0][1]
+            const filteredArray = filterArrayByEst(originalArray);
+            const wilarr = filterArrayByEst(list_all_est[0][1])
+            var arrTbody1 = filteredArray
             var table1 = document.getElementById('table1');
-              var tbody1 = document.getElementById('tbody1');
+            var tbody1 = document.getElementById('tbody1');
 
-              // console.log(arrTbody1)
-              arrTbody1.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['afd']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-                  
+            // console.log(arrTbody1)
+            arrTbody1.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
 
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
 
-                
 
-                  itemElement1.classList.add("text-center")
-        itemElement2.classList.add("text-center")
-        itemElement3.classList.add("text-center")
-        itemElement4.classList.add("text-center")
-        itemElement5.classList.add("text-center")
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
 
 
 
-        if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#eaeaea";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
 
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    } else {
-        itemElement4.style.color = "black";
-    }
 
 
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                    //   itemElement4.innerText  = item4
-                    if (item4 != 0) {    
-                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                      }else{
-                        itemElement4.innerText  = item4
-                      }
-                      itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody1.appendChild(tr)
-                // }
-              });
-    //  testing
-    var arrTbody1 = list_all_est[0][1]
-            var table1 = document.getElementById('table1');
-              var tbody1 = document.getElementById('tbody1');
-
-              // console.log(arrTbody1)
-              arrTbody1.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['EM']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-                  
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-
-                
-
-                  itemElement1.classList.add("text-center")
-        itemElement2.classList.add("text-center")
-        itemElement3.classList.add("text-center")
-        itemElement4.classList.add("text-center")
-        itemElement5.classList.add("text-center")
-
-
-        itemElement1.style.backgroundColor = "#e8ecdc";
-        itemElement2.style.backgroundColor = "#e8ecdc";
-        itemElement3.style.backgroundColor = "#e8ecdc";
-        if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#e8ecdc";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
-
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    }
-    else {
-        itemElement4.style.color = "black";
-    }
-
-
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                      itemElement4.innerText  = item4
-                      itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody1.appendChild(tr)
-                // }
-              });
-
-    // endtesting
-              
-              ///table wil 2
-              var arrTbody2 = list_all_wil[1][1]
-              // console.log(list_all_wil)
-            //  var table1 = document.getElementById('table1');
-              var tbody2 = document.getElementById('tbody2');
-
-            
-              arrTbody2.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['afd']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-                  itemElement1.classList.add("text-center")
-                itemElement2.classList.add("text-center")
-                itemElement3.classList.add("text-center")
-        itemElement4.classList.add("text-center")
-        itemElement5.classList.add("text-center")
-
-
-          if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#eaeaea";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
-
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    }
-    else {
-        itemElement4.style.color = "black";
-    }
-
-
-                  itemElement1.innerText  = item1
-                  itemElement2.innerText  = item2
-                  itemElement3.innerText  = item3
-                //   itemElement4.innerText  = item4
-                    if (item4 != 0) {    
-                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                      }else{
-                        itemElement4.innerText  = item4
-                      }
-                  itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody2.appendChild(tr)
-                // }
-              });
-              //untuk estate wil 2
-              var arrTbody1 = list_all_est[1][1]
-              var tbody1 = document.getElementById('tbody2');
-
-              // console.log(arrTbody1)
-              arrTbody1.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['EM']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-                  
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-
-                
-
-                  itemElement1.classList.add("text-center")
-        itemElement2.classList.add("text-center")
-        itemElement3.classList.add("text-center")
-        itemElement4.classList.add("text-center")
-        itemElement5.classList.add("text-center")
-
-
-        itemElement1.style.backgroundColor = "#e8ecdc";
-        itemElement2.style.backgroundColor = "#e8ecdc";
-        itemElement3.style.backgroundColor = "#e8ecdc";
-        if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#e8ecdc";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
-
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    }
-    else {
-        itemElement4.style.color = "black";
-    }
-
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                      itemElement4.innerText  = item4
-                    // if (item4 != 0) {    
-                    //     itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                    //   }else{
-                    //     itemElement4.innerText  = item4
-                    //   }
-                      itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody1.appendChild(tr)
-                // }
-              });
-
-
-
-      ///table wil 3
-      var arrTbody3 = list_all_wil[2][1]
-              // console.log(list_all_wil)
-            //  var table1 = document.getElementById('table1');
-              var tbody3 = document.getElementById('tbody3');
-
-            
-              arrTbody3.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['afd']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-
-                  itemElement1.classList.add("text-center")
-                  itemElement2.classList.add("text-center")
-                  itemElement3.classList.add("text-center")
-                  itemElement4.classList.add("text-center")
-                  itemElement5.classList.add("text-center")
-
-              
-          if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#eaeaea";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
-
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    }
-    else {
-        itemElement4.style.color = "black";
-    }
-
-
-
-                  itemElement1.innerText  = item1
-                  itemElement2.innerText  = item2
-                  itemElement3.innerText  = item3
-                //   itemElement4.innerText  = item4
-                if (item4 != 0) {    
-                        itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
-                      }else{
-                        itemElement4.innerText  = item4
-                      }
-                  itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody3.appendChild(tr)
-                // }
-              });
-
-              // untuk estate will 3
-              var arrTbody1 = list_all_est[2][1]
-              var tbody1 = document.getElementById('tbody3');
-
-              // console.log(arrTbody1)
-              arrTbody1.forEach(element => {
-                // for (let i = 0; i < 5; i++) {
-                  
-                  tr = document.createElement('tr')
-                  let item1 = element['est']
-                  let item2 = element['EM']
-                  let item3 = element['nama']
-                  let item4 = element['skor']
-                  let item5 = element['rank']
-                  
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-
-                
-
-                  itemElement1.classList.add("text-center")
-        itemElement2.classList.add("text-center")
-        itemElement3.classList.add("text-center")
-        itemElement4.classList.add("text-center")
-        itemElement5.classList.add("text-center")
-
-
-        itemElement1.style.backgroundColor = "#e8ecdc";
-        itemElement2.style.backgroundColor = "#e8ecdc";
-        itemElement3.style.backgroundColor = "#e8ecdc";
-        if (item4 >= 95) {
-                    itemElement4.style.backgroundColor = "#609cd4";
-        } else if (item4 >= 85 && item4 < 95) {
-          itemElement4.style.backgroundColor = "#08b454";
-        } else if (item4 >= 75 && item4 < 85) {
-          itemElement4.style.backgroundColor = "#fffc04";
-        } else if (item4 >= 65 && item4 < 75) {
-            itemElement4.style.backgroundColor = "#ffc404";
-        } else if (item4 == 0) {
-            itemElement4.style.backgroundColor = "#e8ecdc";
-        } else {
-            itemElement4.style.backgroundColor = "red";
-        }
-
-        if(itemElement4.style.backgroundColor === "#609cd4"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#08b454"){
-        itemElement4.style.color = "white";
-    }
-    else if(itemElement4.style.backgroundColor === "#fffc04"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "#ffc404"){
-        itemElement4.style.color = "black";
-    }
-    else if(itemElement4.style.backgroundColor === "red"){
-        itemElement4.style.color = "white";
-    }
-    else {
-        itemElement4.style.color = "black";
-    }
-
-
-
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                      itemElement4.innerText  = item4
-                      itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody1.appendChild(tr)
-                // }
-              });
-
-var inc = 0;
-              for (let i = 1; i <= 3; i++) {  
-                var tbody = document.getElementById('tbody' + i);
-              
-               var wil = ''
-               if(i == 1){
-                 wil = 'I'
-               }else if(i == 2){
-                wil = 'II'
-               }else{
-                 wil = 'III'
-               }
-
-                tr = document.createElement('tr')
-                  let item1 = 'WIL-' + wil
-                  let item2 = 'GM'
-                  let item3 = list_skor_gm[inc][1]['nama']
-                  let item4 = list_skor_gm[inc][1]['skor']
-                  let item5 = ''
-                  
-
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-                  let itemElement5 = document.createElement('td')
-
-                
-
-                  itemElement1.classList.add("text-center")
-                  itemElement2.classList.add("text-center")
-                  itemElement3.classList.add("text-center")
-                  itemElement4.classList.add("text-center")
-                  itemElement5.classList.add("text-center")
-
-
-                  itemElement1.style.backgroundColor = "#fff4cc";
-                  itemElement2.style.backgroundColor = "#fff4cc";
-                  itemElement3.style.backgroundColor = "#fff4cc";
-                  if (item4 >= 95) {
-                              itemElement4.style.backgroundColor = "#609cd4";
-                  } else if (item4 >= 85 && item4 < 95) {
-                    itemElement4.style.backgroundColor = "#08b454";
-                  } else if (item4 >= 75 && item4 < 85) {
-                    itemElement4.style.backgroundColor = "#fffc04";
-                  } else if (item4 >= 65 && item4 < 75) {
-                      itemElement4.style.backgroundColor = "#ffc404";
-                  } else if (item4 == 0) {
-                      itemElement4.style.backgroundColor = "#fff4cc";
-                  } else {
-                      itemElement4.style.backgroundColor = "red";
-                  }
-
-                  if(itemElement4.style.backgroundColor === "#609cd4"){
-                  itemElement4.style.color = "white";
-              }
-              else if(itemElement4.style.backgroundColor === "#08b454"){
-                  itemElement4.style.color = "white";
-              }
-              else if(itemElement4.style.backgroundColor === "#fffc04"){
-                  itemElement4.style.color = "black";
-              }
-              else if(itemElement4.style.backgroundColor === "#ffc404"){
-                  itemElement4.style.color = "black";
-              }
-              else if(itemElement4.style.backgroundColor === "red"){
-                  itemElement4.style.color = "white";
-              }
-              else {
-                  itemElement4.style.color = "black";
-              }
-
-
-
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                      itemElement4.innerText  = item4
-                      itemElement5.innerText  = item5
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-                  tr.appendChild(itemElement5)
-
-                  tbody.appendChild(tr)
-                  inc++
-              }
-
-              tbodySkorRH = document.getElementById('tbodySkorRH')
-
-              var reg = ''
-              if (list_skor_rh[0][0] == 1) {
-                reg = 'REG I'
-              } else if (list_skor_rh[0][0] == 2) {
-                reg = 'REG II'
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#eaeaea";
               } else {
-                reg = 'REG III'
+                itemElement4.style.backgroundColor = "red";
               }
-                tr = document.createElement('tr')
-                  let item1 = reg
-                  let item2 = 'RH - ' + list_skor_rh[0][0]
-                  let item3 = list_skor_rh[0][1]['nama']
-                  let item4 = list_skor_rh[0][1]['skor']
-                
-                  let itemElement1 = document.createElement('td')
-                  let itemElement2 = document.createElement('td')
-                  let itemElement3 = document.createElement('td')
-                  let itemElement4 = document.createElement('td')
-            
-                  itemElement1.classList.add("text-center")
-                  itemElement2.classList.add("text-center")
-                  itemElement3.classList.add("text-center")
-                  itemElement4.classList.add("text-center")
-               
-                  itemElement1.style.backgroundColor = "#e8ecdc";
-                  itemElement2.style.backgroundColor = "#e8ecdc";
-                  itemElement3.style.backgroundColor = "#e8ecdc";
-                  if (item4 >= 95) {
-                              itemElement4.style.backgroundColor = "#609cd4";
-                  } else if (item4 >= 85 && item4 < 95) {
-                    itemElement4.style.backgroundColor = "#08b454";
-                  } else if (item4 >= 75 && item4 < 85) {
-                    itemElement4.style.backgroundColor = "#fffc04";
-                  } else if (item4 >= 65 && item4 < 75) {
-                      itemElement4.style.backgroundColor = "#ffc404";
-                  } else if (item4 == 0) {
-                      itemElement4.style.backgroundColor = "#eaeaea";
-                  } else {
-                      itemElement4.style.backgroundColor = "red";
-                  }
 
-                  if(itemElement4.style.backgroundColor === "#609cd4"){
-                  itemElement4.style.color = "white";
-              }
-              else if(itemElement4.style.backgroundColor === "#08b454"){
-                  itemElement4.style.color = "white";
-              }
-              else if(itemElement4.style.backgroundColor === "#fffc04"){
-                  itemElement4.style.color = "black";
-              }
-              else if(itemElement4.style.backgroundColor === "#ffc404"){
-                  itemElement4.style.color = "black";
-              }
-              else if(itemElement4.style.backgroundColor === "red"){
-                  itemElement4.style.color = "white";
-              }
-              else {
-                  itemElement4.style.color = "black";
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
               }
 
 
-                      itemElement4.innerText = item4;
-                      itemElement1.innerText  = item1
-                      itemElement2.innerText  = item2
-                      itemElement3.innerText  = item3
-                 
-               
-
-                  tr.appendChild(itemElement1)
-                  tr.appendChild(itemElement2)
-                  tr.appendChild(itemElement3)
-                  tr.appendChild(itemElement4)
-
-
-                  tbodySkorRH.appendChild(tr)
-
-      
-    //end table
-
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              if (item4 != 0) {
+                itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est'] + '/' + element['afd'] + '/' + firstWeek + '/' + lastWeek + '">' + element['skor'] + ' </a>'
+              } else {
+                itemElement4.innerText = item4
               }
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody1.appendChild(tr)
+              // }
+            });
+            //  testing
+            // console.log(list_all_est);
+            var arrTbody1 = wilarr
+            var table1 = document.getElementById('table1');
+            var tbody1 = document.getElementById('tbody1');
+
+            // console.log(arrTbody1)
+            arrTbody1.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['EM']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              itemElement1.style.backgroundColor = "#e8ecdc";
+              itemElement2.style.backgroundColor = "#e8ecdc";
+              itemElement3.style.backgroundColor = "#e8ecdc";
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#e8ecdc";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              itemElement4.innerText = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody1.appendChild(tr)
+              // }
+            });
+
+            // endtesting
+
+            ///table wil 2
+            var arrTbody2 = list_all_wil[1][1]
+            // console.log(list_all_wil)
+            //  var table1 = document.getElementById('table1');
+            var tbody2 = document.getElementById('tbody2');
+
+
+            arrTbody2.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#eaeaea";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              if (item4 != 0) {
+                itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est'] + '/' + element['afd'] + '/' + firstWeek + '/' + lastWeek + '">' + element['skor'] + ' </a>'
+              } else {
+                itemElement4.innerText = item4
+              }
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody2.appendChild(tr)
+              // }
+            });
+            //untuk estate wil 2
+            var arrTbody1 = list_all_est[1][1]
+            var tbody1 = document.getElementById('tbody2');
+
+            // console.log(arrTbody1)
+            arrTbody1.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['EM']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              itemElement1.style.backgroundColor = "#e8ecdc";
+              itemElement2.style.backgroundColor = "#e8ecdc";
+              itemElement3.style.backgroundColor = "#e8ecdc";
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#e8ecdc";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              itemElement4.innerText = item4
+              // if (item4 != 0) {    
+              //     itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est']+ '/'+ element['afd'] +'/'+ firstWeek+ '/'+lastWeek+'">' + element['skor'] + ' </a>'
+              //   }else{
+              //     itemElement4.innerText  = item4
+              //   }
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody1.appendChild(tr)
+              // }
+            });
+
+
+
+            ///table wil 3
+            var arrTbody3 = list_all_wil[2][1]
+            // console.log(list_all_wil)
+            //  var table1 = document.getElementById('table1');
+            var tbody3 = document.getElementById('tbody3');
+
+
+            arrTbody3.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['afd']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#eaeaea";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+
+
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              //   itemElement4.innerText  = item4
+              if (item4 != 0) {
+                itemElement4.innerHTML = '<a href="detailSidakTph/' + element['est'] + '/' + element['afd'] + '/' + firstWeek + '/' + lastWeek + '">' + element['skor'] + ' </a>'
+              } else {
+                itemElement4.innerText = item4
+              }
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody3.appendChild(tr)
+              // }
+            });
+
+            // untuk estate will 3
+            var arrTbody1 = list_all_est[2][1]
+            var tbody1 = document.getElementById('tbody3');
+
+            // console.log(arrTbody1)
+            arrTbody1.forEach(element => {
+              // for (let i = 0; i < 5; i++) {
+
+              tr = document.createElement('tr')
+              let item1 = element['est']
+              let item2 = element['EM']
+              let item3 = element['nama']
+              let item4 = element['skor']
+              let item5 = element['rank']
+
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              itemElement1.style.backgroundColor = "#e8ecdc";
+              itemElement2.style.backgroundColor = "#e8ecdc";
+              itemElement3.style.backgroundColor = "#e8ecdc";
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#e8ecdc";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              itemElement4.innerText = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody1.appendChild(tr)
+              // }
+            });
+
+            var inc = 0;
+            for (let i = 1; i <= 3; i++) {
+              var tbody = document.getElementById('tbody' + i);
+
+              var wil = ''
+              if (i == 1) {
+                wil = 'I'
+              } else if (i == 2) {
+                wil = 'II'
+              } else {
+                wil = 'III'
+              }
+
+              tr = document.createElement('tr')
+              let item1 = list_skor_gmNew[inc][1]['est']
+              let item2 = list_skor_gmNew[inc][1]['afd']
+              let item3 = list_skor_gmNew[inc][1]['namaGM']
+              let item4 = list_skor_gmNew[inc][1]['skor']
+              let item5 = ''
+
+
+              let itemElement1 = document.createElement('td')
+              let itemElement2 = document.createElement('td')
+              let itemElement3 = document.createElement('td')
+              let itemElement4 = document.createElement('td')
+              let itemElement5 = document.createElement('td')
+
+
+
+              itemElement1.classList.add("text-center")
+              itemElement2.classList.add("text-center")
+              itemElement3.classList.add("text-center")
+              itemElement4.classList.add("text-center")
+              itemElement5.classList.add("text-center")
+
+
+              itemElement1.style.backgroundColor = "#fff4cc";
+              itemElement2.style.backgroundColor = "#fff4cc";
+              itemElement3.style.backgroundColor = "#fff4cc";
+              if (item4 >= 95) {
+                itemElement4.style.backgroundColor = "#609cd4";
+              } else if (item4 >= 85 && item4 < 95) {
+                itemElement4.style.backgroundColor = "#08b454";
+              } else if (item4 >= 75 && item4 < 85) {
+                itemElement4.style.backgroundColor = "#fffc04";
+              } else if (item4 >= 65 && item4 < 75) {
+                itemElement4.style.backgroundColor = "#ffc404";
+              } else if (item4 == 0) {
+                itemElement4.style.backgroundColor = "#fff4cc";
+              } else {
+                itemElement4.style.backgroundColor = "red";
+              }
+
+              if (itemElement4.style.backgroundColor === "#609cd4") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#08b454") {
+                itemElement4.style.color = "white";
+              } else if (itemElement4.style.backgroundColor === "#fffc04") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "#ffc404") {
+                itemElement4.style.color = "black";
+              } else if (itemElement4.style.backgroundColor === "red") {
+                itemElement4.style.color = "white";
+              } else {
+                itemElement4.style.color = "black";
+              }
+
+
+
+              itemElement4.innerText = item4;
+              itemElement1.innerText = item1
+              itemElement2.innerText = item2
+              itemElement3.innerText = item3
+              itemElement4.innerText = item4
+              itemElement5.innerText = item5
+
+              tr.appendChild(itemElement1)
+              tr.appendChild(itemElement2)
+              tr.appendChild(itemElement3)
+              tr.appendChild(itemElement4)
+              tr.appendChild(itemElement5)
+
+              tbody.appendChild(tr)
+              inc++
             }
+
+            tbodySkorRH = document.getElementById('tbodySkorRH')
+
+            var reg = ''
+            if (list_skor_rh[0][0] == 1) {
+              reg = 'REG I'
+            } else if (list_skor_rh[0][0] == 2) {
+              reg = 'REG II'
+            } else {
+              reg = 'REG III'
             }
-            )
+            tr = document.createElement('tr')
+            let item1 = reg
+            let item2 = 'RH - ' + list_skor_rh[0][0]
+            let item3 = list_skor_rh[0][1]['nama']
+            let item4 = list_skor_rh[0][1]['skor']
+
+            let itemElement1 = document.createElement('td')
+            let itemElement2 = document.createElement('td')
+            let itemElement3 = document.createElement('td')
+            let itemElement4 = document.createElement('td')
+
+            itemElement1.classList.add("text-center")
+            itemElement2.classList.add("text-center")
+            itemElement3.classList.add("text-center")
+            itemElement4.classList.add("text-center")
+
+            itemElement1.style.backgroundColor = "#e8ecdc";
+            itemElement2.style.backgroundColor = "#e8ecdc";
+            itemElement3.style.backgroundColor = "#e8ecdc";
+            if (item4 >= 95) {
+              itemElement4.style.backgroundColor = "#609cd4";
+            } else if (item4 >= 85 && item4 < 95) {
+              itemElement4.style.backgroundColor = "#08b454";
+            } else if (item4 >= 75 && item4 < 85) {
+              itemElement4.style.backgroundColor = "#fffc04";
+            } else if (item4 >= 65 && item4 < 75) {
+              itemElement4.style.backgroundColor = "#ffc404";
+            } else if (item4 == 0) {
+              itemElement4.style.backgroundColor = "#eaeaea";
+            } else {
+              itemElement4.style.backgroundColor = "red";
+            }
+
+            if (itemElement4.style.backgroundColor === "#609cd4") {
+              itemElement4.style.color = "white";
+            } else if (itemElement4.style.backgroundColor === "#08b454") {
+              itemElement4.style.color = "white";
+            } else if (itemElement4.style.backgroundColor === "#fffc04") {
+              itemElement4.style.color = "black";
+            } else if (itemElement4.style.backgroundColor === "#ffc404") {
+              itemElement4.style.color = "black";
+            } else if (itemElement4.style.backgroundColor === "red") {
+              itemElement4.style.color = "white";
+            } else {
+              itemElement4.style.color = "black";
+            }
+
+
+            itemElement4.innerText = item4;
+            itemElement1.innerText = item1
+            itemElement2.innerText = item2
+            itemElement3.innerText = item3
+
+
+
+            tr.appendChild(itemElement1)
+            tr.appendChild(itemElement2)
+            tr.appendChild(itemElement3)
+            tr.appendChild(itemElement4)
+
+
+            tbodySkorRH.appendChild(tr)
+
+
+            //end table
+
+          }
+        }
+      })
     }
-});
+  });
 
-function chartBtTph(categoryEst,
- categoryWill,
-  valBtTph,
-   valKRtgl, 
-   valBHtgl, 
-   valRSnone,
-   valBtTphWil,
-   valKRtglWil,
-   valBHtglWil,
-   valRSnoneWil
-    ){
 
-  //perestate
-  //brondolan tinggal
-  renderChartTph.updateSeries([{
-                name: 'Brondolan Tinggal di TPH',
-                data: valBtTph
-            }])
-          
-  //karung berisi brondolam
-       renderChartKarung.updateSeries([{
-          name: 'Karung Berisi Brondolan',
-           data: valKRtgl
-         }])
-       //buah tinggal tph
-         renderChartBuahTglTph.updateSeries([{
-          name: 'Buah Tinggal TPH',
-           data: valBHtgl
-         }])
-//restan tidak di laporkan
-         renderChartBuahRestanNone.updateSeries([{
-          name: 'Restant tidak di laporkan',
-           data: valRSnone
-         }])
+  function chartBtTph(categoryEst,
+    categoryWill,
+    valBtTph,
+    valKRtgl,
+    valBHtgl,
+    valRSnone,
+    valBtTphWil,
+    valKRtglWil,
+    valBHtglWil,
+    valRSnoneWil
+  ) {
 
-         //perwilayah
-         //brondolan tinggal
-         will_btt.updateSeries([{
-          name: 'Brondolan Tinggal di TPH',
-           data: valBtTphWil
-         }])
+    //perestate
+    //brondolan tinggal
+    renderChartTph.updateSeries([{
+      name: 'Brondolan Tinggal di TPH',
+      data: valBtTph
+    }])
+
+    //karung berisi brondolam
+    renderChartKarung.updateSeries([{
+      name: 'Karung Berisi Brondolan',
+      data: valKRtgl
+    }])
+    //buah tinggal tph
+    renderChartBuahTglTph.updateSeries([{
+      name: 'Buah Tinggal TPH',
+      data: valBHtgl
+    }])
+    //restan tidak di laporkan
+    renderChartBuahRestanNone.updateSeries([{
+      name: 'Restant tidak di laporkan',
+      data: valRSnone
+    }])
+
+    //perwilayah
+    //brondolan tinggal
+    will_btt.updateSeries([{
+      name: 'Brondolan Tinggal di TPH',
+      data: valBtTphWil
+    }])
     //karung berisi brondolam
     renderChartKarungWil.updateSeries([{
-          name: 'Karung Berisi Brondolan',
-           data: valKRtglWil
-         }])
-       //buah tinggal tph
-         renderChartBuahTglTphWil.updateSeries([{
-          name: 'Buah Tinggal TPH',
-           data: valBHtglWil
-         }])
-//restan tidak di laporkan
-         renderChartBuahRestanNoneWil.updateSeries([{
-          name: 'Restant tidak di laporkan',
-           data: valRSnoneWil
-         }])
- // contoh data array
+      name: 'Karung Berisi Brondolan',
+      data: valKRtglWil
+    }])
+    //buah tinggal tph
+    renderChartBuahTglTphWil.updateSeries([{
+      name: 'Buah Tinggal TPH',
+      data: valBHtglWil
+    }])
+    //restan tidak di laporkan
+    renderChartBuahRestanNoneWil.updateSeries([{
+      name: 'Restant tidak di laporkan',
+      data: valRSnoneWil
+    }])
+    // contoh data array
 
- 
-}
-//export ke pdf
+
+  }
+  //export ke pdf
 </script>

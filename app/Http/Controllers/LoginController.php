@@ -24,9 +24,7 @@ class LoginController extends Controller
             'password' => 'required'
         ]);
 
-        // $user = User::where('email', $request->email_or_nama_lengkap)
-        //     ->orWhere('nama_lengkap', $request->email_or_nama_lengkap)
-        //     ->first();
+
         $user = DB::table('pengguna')->where('email', $request->email_or_nama_lengkap)
             ->orWhere('nama_lengkap', $request->email_or_nama_lengkap)
             ->first();
