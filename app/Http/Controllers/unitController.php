@@ -22,7 +22,7 @@ class unitController extends Controller
 
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-        $queryEstate = DB::connection('mysql2')->table('estate')
+        $queryEstate = DB::table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $regional)
@@ -35,7 +35,7 @@ class unitController extends Controller
         foreach ($queryEstate as $value) {
 
             // dd($year);
-            $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
+            $queryPerEstate = DB::table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where('unit', $value['id'])
                 ->whereYear('tanggal', $year)
@@ -123,7 +123,7 @@ class unitController extends Controller
                     $dataResult[$key]['status'] = 'Poor';
                 }
 
-                $estateQuery = DB::connection('mysql2')->table('estate')
+                $estateQuery = DB::table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -146,7 +146,7 @@ class unitController extends Controller
                     $dataResult[$key][$value] = 0;
                     $dataResult[$key]['skor_bulan_' . $value] = 0;
                 }
-                $estateQuery = DB::connection('mysql2')->table('estate')
+                $estateQuery = DB::table('estate')
                     ->select('estate.*')
                     ->join('wil', 'wil.id', '=', 'estate.wil')
                     ->where('estate.est', $key)
@@ -166,6 +166,13 @@ class unitController extends Controller
                 $dataResult[$key]['skor_tahunan'] = 0;
                 $dataResult[$key]['status'] = 'Poor';
             }
+        }
+
+        // dd($dataResult);
+
+        if (isset($dataResult['CWS1'])) {
+            $dataResult['CWS'] = $dataResult['CWS1'];
+            unset($dataResult['CWS1']);
         }
         //khusus untuk menghitung record setiap bulan per estate
         // dd($countDataPerEstate);
@@ -189,6 +196,7 @@ class unitController extends Controller
                 $resultCount[$key] = $value;
             }
         }
+
 
         // dd($resultCount);
 
@@ -273,7 +281,7 @@ class unitController extends Controller
         // dd($arrId);
         // dd($arrView);
         $arrHeader = array();
-        $arrHeader = ['WILAYAH', 'ESTATE', 'KODE', 'KTU', 'EM'];
+        $arrHeader = ['WILAYAH', 'ESTATE', 'KODE'];
         if (empty($resultCount)) {
             foreach ($bulan as $key => $value) {
                 $resultCount[$value] = 1;
@@ -292,6 +300,14 @@ class unitController extends Controller
             $arrHeader[] = 'SKOR';
         }
         array_push($arrHeader, 'SKOR', 'STATUS', 'RANK');
+        if (isset($arrView['CWS1'])) {
+            $arrView['CWS'] = $arrView['CWS1'];
+            unset($arrView['CWS1']);
+        }
+        if (isset($arrId['CWS1'])) {
+            $arrId['CWS'] = $arrId['CWS1'];
+            unset($arrId['CWS1']);
+        }
 
         $arrResult['arrView'] = $arrView;
         $arrResult['arrId'] = $arrId;
@@ -299,13 +315,14 @@ class unitController extends Controller
         $arrResult['arrMonth'] = $bulan;
         echo json_encode($arrResult);
     }
+
     public function dashboard_sidak_tph()
     {
-        $query = DB::table('sidak_tph')
+        $query = DB::connection('mysql2')->table('sidak_tph')
             ->select("sidak_tph.*")
             ->get();
 
-        return view('dashboard_sidak_tph', ['test' => 'naiss']);
+        return view('dashboard_sidak_tph');
     }
 
     public function getDataByYear(Request $request)
@@ -482,29 +499,14 @@ class unitController extends Controller
             }
             //end foreach
 
-            $sum_skor = 0;
-            for ($i = 0; $i < $incTotalBulan; $i++) {
-                $sum_skor += $value['skor_bulan_' . $bulan[$i]];
-            }
-
-            if ($value['skor_bulan_' . $bulan[$incTotalBulan - 1]] != 0) {
-                $skor_tahunan = round($sum_skor  / ($incTotalBulan), 2);
-                $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
-                if ($skor_tahunan >= 95) {
-                    $dataResult[$key]['status'] = 'Excellent';
-                } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
-                    $dataResult[$key]['status'] = 'Good';
-                } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
-                    $dataResult[$key]['status'] = 'Satisfactory';
-                } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
-                    $dataResult[$key]['status'] = 'Fair';
-                } else if ($skor_tahunan < 65) {
-                    $dataResult[$key]['status'] = 'Poor';
+            if ($incTotalBulan != 0) {
+                $sum_skor = 0;
+                for ($i = 0; $i < $incTotalBulan; $i++) {
+                    $sum_skor += $value['skor_bulan_' . $bulan[$i]];
                 }
-            } else {
-                if ($bulan[$bulanKe] == 'January' || $bulan[$bulanKe] == 'December') {
-                    $divided = $bulan[$bulanKe] == 'January' ? 1 : 12;
-                    $skor_tahunan = round($sum_skor  / $divided, 2);
+
+                if ($value['skor_bulan_' . $bulan[$incTotalBulan - 1]] != 0) {
+                    $skor_tahunan = round($sum_skor  / ($incTotalBulan), 2);
                     $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
                     if ($skor_tahunan >= 95) {
                         $dataResult[$key]['status'] = 'Excellent';
@@ -518,27 +520,44 @@ class unitController extends Controller
                         $dataResult[$key]['status'] = 'Poor';
                     }
                 } else {
+                    if ($bulan[$bulanKe] == 'January' || $bulan[$bulanKe] == 'December') {
+                        $divided = $bulan[$bulanKe] == 'January' ? 1 : 12;
+                        $skor_tahunan = round($sum_skor  / $divided, 2);
+                        $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                        if ($skor_tahunan >= 95) {
+                            $dataResult[$key]['status'] = 'Excellent';
+                        } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                            $dataResult[$key]['status'] = 'Good';
+                        } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                            $dataResult[$key]['status'] = 'Satisfactory';
+                        } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                            $dataResult[$key]['status'] = 'Fair';
+                        } else if ($skor_tahunan < 65) {
+                            $dataResult[$key]['status'] = 'Poor';
+                        }
+                    } else {
 
-                    if ($incTotalBulan == 1) {
-                        $incTotalBulan = 2;
-                    }
-                    $skor_tahunan = round($sum_skor  / ($incTotalBulan - 1), 2);
-                    $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
-                    if ($skor_tahunan >= 95) {
-                        $dataResult[$key]['status'] = 'Excellent';
-                    } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
-                        $dataResult[$key]['status'] = 'Good';
-                    } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
-                        $dataResult[$key]['status'] = 'Satisfactory';
-                    } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
-                        $dataResult[$key]['status'] = 'Fair';
-                    } else if ($skor_tahunan < 65) {
-                        $dataResult[$key]['status'] = 'Poor';
+                        if ($incTotalBulan == 1) {
+                            $incTotalBulan = 2;
+                        }
+                        $skor_tahunan = round($sum_skor  / ($incTotalBulan - 1), 2);
+                        $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
+                        if ($skor_tahunan >= 95) {
+                            $dataResult[$key]['status'] = 'Excellent';
+                        } else if ($skor_tahunan >= 85 && $skor_tahunan < 95) {
+                            $dataResult[$key]['status'] = 'Good';
+                        } else if ($skor_tahunan >= 75 && $skor_tahunan < 85) {
+                            $dataResult[$key]['status'] = 'Satisfactory';
+                        } else if ($skor_tahunan >= 65 && $skor_tahunan < 75) {
+                            $dataResult[$key]['status'] = 'Fair';
+                        } else if ($skor_tahunan < 65) {
+                            $dataResult[$key]['status'] = 'Poor';
+                        }
                     }
                 }
             }
         }
-
+        // dd($dataResult);
 
         //khusus untuk menghitung record setiap bulan per estate
 
@@ -675,6 +694,26 @@ class unitController extends Controller
             $inc2++;
         }
 
+        if (array_key_exists('CWS1', $arrView)) {
+            $newArr = array('CWS' => $arrView['CWS1']);
+            unset($arrView['CWS1']);
+            $arrView = array_merge($newArr, $arrView);
+        }
+
+        if (array_key_exists('CWS1', $arrId)) {
+            $newArr = array('CWS' => $arrId['CWS1']);
+            unset($arrId['CWS1']);
+            $arrId = array_merge($newArr, $arrId);
+        }
+
+
+        // $arrView = array_map(function ($element) {
+        //     $element['CWS'] = $element['CWS1'];
+        //     unset($element['CWS1']);
+        //     return $element;
+        // }, $arrView);
+
+        // dd($regional);
         $arrResult['arrView'] = $arrView;
         $arrResult['arrId'] = $arrId;
         $arrResult['arrHeader'] = $arrHeader;
@@ -682,11 +721,12 @@ class unitController extends Controller
         $arrResult['arrCount'] = $countRes;
         $arrResult['arrReg'] = $regional;
 
-
-
         echo json_encode($arrResult);
         exit();
     }
+
+
+
     public function dashboard_gudang()
     {
         $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -703,14 +743,11 @@ class unitController extends Controller
 
         foreach ($queryEstate as $value) {
 
-            // dd($value);
             $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
                 ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->where('unit', $value['id'])
-                ->orWhere('unit', $value['est'])
                 ->whereYear('tanggal', '2022')
                 ->get();
-
 
             if ($queryPerEstate->first() != '') {
 
@@ -741,6 +778,7 @@ class unitController extends Controller
 
         $dataResult = array();
         $countDataPerEstate = array();
+        $bulanKe = Carbon::now()->month;
         foreach ($dataRaw as $key => $value) {
             if ($value != 'kosong') {
                 $total_skor = 0;
@@ -778,7 +816,7 @@ class unitController extends Controller
                     $total_bulan = $total_bulan + $skor;
                     $inc_bulan++;
                 }
-                $skor_tahunan = round($total_bulan / $inc_bulan, 2);
+                $skor_tahunan = round($total_bulan / $bulanKe, 2);
                 $dataResult[$key]['skor_tahunan'] = $skor_tahunan;
                 if ($skor_tahunan >= 95) {
                     $dataResult[$key]['status'] = 'Excellent';
@@ -859,10 +897,7 @@ class unitController extends Controller
         // dd($total_column);
 
         $total_column_bulan = $total_column + 12;
-        $arrCol = array_column($dataResult, 'skor_tahunan');
-
-
-        array_multisort($arrCol, SORT_DESC, $dataResult);
+        array_multisort(array_column($dataResult, 'skor_tahunan'), SORT_DESC, $dataResult);
         $inc = 1;
         foreach ($dataResult as $key => $value) {
             foreach ($value as $key2 => $data) {
@@ -895,49 +930,17 @@ class unitController extends Controller
         }
 
 
-        // dd($dataResult);
 
 
-        // foreach ($dataResult as $key => $value) {
-        //     foreach ($resultCount as $key2 => $data) {
-        //         // dd($key2);
-        //         for ($i = 1; $i <= $data; $i++) {
-        //             if (array_key_exists($key2 . '_' . $i, $value)) {
-        //                 // $dataResult[$key][$key2 . '_' . $i] = 0;
-
-        //             } else {
-        //                 if (!array_key_exists('skor_bulan_' . $key2, $value)) {
-        //                     $dataResult[$key]['skor_bulan_' . $key2] = 0;
-        //                 }
-        //                 $dataResult[$key][$key2 . '_' . $i] = 0;
-        //             }
-        //         }
-        //     }
-        // }
-
-        // dd($dataResult);
-        // dd($dataResult['KNE']['November']);
-        // if (array_key_exists(('November'), $dataResult['KNE'])) {
-        //     if (is_array($dataResult['KNE']['November'])) {
-        //         foreach ($dataResult['KNE']['November'] as $key => $value) {
-        //             print_r($value);
-        //         }
-        //     } else {
-        //         dd('tidak');
-        //     }
-        // } else {
-        //     dd('tidak ada');
-        // }
-
-        // dd($dataResult);
         $bulanJson = json_encode($bulan);
-        // dd($resultCountJson);
 
         return view('dashboard_gudang', ['dataResult' => $dataResult, 'resultCount' => $resultCount, 'bulanJson' => $bulanJson, 'bulan' => $bulan, 'total_column_bulan' => $total_column_bulan, 'resultCountJson' => $resultCountJson]);
     }
+
+
     public function tambah()
     {
-        $query = DB::table('qc_gudang')
+        $query = DB::connection('mysql2')->table('qc_gudang')
             ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
             ->get();
         // dd($query[0]->bulan);
@@ -946,7 +949,7 @@ class unitController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        DB::table('pekerja')->insert([
+        DB::connection('mysql2')->table('pekerja')->insert([
             'id' => $request->id,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
@@ -956,13 +959,13 @@ class unitController extends Controller
     }
     public function edit($id)
     {
-        $data = DB::table('pekerja')->where('id', $id)->first();
+        $data = DB::connection('mysql2')->table('pekerja')->where('id', $id)->first();
         // dd($data->nama);
         return view('edit', ['pekerja' => $data]);
     }
     public function update(Request $request)
     {
-        DB::table('pekerja')->where('id', $request->id)->update([
+        DB::connection('mysql2')->table('pekerja')->where('id', $request->id)->update([
             'id' => $request->id,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
@@ -973,19 +976,19 @@ class unitController extends Controller
     }
     public function hapus($id)
     {
-        DB::table('pekerja')->where('id', $id)->delete();
+        DB::connection('mysql2')->table('pekerja')->where('id', $id)->delete();
         return redirect('/index');
     }
     public function load_qc_gudang()
     {
         if (request()->ajax()) {
-            $query = DB::table('qc_gudang')
+            $query = DB::connection('mysql2')->table('qc_gudang')
                 ->select("qc_gudang.*", 'estate.*', DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                 ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
                 ->get();
             $bulan = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-            $queryEstate = DB::table('estate')
+            $queryEstate = DB::connection('mysql2')->table('estate')
                 ->select('estate.*')
                 ->join('wil', 'wil.id', '=', 'estate.wil')
                 ->where('wil.regional', 1)
@@ -997,7 +1000,7 @@ class unitController extends Controller
 
             foreach ($queryEstate as $value) {
 
-                $queryPerEstate = DB::table('qc_gudang')
+                $queryPerEstate = DB::connection('mysql2')->table('qc_gudang')
                     ->select("qc_gudang.*", DB::raw('DATE_FORMAT(qc_gudang.tanggal, "%M") as bulan'))
                     ->where('unit', $value['id'])
                     ->get();
@@ -1081,7 +1084,7 @@ class unitController extends Controller
                         $dataResult[$key]['status'] = 'Poor';
                     }
 
-                    $estateQuery = DB::table('estate')
+                    $estateQuery = DB::connection('mysql2')->table('estate')
                         ->select('estate.*')
                         ->join('wil', 'wil.id', '=', 'estate.wil')
                         ->where('estate.est', $key)
@@ -1098,7 +1101,7 @@ class unitController extends Controller
                     foreach ($bulan as $key4 => $value) {
                         // $dataResult[$key][$value] = 0;
                     }
-                    $estateQuery = DB::table('estate')
+                    $estateQuery = DB::connection('mysql2')->table('estate')
                         ->select('estate.*')
                         ->join('wil', 'wil.id', '=', 'estate.wil')
                         ->where('estate.est', $key)
@@ -1189,6 +1192,15 @@ class unitController extends Controller
         //     ->where('estate.est', $est)
         //     ->first();
 
+
+
+        $query = DB::connection('mysql2')->table('qc_gudang')
+            ->select('estate.*', 'pekerja.nama as nama_ktu', 'qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
+            ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
+            ->join('pekerja', 'pekerja.unit', '=', 'qc_gudang.unit')
+            ->where('qc_gudang.id', '=', $id)
+            ->first();
+
         $query = DB::connection('mysql2')->table('qc_gudang')
             ->select('qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
             ->where('qc_gudang.id', '=', $id)
@@ -1216,6 +1228,7 @@ class unitController extends Controller
         }
 
         $query->nama = $estate->nama;
+
 
         if ($query->foto_kesesuaian_ppro != null) {
             if (str_contains($query->foto_kesesuaian_ppro, ';')) {
@@ -1322,12 +1335,19 @@ class unitController extends Controller
     {
 
 
-        // $query =  DB::table('qc_gudang')
+        // $query =  DB::connection('mysql2')->table('qc_gudang')
         //     ->select('estate.*', 'pekerja.nama as nama_ktu', 'qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
         //     ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
         //     ->join('pekerja', 'pekerja.unit', '=', 'qc_gudang.unit')
         //     ->where('qc_gudang.id', '=', $id)
         //     ->first();
+
+        $query = DB::connection('mysql2')->table('qc_gudang')
+            ->select('estate.*', 'pekerja.nama as nama_ktu', 'qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
+            ->join('estate', 'estate.id', '=', 'qc_gudang.unit')
+            ->join('pekerja', 'pekerja.unit', '=', 'qc_gudang.unit')
+            ->where('qc_gudang.id', '=', $id)
+            ->first();
 
         $query = DB::connection('mysql2')->table('qc_gudang')
             ->select('qc_gudang.*', DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d-%M-%y') as tanggal_formatted"), DB::raw("DATE_FORMAT(qc_gudang.tanggal,'%d%m%y') as name_format"))
@@ -1340,7 +1360,6 @@ class unitController extends Controller
             ->where('estate.id', '=', $unit)
             ->orWhere('estate.est', '=', $unit)
             ->first();
-
 
         $pekerja = DB::connection('mysql2')->table('pekerja')
             ->select('pekerja.*',  'estate.nama as nama_estate', 'estate.est')
@@ -1468,8 +1487,149 @@ class unitController extends Controller
 
     public function hapusRecord($id)
     {
-        DB::connection('mysql2')->table('qc_gudang')->delete($id);
-        return redirect()->route('dashboard_gudang');
+        $Qc = DB::connection('mysql2')->table('qc_gudang')
+            ->where('id', $id)
+            ->first(); // use first() instead of get() to retrieve a single row
+
+        if ($Qc->foto_kesesuaian_ppro != null) {
+            if (str_contains($Qc->foto_kesesuaian_ppro, ';')) {
+                $exp_foto_kesesuaian_ppro = explode(';', $Qc->foto_kesesuaian_ppro);
+                $Qc->foto_kesesuaian_ppro_1 = $exp_foto_kesesuaian_ppro[0];
+                $Qc->foto_kesesuaian_ppro_2 = $exp_foto_kesesuaian_ppro[1];
+            } else {
+                $Qc->foto_kesesuaian_ppro_1 = $Qc->foto_kesesuaian_ppro;
+                $Qc->foto_kesesuaian_ppro_2 = '';
+            }
+        } else {
+            $Qc->foto_kesesuaian_ppro_1 = '';
+            $Qc->foto_kesesuaian_ppro_2 = '';
+        }
+
+
+        if ($Qc->foto_kesesuaian_bincard != null) {
+            if (str_contains($Qc->foto_kesesuaian_bincard, ';')) {
+                $exp_foto_kesesuaian_bincard = explode(';', $Qc->foto_kesesuaian_bincard);
+                $Qc->foto_kesesuaian_bincard_1 = $exp_foto_kesesuaian_bincard[0];
+                $Qc->foto_kesesuaian_bincard_2 = $exp_foto_kesesuaian_bincard[1];
+            } else {
+                $Qc->foto_kesesuaian_bincard_1 = $Qc->foto_kesesuaian_bincard;
+                $Qc->foto_kesesuaian_bincard_2 = '';
+            }
+        } else {
+            $Qc->foto_kesesuaian_bincard_1 = 0;
+            $Qc->foto_kesesuaian_bincard_2 = 0;
+        }
+
+        if ($Qc->foto_chemical_expired != null) {
+
+            if (str_contains($Qc->foto_chemical_expired, ';')) {
+                $exp_foto_chemical_expired = explode(';', $Qc->foto_chemical_expired);
+                $Qc->foto_chemical_expired_1 = $exp_foto_chemical_expired[0];
+                $Qc->foto_chemical_expired_2 = $exp_foto_chemical_expired[1];
+            } else {
+                $Qc->foto_chemical_expired_1 = $Qc->foto_chemical_expired;
+                $Qc->foto_chemical_expired_2 = '';
+            }
+        } else {
+            $Qc->foto_chemical_expired_1 = 0;
+            $Qc->foto_chemical_expired_2 = 0;
+        }
+
+        if ($Qc->foto_barang_nonstok != null) {
+            if (str_contains($Qc->foto_barang_nonstok, ';')) {
+                $exp_foto_barang_nonstok = explode(';', $Qc->foto_barang_nonstok);
+                $Qc->foto_barang_nonstok_1 = $exp_foto_barang_nonstok[0];
+                $Qc->foto_barang_nonstok_2 = $exp_foto_barang_nonstok[1];
+            } else {
+                $Qc->foto_barang_nonstok_1 = $Qc->foto_barang_nonstok;
+                $Qc->foto_barang_nonstok_2 = '';
+            }
+        } else {
+            $Qc->foto_barang_nonstok_1 = 0;
+            $Qc->foto_barang_nonstok_2 = 0;
+        }
+
+        if ($Qc->foto_kebersihan_gudang != null) {
+            if (str_contains($Qc->foto_kebersihan_gudang, ';')) {
+                $exp_foto_kebersihan_gudang = explode(';', $Qc->foto_kebersihan_gudang);
+                $Qc->foto_kebersihan_gudang_1 = $exp_foto_kebersihan_gudang[0];
+                $Qc->foto_kebersihan_gudang_2 = $exp_foto_kebersihan_gudang[1];
+            } else {
+                $Qc->foto_kebersihan_gudang_1 = $Qc->foto_kebersihan_gudang;
+                $Qc->foto_kebersihan_gudang_2 = '';
+            }
+        } else {
+            $Qc->foto_kebersihan_gudang_1 = 0;
+            $Qc->foto_kebersihan_gudang_2 = 0;
+        }
+
+        if ($Qc->foto_mr_ditandatangani != null) {
+            if (str_contains($Qc->foto_mr_ditandatangani, ';')) {
+                $exp_foto_mr_ditandatangani = explode(';', $Qc->foto_mr_ditandatangani);
+                $Qc->foto_mr_ditandatangani_1 = $exp_foto_mr_ditandatangani[0];
+                $Qc->foto_mr_ditandatangani_2 = $exp_foto_mr_ditandatangani[1];
+            } else {
+                $Qc->foto_mr_ditandatangani_1 = $Qc->foto_mr_ditandatangani;
+                $Qc->foto_mr_ditandatangani_2 = '';
+            }
+        } else {
+            $Qc->foto_mr_ditandatangani_1 = 0;
+            $Qc->foto_mr_ditandatangani_2 = 0;
+        }
+
+        if ($Qc->foto_inspeksi_ktu != null) {
+            if (str_contains($Qc->foto_inspeksi_ktu, ';')) {
+                $exp_foto_inspeksi_ktu = explode(';', $Qc->foto_inspeksi_ktu);
+                $Qc->foto_inspeksi_ktu_1 = $exp_foto_inspeksi_ktu[0];
+                $Qc->foto_inspeksi_ktu_2 = $exp_foto_inspeksi_ktu[1];
+            } else {
+                $Qc->foto_inspeksi_ktu_1 = $Qc->foto_inspeksi_ktu;
+                $Qc->foto_inspeksi_ktu_2 = '';
+            }
+        } else {
+            $Qc->foto_inspeksi_ktu_1 = 0;
+            $Qc->foto_inspeksi_ktu_2 = 0;
+        }
+
+        $url = 'https://srs-ssms.com/qc_gudangIMGdel.php';
+
+        $postData = [
+            'id' => $id,
+
+
+            'filename' => $Qc->foto_kesesuaian_ppro_1,
+            'filename1' =>  $Qc->foto_kesesuaian_ppro_2,
+            'filename2' =>  $Qc->foto_kesesuaian_bincard_1,
+            'filename3' =>  $Qc->foto_kesesuaian_bincard_2,
+            'filename4' =>   $Qc->foto_chemical_expired_1,
+            'filename5' =>  $Qc->foto_chemical_expired_2,
+            'filename6' =>  $Qc->foto_barang_nonstok_1,
+            'filename7' =>  $Qc->foto_barang_nonstok_2,
+            'filename8' => $Qc->foto_kebersihan_gudang_1,
+            'filename9' => $Qc->foto_kebersihan_gudang_2,
+            'filename10' =>  $Qc->foto_mr_ditandatangani_1,
+            'filename11' =>   $Qc->foto_mr_ditandatangani_2,
+            'filename12' => $Qc->foto_inspeksi_ktu_1,
+            'filename13' => $Qc->foto_inspeksi_ktu_2
+        ];
+        // dd($postData);
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+
+        sleep(3);
+
+        DB::connection('mysql2')->table('qc_gudang')->where('id', $id)->delete();
+        return redirect()->route('dashboard');
     }
 
     public function listktu(Request $request)

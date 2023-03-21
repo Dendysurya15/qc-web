@@ -74,19 +74,23 @@
     $jml_ps_wil += check_array('ps_ma', $value);
 
     $totalSkorAkhir = skor_brd_ma(check_array('btr_jjg_ma', $value)) + skor_buah_Ma(check_array('jjg_tgl_ma', $value)) +
-            skor_palepah_ma(check_array('PerPSMA', $value)) + skor_brd_tinggal(check_array('skor', $value)) +
-            skor_buah_tinggal(check_array('skor_restan', $value)) + skor_buah_mentah_mb(check_array('PersenBuahMentah', $value)) +
-            skor_buah_masak_mb(check_array('PersenBuahMasak', $value))
-            + skor_buah_over_mb(check_array('PersenBuahOver', $value)) +
-            skor_jangkos_mb(check_array('PersenPerJanjang', $value)) +
-            skor_buah_over_mb(check_array('PersenVcut', $value)) +
-            skor_abr_mb(check_array('PersenKrgBrd', $value));
+    skor_palepah_ma(check_array('PerPSMA', $value)) + skor_brd_tinggal(check_array('skor', $value)) +
+    skor_buah_tinggal(check_array('skor_restan', $value)) + skor_buah_mentah_mb(check_array('PersenBuahMentah', $value)) +
+    skor_buah_masak_mb(check_array('PersenBuahMasak', $value))
+    + skor_buah_over_mb(check_array('PersenBuahOver', $value)) +
+    skor_jangkos_mb(check_array('PersenPerJanjang', $value)) +
+    skor_buah_over_mb(check_array('PersenVcut', $value)) +
+    skor_abr_mb(check_array('PersenKrgBrd', $value));
     $skor_kategori_akhir = skor_kategori_akhir($totalSkorAkhir);
     @endphp
     <tr>
         {{-- Bagian Mutu Transport --}}
         <td>{{$key}}</td>
-        <td>{{$key2}}</td>
+        <!-- <td>{{$key2}}</td> -->
+        <!-- <td> <a href="dataDetails/{{$key}}/{$key2}}" target="_blank"> {{$key2}}</a></td> -->
+        <td> <a href="dataDetail/{{$key}}/{{$key2}}/{{$tanggal}}" target="_blank"> {{$key2}}</a></td>
+
+
         <td>{{check_array('jml_pokok_sampel', $value)}}</td>
         <td>{{check_array('luas_ha', $value)}}</td>
         <td>{{check_array('jml_jjg_panen', $value)}}</td>
@@ -157,17 +161,17 @@
     @endif
     @endforeach
     @php
-    $totalSkorAkhirEst = skor_brd_ma(check_array('btr_jjg_ma_est', $item)) + 
-        skor_buah_Ma(check_array('jjg_tgl_ma_est', $item)) + 
-        skor_palepah_ma(check_array('PerPSMA_est', $item)) +
-        skor_brd_tinggal(check_array('bt_tph_total', $item))
-        +skor_buah_tinggal(check_array('jjg_tph_total', $item))+
-        skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item)) +
-        skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))
-        + skor_buah_over_mb(check_array('tot_PersenBuahOver', $item)) +
-        skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item)) +
-        skor_buah_over_mb(check_array('tot_PersenVcut', $item)) +
-        skor_abr_mb(check_array('tot_PersenKrgBrd', $item));
+    $totalSkorAkhirEst = skor_brd_ma(check_array('btr_jjg_ma_est', $item)) +
+    skor_buah_Ma(check_array('jjg_tgl_ma_est', $item)) +
+    skor_palepah_ma(check_array('PerPSMA_est', $item)) +
+    skor_brd_tinggal(check_array('bt_tph_total', $item))
+    +skor_buah_tinggal(check_array('jjg_tph_total', $item))+
+    skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item)) +
+    skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))
+    + skor_buah_over_mb(check_array('tot_PersenBuahOver', $item)) +
+    skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item)) +
+    skor_buah_over_mb(check_array('tot_PersenVcut', $item)) +
+    skor_abr_mb(check_array('tot_PersenKrgBrd', $item));
     $skor_kategori_akhir_est = skor_kategori_akhir($totalSkorAkhirEst);
     @endphp
     <tr>
@@ -195,73 +199,103 @@
         <td style="background-color : #b0d48c; color: #000000;">{{skor_palepah_ma(check_array('PerPSMA_est', $item))}}</td>
         <td style="background-color : #b0d48c; color: #000000;">{{skor_brd_ma(check_array('btr_jjg_ma_est', $item)) + skor_buah_Ma(check_array('jjg_tgl_ma_est', $item)) + skor_palepah_ma(check_array('PerPSMA_est', $item))}}</td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tph_sample_total', $item)}}</td>
+            {{check_array('tph_sample_total', $item)}}
+        </td>
         </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('bt_total', $item)}}</td>
+            {{check_array('bt_total', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('bt_tph_total', $item)}}</td>
+            {{check_array('bt_tph_total', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_brd_tinggal(check_array('bt_tph_total', $item)) }}</td>
+            {{skor_brd_tinggal(check_array('bt_tph_total', $item)) }}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('jjg_total', $item)}}</td>
+            {{check_array('jjg_total', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('jjg_tph_total', $item)}}</td>
+            {{check_array('jjg_tph_total', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_buah_tinggal(check_array('jjg_tph_total', $item)) }}</td>
+            {{skor_buah_tinggal(check_array('jjg_tph_total', $item)) }}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
             {{skor_brd_tinggal(check_array('bt_tph_total',
             $item))+skor_buah_tinggal(check_array('jjg_tph_total', $item))
-            }}</td>
+            }}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_jjg', $item)}}</td>
+            {{check_array('tot_jjg', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_mentah', $item)}}</td>
+            {{check_array('tot_mentah', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenBuahMentah', $item)}}</td>
+            {{check_array('tot_PersenBuahMentah', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item))}}</td>
+            {{skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_matang', $item)}}</td>
+            {{check_array('tot_matang', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenBuahMasak', $item)}}</td>
+            {{check_array('tot_PersenBuahMasak', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))}}</td>
+            {{skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_over', $item)}}</td>
+            {{check_array('tot_over', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenBuahOver', $item)}}</td>
+            {{check_array('tot_PersenBuahOver', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_buah_over_mb(check_array('tot_PersenBuahOver', $item))}}</td>
+            {{skor_buah_over_mb(check_array('tot_PersenBuahOver', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_empty', $item)}}</td>
+            {{check_array('tot_empty', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenPerJanjang', $item)}}</td>
+            {{check_array('tot_PersenPerJanjang', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item))}}</td>
+            {{skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_vcut', $item)}}</td>
+            {{check_array('tot_vcut', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenVcut', $item)}}</td>
+            {{check_array('tot_PersenVcut', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_buah_over_mb(check_array('tot_PersenVcut', $item))}}</td>
+            {{skor_buah_over_mb(check_array('tot_PersenVcut', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_abr', $item)}}</td>
+            {{check_array('tot_abr', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenAbr', $item)}}</td>
+            {{check_array('tot_PersenAbr', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_krg_brd', $item)}}</td>
+            {{check_array('tot_krg_brd', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{check_array('tot_PersenKrgBrd', $item)}}</td>
+            {{check_array('tot_PersenKrgBrd', $item)}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
-            {{skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}</td>
+            {{skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}
+        </td>
         <td style="background-color : #b0d48c; color: #000000;">
             {{skor_buah_mentah_mb(check_array('tot_PersenBuahMentah', $item)) +
             skor_buah_masak_mb(check_array('tot_PersenBuahMasak', $item))
             + skor_buah_over_mb(check_array('tot_PersenBuahOver', $item)) +
             skor_jangkos_mb(check_array('tot_PersenPerJanjang', $item)) +
             skor_buah_over_mb(check_array('tot_PersenVcut', $item)) +
-            skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}</td>
+            skor_abr_mb(check_array('tot_PersenKrgBrd', $item))}}
+        </td>
         <td style="background-color : {{$skor_kategori_akhir_est[0]}}; color: #000000;">{{$totalSkorAkhirEst}}</td>
         <td style="background-color : {{$skor_kategori_akhir_est[0]}}; color: #000000;">{{$skor_kategori_akhir_est[1]}}</td>
     </tr>
@@ -287,16 +321,16 @@
     @endif
     @endforeach
     @php
-    $totalSkorAkhirWil = skor_brd_ma($btr_jjg_ma_wil) + 
-        skor_buah_Ma($bt_jjg_ma_wil) + 
-        skor_palepah_ma($PerPSMA_wil) + 
-        skor_brd_tinggal($bt_tph_total_wil)+
-        skor_buah_tinggal($jjg_tph_total_wil)+
-        skor_buah_mentah_mb($tot_Permentah_wil) +
-        skor_buah_masak_mb($tot_Permatang_wil) +
-        skor_buah_over_mb($tot_Perover_wil) +
-        skor_jangkos_mb($tot_Perjangkos_wil) +
-        skor_buah_over_mb($tot_Pervcut_wil) + skor_abr_mb($tot_Perkrg_wil);
+    $totalSkorAkhirWil = skor_brd_ma($btr_jjg_ma_wil) +
+    skor_buah_Ma($bt_jjg_ma_wil) +
+    skor_palepah_ma($PerPSMA_wil) +
+    skor_brd_tinggal($bt_tph_total_wil)+
+    skor_buah_tinggal($jjg_tph_total_wil)+
+    skor_buah_mentah_mb($tot_Permentah_wil) +
+    skor_buah_masak_mb($tot_Permatang_wil) +
+    skor_buah_over_mb($tot_Perover_wil) +
+    skor_jangkos_mb($tot_Perjangkos_wil) +
+    skor_buah_over_mb($tot_Pervcut_wil) + skor_abr_mb($tot_Perkrg_wil);
     $skor_kategori_akhir_wil = skor_kategori_akhir($totalSkorAkhirWil);
     @endphp
     <tr>
@@ -355,7 +389,8 @@
             $tot_Permentah_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_buah_mentah_mb($tot_Permentah_wil)}}</td>
+            {{skor_buah_mentah_mb($tot_Permentah_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">{{
             $tot_matang_wil}}
         </td>
@@ -363,7 +398,8 @@
             $tot_Permatang_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_buah_masak_mb($tot_Permatang_wil)}}</td>
+            {{skor_buah_masak_mb($tot_Permatang_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">{{
             $tot_over_wil}}
         </td>
@@ -371,7 +407,8 @@
             $tot_Perover_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_buah_over_mb($tot_Perover_wil)}}</td>
+            {{skor_buah_over_mb($tot_Perover_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">{{
             $tot_empty_wil}}
         </td>
@@ -379,7 +416,8 @@
             $tot_Perjangkos_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_jangkos_mb($tot_Perjangkos_wil)}}</td>
+            {{skor_jangkos_mb($tot_Perjangkos_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">{{
             $tot_vcut_wil}}
         </td>
@@ -387,7 +425,8 @@
             $tot_Pervcut_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_buah_over_mb($tot_Pervcut_wil)}}</td>
+            {{skor_buah_over_mb($tot_Pervcut_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">{{
             $tot_abr_wil}}
         </td>
@@ -401,7 +440,8 @@
             $tot_Perkrg_wil}}
         </td>
         <td style="background-color : yellow; color: #000000;">
-            {{skor_abr_mb($tot_Perkrg_wil)}}</td>
+            {{skor_abr_mb($tot_Perkrg_wil)}}
+        </td>
         <td style="background-color : yellow; color: #000000;">
             {{skor_buah_mentah_mb($tot_Permentah_wil) +
             skor_buah_masak_mb($tot_Permatang_wil) +

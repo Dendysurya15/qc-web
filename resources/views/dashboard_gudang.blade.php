@@ -216,6 +216,8 @@
                 var arrCount = Object.entries(result['arrCount'])
                 var arrReg = Object.entries(result['arrReg'])
 
+                // console.log(arrCount);
+
                 var rowHeader = '['
                 for (let i = 0; i < arrHeader.length; i++) {
                     rowHeader += '"' + result['arrHeader'][i] + '",'
@@ -249,15 +251,11 @@
                 var parserowCount = JSON.parse(rowCount)
                 var parserowReg = JSON.parse(rowReg)
 
+
+
                 var thead = document.createElement('thead');
                 var table = document.getElementById('tableData')
-                // table.appendChild(thead);
 
-                // thead.appendChild(document.createElement("tr")).appenChild(createTextNode('OKE'));
-                // for (var i = 0; i < parserowHeader.length; i++) {
-                //     thead.appendChild(document.createElement("th")).
-                //     appendChild(document.createTextNode(parserowHeader[i]));
-                // }
 
                 var header = table.createTHead();
                 var row = header.insertRow();
@@ -308,15 +306,6 @@
                     cell.innerHTML = "<b>" + parserowHeader[i] + "</b>";
                 }
 
-                // var yourTable = document.querySelector('table'); // select your table
-                // var row = document.createElement('tr');
-                // for (var i=0; i<parserowHeader.length; i++) {
-                //     var cell = document.createElement("th");
-                //     cell.innerHTML = parserowHeader[i];
-                //     row.appendChild(cell);
-                // }
-                // thead.appendChild(row);
-                // yourTable.insertBefore(thead, yourTable.children[0]);
 
                 const pagination_element = document.getElementById('pagination')
                 var list_element = document.getElementById('list')
@@ -325,37 +314,13 @@
                 let rows = 12;
 
 
-                // function DisplayList(items, wrapper, rows_per_page, page){
-                // wrapper.innerHTML = "";
-                // page--;
-
-                // let start = rows_per_page * page;
-                // let end = start + rows_per_page;
-
-                // var item = 'askdfksd'
-                // var tr = document.createElement('tr');
-                // var item_element = document.createElement('td')
-                // item_element.innerText = item
-                // tr.appendChild(item_element)
-                // list_element.appendChild(tr)
-
-                var arrId = Object.entries(result['arrId'])
-
-                // var arrIdLink = new Array()
-                // arrId.forEach(element => {
-                //     var childArr = Object.entries(element[1])
-                //     for (let i = 0; i < childArr.length; i++) {
-
-                //         // console.log(childArr)
-                //         arrIdLink.push(childArr[i][1])
-                //     }
-                // });
-
-
-                // console.log(arrIdLink)
 
                 var arrResult = Object.entries(result['arrView'])
                 var arrId = Object.entries(result['arrId'])
+                arrResult[0][0] = "CWS";
+
+
+                // console.log(arrResult);
                 var tableData = document.getElementById('tableData');
                 if ($("#tableData > tbody > tr").length != 0) {
                     for (let i = 0; i < arrResult.length; i++) {
@@ -364,56 +329,30 @@
                 }
 
 
-
-                // var tb = document.querySelectorAll('tbody');
-                // for (var i = 0; i < tb.length; i++) {
-                //     if (tb[i].children.length === 0) {
-                //     tb[i].parentNode.removeChild(tb[i]);
-                //     }
-                // }
-
-
                 // arrResult.forEach(element => {
                 for (let i = 0; i < arrResult.length; i++) {
 
 
                     var childArrView = Object.entries(arrResult[i][1])
+                    // console.log(childArrView);
                     var childArrId = Object.entries(arrId[i][1])
 
+                    // console.log(childArrId);
                     var tr = document.createElement('tr');
-
+                    // console.log(childArrView[0]);
                     tr.setAttribute("id", "testing" + childArrView[0]);
 
                     for (let j = 0; j < childArrView.length; j++) {
                         if (childArrView[j][1] == '-') {
+
+
                             if (childArrView[j][1] == '-') {
                                 var dt = '0'
                             }
 
                             var item_element = document.createElement('td')
+                            // console.log(childArrView[j][1]);
 
-                            // switch (childArrView[j][1]) {
-                            //     case 'EXCELLENT':
-
-                            //         item_element.setAttribute('class','excelent')
-                            //         break;
-                            //     case 'Good':
-                            //     item_element.setAttribute('class','good')
-                            //         break;
-                            //     case 'Satisfactory':
-                            //     item_element.setAttribute('class','satisfactory')
-                            //         break;
-                            //     case 'Fair':
-                            //     item_element.setAttribute('class','fair')
-                            //         break;
-                            //     case 'Poor':
-                            //     item_element.setAttribute('class','poor')
-                            //         break;
-
-                            //     default:
-                            //         break;
-                            // }
-                            // item_element.innerHTML = '<a href="detailInspeksi/' + childArrId[j][1] + '">' + dt + ' </a>'
                             item_element.innerHTML = dt
                             tr.appendChild(item_element);
                         } else if (childArrId[j][1] != '-') {
@@ -423,11 +362,9 @@
                         } else {
                             var item = childArrView[j][1]
 
-
-
-
                             var item_element = 'item_element' + arrResult[i][0]
 
+                            // console.log(arrResult[i][0]);
                             var item_element = document.createElement('td')
 
                             if (item == 'Excellent') {
@@ -455,158 +392,6 @@
                     // });
                 }
 
-
-
-                // function DisplayList(items, wrapper, rows_per_page, page){
-                //     wrapper.innerHTML = "";
-                //     page--;
-
-                //     let start = rows_per_page * page;
-                //     let end = start + rows_per_page;
-                //     let paginatedItems = items.slice(start, end);
-
-
-
-                //     console.log(paginatedItems)
-                //     let inc = 1;
-                //     for (let i = 0; i < paginatedItems.length; i++) {
-                //         let item = inc
-                //         let item2 = paginatedItems[i]['tanggal_formatted']
-                //         let item3 = paginatedItems[i]['lokasi_kerja']
-                //         let item4 = paginatedItems[i]['afdeling']
-                //         let item5 = paginatedItems[i]['blok']
-                //         let item6 = paginatedItems[i]['akp']
-                //         let item7 = paginatedItems[i]['taksasi']
-                //         let item8 = paginatedItems[i]['ritase']
-                //         let item9 = paginatedItems[i]['pemanen']
-                //         let item10 = paginatedItems[i]['luas']
-                //         let item11 = paginatedItems[i]['sph']
-                //         let item12 = paginatedItems[i]['bjr']
-                //         let item13 = paginatedItems[i]['jumlah_path']
-                //         let item14 = paginatedItems[i]['jumlah_janjang']
-                //         let item15 = paginatedItems[i]['jumlah_pokok']
-                //         let item16 = paginatedItems[i]['tanggal_formatted']
-
-                //         var tr = document.createElement('tr');
-                //         let item_element = document.createElement('td')
-                //         let item_element2 = document.createElement('td')
-                //         let item_element3 = document.createElement('td')
-                //         let item_element4 = document.createElement('td')
-                //         let item_element5 = document.createElement('td')
-                //         let item_element6 = document.createElement('td')
-                //         let item_element7 = document.createElement('td')
-                //         let item_element8 = document.createElement('td')
-                //         let item_element9 = document.createElement('td')
-                //         let item_element10 = document.createElement('td')
-                //         let item_element11 = document.createElement('td')
-                //         let item_element12 = document.createElement('td')
-                //         let item_element13 = document.createElement('td')
-                //         let item_element14 = document.createElement('td')
-                //         let item_element15 = document.createElement('td')
-                //         let item_element16 = document.createElement('td')
-
-                //         // item_element.classList.add('item')
-                //         item_element.innerText = item
-                //         item_element2.innerText = item2
-                //         item_element3.innerText = item3
-                //         item_element4.innerText = item4
-                //         item_element5.innerText = item5
-                //         item_element6.innerText = item6
-                //         item_element7.innerText = item7
-                //         item_element7.innerText = item7
-                //         item_element8.innerText = item8
-                //         item_element9.innerText = item9
-                //         item_element10.innerText = item10
-                //         item_element11.innerText = item11
-                //         item_element12.innerText = item12
-                //         item_element13.innerText = item13
-                //         item_element14.innerText = item14
-                //         item_element15.innerText = item15
-                //         item_element16.innerText = item16
-
-                //         tr.appendChild(item_element);
-                //         tr.appendChild(item_element2);
-                //         tr.appendChild(item_element3);
-                //         tr.appendChild(item_element4);
-                //         tr.appendChild(item_element5);
-                //         tr.appendChild(item_element6);
-                //         tr.appendChild(item_element7);
-                //         tr.appendChild(item_element8);
-                //         tr.appendChild(item_element9);
-                //         tr.appendChild(item_element10);
-                //         tr.appendChild(item_element11);
-                //         tr.appendChild(item_element12);
-                //         tr.appendChild(item_element13);
-                //         tr.appendChild(item_element14);
-                //         tr.appendChild(item_element15);
-                //         wrapper.appendChild(tr)
-                //         inc++
-                //     }
-                // }
-
-
-
-
-                // t.row.add(parserowHeader).draw()
-                // $('#tableData').DataTable( {
-                //     data: data,
-                //     columns: [
-                //         { data: 'name' },
-                //         { data: 'position' },
-                //         { data: 'salary' },
-                //         { data: 'office' }
-                //     ]
-                // } );
-
-                // var arrResult = Object.entries(result)
-
-                // // console.log(arrResult);
-                // var parseRowVal = ''
-                // arrResult.forEach(element => {
-                //     var childArr = Object.entries(element[1])
-                //     var rowVal = '['
-                //     childArr.forEach(val => {
-                //         rowVal += '"' + val[1]+ '",'
-                //     });
-                //     rowVal = rowVal.substring(0, rowVal.length -1)
-                //     rowVal += ']'
-                //     var parseRowVal = JSON.parse(rowVal)
-
-                //     t.row.add(parseRowVal).draw()
-
-                // });
-                // t.row.add([10,2]).draw()
-
-                // arrResult.forEach(element => {
-                //     console.log(element)
-                //     var childArr = Object.entries(element[1])
-
-                //     childArr.forEach(val => {
-                //         if (val[0] == 'December') {
-                //             if (val[1] != '-') {
-                //                 var valPerMonth = Object.entries(val[1])
-                //                 valPerMonth.forEach(valMonth => {
-                //                     // console.log(valMonth[1])
-                //                 });
-                //             }
-                //         }
-                //     });
-                //     t.row.add([element[1]['wil'], element[1]['estate'], element[1]['est'], element[1]['wil'], element[1]['wil'],element[1]['skor_bulan_January']]).draw();
-                // });
-
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add([]).draw();
-                // t.row.add( [ result, 32, 'Edinburgh' , result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh', result, 32, 'Edinburgh']).draw();
 
             }
         })

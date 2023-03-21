@@ -21,9 +21,9 @@ class SidaktphController extends Controller
     public $search;
     public function index(Request $request)
     {
-        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->pluck('est');
+        $queryEst = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS1')->where('estate.est', '!=', 'PLASMA')->pluck('est');
 
-        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')->get();
+        $queryEste = DB::connection('mysql2')->table('estate')->whereIn('wil', [1, 2, 3])->where('estate.est', '!=', 'CWS1')->where('estate.est', '!=', 'PLASMA')->get();
         $queryEste = $queryEste->groupBy(function ($item) {
             return $item->wil;
         });
@@ -40,7 +40,7 @@ class SidaktphController extends Controller
             ) //buat mengambil data di estate db dan willayah db
 
             ->join('estate', 'estate.id', '=', 'afdeling.estate') //kemudian di join untuk mengambil est perwilayah
-            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
+            ->where('estate.est', '!=', 'CWS1')->where('estate.est', '!=', 'PLASMA')
             ->get();
 
         $queryAfd = json_decode($queryAfd, true);
@@ -1667,6 +1667,7 @@ class SidaktphController extends Controller
 
             $arrView = array();
 
+            // dd($queryEst);
             $arrView['list_estate'] = $queryEst;
             $arrView['list_wilayah'] = $queryWill;
             // $arrView['restant'] = $dataSkorAwalRestant;

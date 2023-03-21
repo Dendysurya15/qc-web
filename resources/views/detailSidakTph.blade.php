@@ -305,11 +305,12 @@
             const markerResult = Object.entries(plot['marker']);
             const blokResult = Object.entries(plot['blok']);
             // console.log(plotResult.length)
-            // console.log(plotResult)
+            console.log(plotResult)
 
             // console.log(blokResult)
             drawPlot(plotResult)
             drawBlok(blokResult)
+
 
 
             //  for (let i = 0; i < markerResult.length; i++) {

@@ -413,7 +413,8 @@ class inspectController extends Controller
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $request->get('regional'))
-            ->where('estate.est', '!=', 'CWS')->where('estate.est', '!=', 'PLASMA')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
+            ->where('estate.est', '!=', 'PLASMA')
             ->get();
 
         $queryEstate = json_decode($queryEstate, true);
@@ -504,6 +505,8 @@ class inspectController extends Controller
 
     public function changeDataInspeksi(Request $request)
     {
+
+        $tanggal = $request->get('date');
         $queryEstate = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
@@ -776,14 +779,19 @@ class inspectController extends Controller
             }
         }
 
-        return view('dataInspeksi', ['dataSkor' => $dataSkor]);
+        // dd($dataSkor);
+
+        return view('dataInspeksi', [
+            'dataSkor' => $dataSkor,
+            'tanggal' => $tanggal
+        ]);
     }
 
     public function dashboard_inspeksi(Request $request)
     {
         $queryEst = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
-            ->where('estate.est', '!=', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->get();
 
         $queryEst = json_decode($queryEst, true);
@@ -2344,7 +2352,7 @@ class inspectController extends Controller
         $wil_1 =  $TotalperEstate[1];
         // dd($DataTable1);
         $queryEsta = DB::connection('mysql2')->table('estate')
-            ->where('est', '!=', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->whereIn('wil', [1, 2, 3])->pluck('est');
         $queryEsta = json_decode($queryEsta, true);
         // dd($queryEsta);
@@ -2438,7 +2446,7 @@ class inspectController extends Controller
 
         //menghitung buat table tampilkan pertahun
         $listEst = DB::connection('mysql2')->table('estate')
-            ->where('est', '<>', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->whereIn('wil', [1, 2, 3])->pluck('est');
         $listEst = json_decode($listEst, true);
         // dd($listEst);
@@ -3922,7 +3930,7 @@ class inspectController extends Controller
         //menggabunugkan smua total skor di mutu ancak transport dan buah jadi satu array
         $RekapWIlTabel = array();
 
-        // dd($mtTranstab1Wil[1]);
+        // dd($mtBuahtab1Wil[2]['BKE']);
         foreach ($mtancaktab1Wil as $key => $value) {
             foreach ($value as $key1 => $value1) if (is_array($value1)) {
                 foreach ($value1 as $key2 => $value2) if (is_array($value2)) {
@@ -4329,7 +4337,7 @@ class inspectController extends Controller
 
         $queryEsta = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
-            ->where('est', '!=', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $Reg)
             // ->where('wil.regional', '3')
@@ -5306,7 +5314,7 @@ class inspectController extends Controller
 
         $plasmaGM = array_values($plasmaGM);
 
-        // dd($plasmaGM);
+        // dd($FormatTable2);
         $arrView = array();
 
         $arrView['chart_brd'] = $array;
@@ -5435,7 +5443,8 @@ class inspectController extends Controller
         // dd($queryEste);
         $queryEste2 = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
-            ->whereNotIn('estate.est', ['Plasma1', 'CWS'])
+            // ->whereNotIn('estate.est', ['Plasma1', 'CWS1'])
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3', 'Plasma1'])
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $RegData)
             ->get();
@@ -6320,28 +6329,6 @@ class inspectController extends Controller
                         }
                         $jum_ha = count($listBlokPerAfd);
 
-                        // $pokok_panen = json_decode($value4["pokok_dipanen"], true);
-                        // $jajang_panen = json_decode($value4["jjg_dipanen"], true);
-                        // $brtp = json_decode($value4["brtp"], true);
-                        // $brtk = json_decode($value4["brtk"], true);
-                        // $brtgl = json_decode($value4["brtgl"], true);
-
-                        // $pokok_panen  = count($pokok_panen);
-                        // $janjang_panen = array_sum($jajang_panen);
-                        // $p_panen = array_sum($brtp);
-                        // $k_panen = array_sum($brtk);
-                        // $brtgl_panen = array_sum($brtgl);
-
-                        // $bhts = json_decode($value4["bhts"], true);
-                        // $bhtm1 = json_decode($value4["bhtm1"], true);
-                        // $bhtm2 = json_decode($value4["bhtm2"], true);
-                        // $bhtm3 = json_decode($value4["bhtm3"], true);
-                        // $bhts_panen = array_sum($bhts);
-                        // $bhtm1_panen = array_sum($bhtm1);
-                        // $bhtm2_panen = array_sum($bhtm2);
-                        // $bhtm3_oanen = array_sum($bhtm3);
-                        // $ps = json_decode($value4["ps"], true);
-                        // $pelepah_s = array_sum($ps);
 
                         $totalPokok += $value4["sample"];
                         $totalPanen += $value4["jjg"];
@@ -9788,30 +9775,7 @@ class inspectController extends Controller
                             $listBlokPerAfd[] = $value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'];
                         }
                         $jum_ha = count($listBlokPerAfd);
-                        // $pokok_panen = json_decode($value3["pokok_dipanen"], true);
-                        // $jajang_panen = json_decode($value3["jjg_dipanen"], true);
-                        // $brtp = json_decode($value3["brtp"], true);
-                        // $brtk = json_decode($value3["brtk"], true);
-                        // $brtgl = json_decode($value3["brtgl"], true);
 
-                        // $pokok_panen  = count($pokok_panen);
-                        // $janjang_panen = array_sum($jajang_panen);
-                        // $p_panen = array_sum($brtp);
-                        // $k_panen = array_sum($brtk);
-                        // $brtgl_panen = array_sum($brtgl);
-
-                        // $bhts = json_decode($value3["bhts"], true);
-                        // $bhtm1 = json_decode($value3["bhtm1"], true);
-                        // $bhtm2 = json_decode($value3["bhtm2"], true);
-                        // $bhtm3 = json_decode($value3["bhtm3"], true);
-
-
-                        // $bhts_panen = array_sum($bhts);
-                        // $bhtm1_panen = array_sum($bhtm1);
-                        // $bhtm2_panen = array_sum($bhtm2);
-                        // $bhtm3_oanen = array_sum($bhtm3);
-                        // $ps = json_decode($value3["ps"], true);
-                        // $pelepah_s = array_sum($ps);
 
                         $totalPokok += $value3["sample"];
                         $totalPanen += $value3["jjg"];
@@ -10094,7 +10058,7 @@ class inspectController extends Controller
         // rekap untuk table perfadling table tarakhir
         $RekapBulanAFD = array();
 
-        // $RekapBulanAFD = array();
+
         // dd($mutuTransAFD['RDE']['February'], $bulananBh['RDE']['February'], $dataTahunEst['RDE']['February']);
         foreach ($mutuTransAFD as $mtKey => $mtValue) {
             foreach ($bulananBh as $bbKey => $bbValue) {
@@ -10122,7 +10086,7 @@ class inspectController extends Controller
             }
         }
 
-        // dd($RekapBulanAFD);
+        // dd($RekapBulanAFD['BKE']);
         // //end
         //bagian chart untuk pertahun 
 
@@ -10154,7 +10118,7 @@ class inspectController extends Controller
 
         $queryEsta = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
-            ->where('est', '!=', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $RegData)
             // ->where('wil.regional', '3')
@@ -11256,14 +11220,14 @@ class inspectController extends Controller
         //end plasma
         $estateEST = DB::connection('mysql2')->table('estate')
             ->select('estate.est', 'estate.nama')
-            ->where('est', '!=', 'CWS')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
             ->join('wil', 'wil.id', '=', 'estate.wil')
             ->where('wil.regional', $RegData)
             // ->where('wil.regional', '3')
             ->get();
         $estateEST = json_decode($estateEST, true);
 
-        // dd($estateEST);
+        // dd($RekapBulanAFD);
 
 
         $arrView = array();
@@ -12175,7 +12139,7 @@ class inspectController extends Controller
         // dd($RekapBulan);
         $RekapEst = [];
         // $estData = "PLE";
-        if ($estData !== 'CWS' && isset($RekapBulan[$estData])) {
+        if ($estData !== 'CWS1' && isset($RekapBulan[$estData])) {
             foreach ($RekapBulan[$estData] as $month => $data) {
                 $RekapEst[$estData][$month] = isset($data['bulan_skor']) ? $data['bulan_skor'] : 0;
             }
@@ -12209,7 +12173,7 @@ class inspectController extends Controller
         //mutuancak totalBRD
         $ancakBRD = [];
 
-        if ($estData !== 'CWS' && isset($GraphMTancak[$estData])) {
+        if ($estData !== 'CWS1' && isset($GraphMTancak[$estData])) {
             foreach ($GraphMTancak[$estData] as $month => $data) {
                 $ancakBRD[$estData][$month] = isset($data['total_brd/jjg']) ? $data['total_brd/jjg'] : 0;
             }
@@ -12242,7 +12206,7 @@ class inspectController extends Controller
         //mutuancak totalnuah
         $ancakBuah = [];
 
-        if ($estData !== 'CWS' && isset($GraphMTancak[$estData])) {
+        if ($estData !== 'CWS1' && isset($GraphMTancak[$estData])) {
             foreach ($GraphMTancak[$estData] as $month => $data) {
                 $ancakBuah[$estData][$month] = isset($data['total_bh/jjg']) ? $data['total_bh/jjg'] : 0;
             }
@@ -12319,8 +12283,295 @@ class inspectController extends Controller
         $mutuTransport = $mutuTransport->groupBy(['estate', 'afdeling']);
         $mutuTransport = json_decode($mutuTransport, true);
 
+        // dd($mutuBuah);
+        $datas = array();
+        $img = array();
+        foreach ($mutuAncak as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    // dd($value3);
+                    $datas[] = $value3;
+                    if (!empty($value3['foto_temuan'])) {
+                        $img[$key][$inc]['foto'] = $value3['foto_temuan'];
+                        $img[$key][$inc]['title'] = $value3['estate'] . ' ' .  $value3['afdeling'] . ' - ' . $value3['blok'];
+                        $inc++;
+                    }
+                }
+            }
+        }
+        $buah = array();
+        $BuahImg = array();
+        foreach ($mutuBuah as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    // dd($value3);
+                    $buah[] = $value3;
+                    if (!empty($value3['foto_temuan'])) {
+                        $BuahImg[$key][$inc]['foto'] = $value3['foto_temuan'];
+                        $BuahImg[$key][$inc]['title'] = $value3['estate'] . ' ' .  $value3['afdeling'] . ' - ' . $value3['blok'];
+                        $inc++;
+                    }
+                }
+            }
+        }
+        $Trans = array();
+        $TransImg = array();
+        foreach ($mutuTransport as $key => $value) {
+            $inc = 0;
+            foreach ($value as $key2 => $value2) {
+                foreach ($value2 as $key3 => $value3) {
+                    // dd($value3);
+                    $Trans[] = $value3;
+                    if (!empty($value3['foto_temuan'])) {
+                        $TransImg[$key][$inc]['foto'] = $value3['foto_temuan'];
+                        $TransImg[$key][$inc]['title'] = $value3['estate'] . ' ' .  $value3['afdeling'] . ' - ' . $value3['blok'];
+                        $inc++;
+                    }
+                }
+            }
+        }
+        // dd($BuahImg);
+        $imgNew = array();
+        foreach ($img as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $fotoArr = explode(';', $value2['foto']);
+                $value2['foto'] = $fotoArr;
+                $imgNew[] = $value2;
+            }
+        }
+        $imgBuah = array();
+        foreach ($BuahImg as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $fotoArr = explode(';', $value2['foto']);
+                $value2['foto'] = $fotoArr;
+                $imgBuah[] = $value2;
+            }
+        }
+        $imgTrans = array();
+        foreach ($TransImg as $key => $value) {
+            foreach ($value as $key2 => $value2) {
+                $fotoArr = explode(';', $value2['foto']);
+                $value2['foto'] = $fotoArr;
+                $imgTrans[] = $value2;
+            }
+        }
+
+        // dd($imgTrans);
+        //maps
+
+
+        $queryEstate = DB::connection('mysql2')->table('estate_plot')
+            ->select('*')
+            ->join('estate', 'estate_plot.est', '=', 'estate.est')
+            ->where('estate.est', $est)
+            ->get();
+
+        $estate_plot = array();
+        $plot = '';
+        $estate = '';
+
+        foreach ($queryEstate as $key2 => $val) {
+
+            $plot .= '[' . $val->lat . ',' .  $val->lon . '],';
+            $estate = $val->nama;
+        }
+        $estate_plot['est'] = $estate . ' Estate';
+        $estate_plot['plot'] =  rtrim($plot, ',');
+
+        // json_encode($estate_plot);
+        // $estate_plot = json_decode($estate_plot, true);
+        // $json_estate_plot = json_encode($estate_plot);
+        // dd($json_estate_plot);
         // dd($mutuBuah, $mutuTransport, $mutuAncak);
-        return view('detailInpeksi', ['est' => $est, 'afd' => $afd, 'date' => $date, 'ancak' => $mutuAncak, 'buah' => $mutuBuah, 'transport' => $mutuTransport]);
+        return view('detailInpeksi', [
+            'est' => $est,
+            'afd' => $afd,
+            'date' => $date,
+            'ancak' => $mutuAncak,
+            'buah' => $mutuBuah,
+            'img' => $imgNew,
+            'imgBuah' => $imgBuah,
+            'estate_plot' => $estate_plot,
+            'imgTrans' => $imgTrans,
+            'transport' => $mutuTransport
+        ]);
         // return view('detailInpeksi', ['est' => $est, 'afd' => $afd, 'date' => $date, 'reg' => $reg, 'data' => $datas, 'img' => $imgNew]);
+    }
+
+    public function dataDetail($est, $afd, $date, Request $request)
+    {
+
+        $selectedDate = new \DateTime($date);
+        $selectedMonth = $selectedDate->format('m');
+        $selectedYear = $selectedDate->format('Y');
+
+        $ancakDates = DB::connection('mysql2')->table('mutu_ancak')
+            ->select(DB::raw('DATE(mutu_ancak.datetime) as date'))
+            ->where('mutu_ancak.estate', $est)
+            ->where('mutu_ancak.afdeling', $afd)
+            ->whereRaw('MONTH(mutu_ancak.datetime) = ?', [$selectedMonth])
+            ->whereRaw('YEAR(mutu_ancak.datetime) = ?', [$selectedYear])
+            ->distinct()
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $buahDates = DB::connection('mysql2')->table('mutu_buah')
+            ->select(DB::raw('DATE(mutu_buah.datetime) as date'))
+            ->where('mutu_buah.estate', $est)
+            ->where('mutu_buah.afdeling', $afd)
+            ->whereRaw('MONTH(mutu_buah.datetime) = ?', [$selectedMonth])
+            ->whereRaw('YEAR(mutu_buah.datetime) = ?', [$selectedYear])
+            ->distinct()
+            ->orderBy('date', 'asc')
+            ->get();
+        $TransportDates = DB::connection('mysql2')->table('mutu_transport')
+            ->select(DB::raw('DATE(mutu_transport.datetime) as date'))
+            ->where('mutu_transport.estate', $est)
+            ->where('mutu_transport.afdeling', $afd)
+            ->whereRaw('MONTH(mutu_transport.datetime) = ?', [$selectedMonth])
+            ->whereRaw('YEAR(mutu_transport.datetime) = ?', [$selectedYear])
+            ->distinct()
+            ->orderBy('date', 'asc')
+            ->get();
+
+
+        // dd($mutuAncak);
+        $arrView = array();
+        $arrView['ancakDates'] = $ancakDates;
+        $arrView['buahDates'] = $buahDates;
+        $arrView['TransportDates'] = $TransportDates;
+        $arrView['est'] =  $est;
+        $arrView['afd'] =  $afd;
+        $arrView['tanggal'] =  $date;
+        json_encode($arrView);
+        // exit();
+
+        return view('dataDetail', $arrView);
+    }
+
+    public function filterDataDetail(Request $request)
+    {
+
+        $dates = $request->input('Tanggal');
+        $Reg = $request->input('est');
+        $afd = $request->input('afd');
+
+        // dd($dates);
+
+        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak')
+            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $dates . '%')
+            ->where('mutu_ancak.estate', $Reg)
+            ->where('mutu_ancak.afdeling', $afd)
+            ->get();
+        // $mutuAncak = $mutuAncak->groupBy(['blok']);
+        $mutuAncak = json_decode($mutuAncak, true);
+
+
+        $mutuBuah = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*", DB::raw('DATE_FORMAT(mutu_buah.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_buah.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $dates . '%')
+            ->where('mutu_buah.estate', $Reg)
+            ->where('mutu_buah.afdeling', $afd)
+            ->get();
+
+        $mutuBuah = json_decode($mutuBuah, true);
+
+        $mutuTransport = DB::connection('mysql2')->table('mutu_transport')
+            ->select("mutu_transport.*", DB::raw('DATE_FORMAT(mutu_transport.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_transport.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $dates . '%')
+            ->where('mutu_transport.estate', $Reg)
+            ->where('mutu_transport.afdeling', $afd)
+
+            ->get();
+        $mutuTransport = json_decode($mutuTransport, true);
+        // dd($mutuAncak, $mutuBuah, $mutuTransport);
+
+        // $ancak = array();
+
+        // foreach ($mutuAncak as $key => $value) {
+        //     $foundSPH = false;
+        //     $jumPok = 0;
+        //     $luas_ha = 0;
+        //     $jumPan = 0;
+        //     $akp = 0;
+        //     $p = 0;
+        //     $k = 0;
+        //     $gl = 0;
+        //     $s = 0;
+        //     $m1 = 0;
+        //     $m2 = 0;
+        //     $m3 = 0;
+        //     $ps = 0;
+        //     $totalBT = 0;
+        //     $totalBH = 0;
+        //     $butir_jjg = 0;
+        //     $buah_jjg = 0;
+        //     $ps_sen = 0;
+        //     foreach ($value as $key1 => $value2) {
+        //         $jumPok += $value2['sample'];
+        //         $jumPan += $value2['jjg'];
+        //         $p += $value2['brtp'];
+        //         $k += $value2['brtk'];
+        //         $gl += $value2['brtgl'];
+        //         $s += $value2['bhts'];
+        //         $m1 += $value2['bhtm1'];
+        //         $m2 += $value2['bhtm2'];
+        //         $m3 += $value2['bhtm3'];
+        //         $ps += $value2['ps'];
+
+        //         if (!$foundSPH && !empty($value2['sph']) && $value2['sph'] > 0) {
+        //             $sph = $value2['sph'];
+        //             $ancak[$key]['SPH'] = $sph;
+        //             $foundSPH = true;
+        //         }
+        //         $luas_ha = round(($jumPok / $sph), 2);
+        //         $akp =  round($jumPan / $jumPok, 2);
+        //         $totalBT = $p + $k + $gl;
+        //         $totalBH = $m1 + $m2 + $m3 + $s;
+        //         $butir_jjg = round(($totalBT / $jumPan), 2);
+        //         $buah_jjg =  round(($totalBH / ($jumPan + $totalBH)) * 100, 2);
+        //         $ps_sen = count_percent($ps, $jumPok);
+
+        //         $ancak[$key]['nomor_blok'] = $value2['blok'];
+        //         $ancak[$key]['status'] = $value2['status_panen'];
+        //         $ancak[$key]['jum_pok'] = $jumPok;
+        //         $ancak[$key]['luas_ha'] = $luas_ha;
+        //         $ancak[$key]['luas_blok'] = 'Null';
+        //         $ancak[$key]['persen_samp'] = 'Null';
+        //         $ancak[$key]['jum_pan'] = $jumPan;
+        //         $ancak[$key]['akp'] = $akp;
+        //         $ancak[$key]['p'] = $p;
+        //         $ancak[$key]['k'] = $k;
+        //         $ancak[$key]['gl'] = $gl;
+        //         $ancak[$key]['toBT'] = $totalBT;
+        //         $ancak[$key]['brd_jjg'] = $butir_jjg;
+        //         $ancak[$key]['s'] = $s;
+        //         $ancak[$key]['m1'] = $m1;
+        //         $ancak[$key]['m2'] = $m2;
+        //         $ancak[$key]['m3'] = $m3;
+        //         $ancak[$key]['ps'] = $ps;
+        //         $ancak[$key]['toBH'] = $totalBH;
+        //         $ancak[$key]['buah_jjg'] = $buah_jjg;
+        //         $ancak[$key]['ps'] = $ps;
+        //         $ancak[$key]['ps_sen'] = $ps_sen;
+        //     }
+        // }
+
+
+
+
+        $arrView = array();
+
+        $arrView['mutuAncak'] =  $mutuAncak;
+        $arrView['mutuBuah'] =  $mutuBuah;
+        $arrView['mutuTransport'] =  $mutuTransport;
+        // $arrView['est'] =  $est;
+        // $arrView['afd'] =  $afd;
+        $arrView['tanggal'] =  $dates;
+        echo json_encode($arrView);
+        exit();
     }
 }

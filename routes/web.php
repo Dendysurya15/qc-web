@@ -71,6 +71,10 @@ Route::get('/graphfilter', [inspectController::class, 'graphfilter'])->name('gra
 Route::get('/filterTahun', [inspectController::class, 'filterTahun'])->name('filterTahun');
 Route::get('/scorebymap', [inspectController::class, 'scorebymap'])->name('scorebymap');
 Route::get('detailInpeksi/{est}/{afd}/{date}', [inspectController::class, 'detailInpeksi'])->name('detailInpeksi');
+Route::get('dataDetail/{est}/{afd}/{date}', [inspectController::class, 'dataDetail'])->name('dataDetail');
+Route::get('filterDataDetail', [inspectController::class, 'filterDataDetail'])->name('filterDataDetail');
+
+
 
 
 Route::get('/listktu', [unitController::class, 'listktu'])->name('listktu');

@@ -636,6 +636,8 @@
                                     </thead>
 
                                     <tbody id="dataInspeksi">
+                                        <!-- <td>PLE</td>
+                                        <td>OG</td> -->
                                     </tbody>
                                 </table>
                             </div>
@@ -1076,8 +1078,14 @@
                 date: dateIns
             },
             success: function(result) {
+
                 $("#dataInspeksi").html(result);
+
+                // Select all rows in the table except for the first one
+
+
             }
+
         });
     }
 
@@ -3096,7 +3104,7 @@
 
                 ///table untuk rekap perafd
                 var arrAFD = RekapBulanAFD;
-                console.log(arrAFD);
+                // console.log(arrAFD);
 
                 var arrAFDTH = RekapTahunAFD;
                 //   console.log(arrAFDTH)
