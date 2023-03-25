@@ -73,6 +73,13 @@ Route::get('/scorebymap', [inspectController::class, 'scorebymap'])->name('score
 Route::get('detailInpeksi/{est}/{afd}/{date}', [inspectController::class, 'detailInpeksi'])->name('detailInpeksi');
 Route::get('dataDetail/{est}/{afd}/{date}', [inspectController::class, 'dataDetail'])->name('dataDetail');
 Route::get('filterDataDetail', [inspectController::class, 'filterDataDetail'])->name('filterDataDetail');
+Route::post('/updateBA', [inspectController::class, 'updateBA'])->name('updateBA');
+Route::post('/deleteBA', [inspectController::class, 'deleteBA'])->name('deleteBA');
+
+Route::delete('/deleteTrans/{id}', [inspectController::class, 'deleteTrans'])->name('deleteTrans');
+Route::post('/pdfBA', [inspectController::class, 'pdfBA'])->name('pdfBA');
+
+
 
 
 

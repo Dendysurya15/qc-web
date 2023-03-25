@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Random;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 require '../app/helpers.php';
@@ -63,12 +61,12 @@ class inspectController extends Controller
         $DataMTbuah = $queryBuah->groupBy('blok');
         $DataMTbuah = json_decode($DataMTbuah, true);
 
-        $queryAncak = DB::connection('mysql2')->table("mutu_ancak")
-            ->select("mutu_ancak.*", "estate.wil")
-            ->join('estate', 'estate.est', '=', 'mutu_ancak.estate')
-            ->where('mutu_ancak.estate', $est)
-            ->where('mutu_ancak.afdeling', '!=', 'Pla')
-            // ->where('mutu_ancak.afd', 'OA')
+        $queryAncak = DB::connection('mysql2')->table("mutu_ancak_new")
+            ->select("mutu_ancak_new.*", "estate.wil")
+            ->join('estate', 'estate.est', '=', 'mutu_ancak_new.estate')
+            ->where('mutu_ancak_new.estate', $est)
+            ->where('mutu_ancak_new.afdeling', '!=', 'Pla')
+            // ->where('mutu_ancak_new.afd', 'OA')
             ->get();
 
         $DataMTAncak = $queryAncak->groupBy('blok');
@@ -333,7 +331,6 @@ class inspectController extends Controller
         $queryMTFI = DB::connection('mysql2')->table('mutu_transport')
             ->select("mutu_transport.*")
             ->where('estate', $est)
-            ->where('afdeling', '!=', 'Pla')
             ->where('datetime', 'like', '%' . $tgl . '%')
             ->orderBy('afdeling', 'asc')
             ->orderBy('datetime', 'asc')
@@ -343,10 +340,9 @@ class inspectController extends Controller
         });
         $dataMTFI1 = json_decode($dataMTFI1, true);
 
-        $queryMAFI = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*")
+        $queryMAFI = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*")
             ->where('estate', $est)
-            ->where('afdeling', '!=', 'Pla')
             ->where('datetime', 'like', '%' . $tgl . '%')
             ->orderBy('afdeling', 'asc')
             ->orderBy('datetime', 'asc')
@@ -359,7 +355,6 @@ class inspectController extends Controller
         $queryMBFI = DB::connection('mysql2')->table('mutu_buah')
             ->select("mutu_buah.*")
             ->where('estate', $est)
-            ->where('afdeling', '!=', 'Pla')
             ->where('datetime', 'like', '%' . $tgl . '%')
             ->orderBy('afdeling', 'asc')
             ->orderBy('datetime', 'asc')
@@ -368,9 +363,12 @@ class inspectController extends Controller
             return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
         });
         $dataMBFI1 = json_decode($dataMBFI1, true);
-        // foreach ($dataMBFI1 as $key => $value) {
-        //     $dataMBFI1[$key][0]['foto_fu'] = 'MB';
-        // }
+
+        $queryNew = DB::connection('mysql2')->table('follow_up_ma')
+            ->select("follow_up_ma.*")
+            ->where('estate', 'not like', '%Plasma%')
+            ->get();
+        $queryNew = json_decode($queryNew, true);
 
         $tempData = array_merge($dataMTFI1, $dataMBFI1);
         $dataEst = array_merge($tempData, $dataMAFI1);
@@ -382,19 +380,23 @@ class inspectController extends Controller
             $listBlokPerAfd = array();
             $inc = 1;
             foreach ($value as $key1 => $value1) {
-                $tgl = Carbon::parse($value1['datetime'])->format('Y-m-d');
-                if (!in_array($key . ' ' . $tgl, $listBlokPerAfd)) {
-                    $listBlokPerAfd[] = $key . ' ' . $tgl;
-                    $resultData[$incr][$inc] = $value1;
-                    if (strpos($value1['foto_temuan'], 'IMB') !== false) {
-                        $resultData[$incr][$inc]['foto_fu'] = 'MB';
+                foreach ($queryNew as $key3 => $value3) {
+                    if ($value1['estate'] == $value3['estate'] && $value1['afdeling'] == $value3['afdeling'] && $value1['blok'] == $value3['blok'] && $value1['br1'] == $value3['br1'] && $value1['br2'] == $value3['br2']) {
+                        $tgl = Carbon::parse($value1['datetime'])->format('Y-m-d');
+                        if (!in_array($key . ' ' . $tgl, $listBlokPerAfd)) {
+                            $listBlokPerAfd[] = $key . ' ' . $tgl;
+                            $resultData[$incr][$inc] = $value1;
+                            if (strpos($value3['foto_temuan1'], 'IMB') !== false) {
+                                $resultData[$incr][$inc]['foto_fu'] = 'MB';
+                            }
+                            $inc++;
+                        }
                     }
-                    $inc++;
                 }
             }
             $incr++;
         }
-        // dd($dataEst, $resultData);
+        dd($resultData);
 
         $pdf = pdf::loadview('cetakFI', [
             'id' => $id,
@@ -426,19 +428,26 @@ class inspectController extends Controller
                 ->select("mutu_transport.*")
                 ->where('estate', $value1['est'])
                 ->where('datetime', 'like', '%' . $request->get('date') . '%')
-                ->where('estate', 'not like', '%Plasma%')
+                // ->where('estate', 'not like', '%Plasma%')
                 ->get();
             $dataMTFI = $queryMTFI->groupBy('estate');
             $dataMTFI = json_decode($dataMTFI, true);
 
-            $queryMAFI = DB::connection('mysql2')->table('mutu_ancak')
-                ->select("mutu_ancak.*")
+            $queryMAFI = DB::connection('mysql2')->table('mutu_ancak_new')
+                ->select("mutu_ancak_new.*")
                 ->where('estate', $value1['est'])
                 ->where('datetime', 'like', '%' . $request->get('date') . '%')
                 ->where('estate', 'not like', '%Plasma%')
                 ->get();
             $dataMAFI = $queryMAFI->groupBy('estate');
             $dataMAFI = json_decode($dataMAFI, true);
+
+            $queryNew = DB::connection('mysql2')->table('follow_up_ma')
+                ->select("follow_up_ma.*")
+                ->where('estate', 'not like', '%Plasma%')
+                ->get();
+            $queryNew = json_decode($queryNew, true);
+
 
             foreach ($dataMTFI as $key => $value) {
                 $total_temuan = array();
@@ -467,17 +476,23 @@ class inspectController extends Controller
                 $tuntas = array();
                 $no_tuntas = array();
                 foreach ($value as $key2 => $value2) {
-                    if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
-                        $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
-                        if (!empty($value2['foto_fu'])) {
-                            $tuntas[] = $value2['foto_fu'];
-                        } else {
-                            $no_tuntas[] = $value2['foto_fu'];
+                    foreach ($queryNew as $key3 => $value3) {
+                        // dd($value3);
+                        if ($value2['estate'] == $value3['estate'] && $value2['afdeling'] == $value3['afdeling'] && $value2['blok'] == $value3['blok'] && $value2['br1'] == $value3['br1'] && $value2['br2'] == $value3['br2']) {
+                            if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $total_temuan)) {
+                                $total_temuan[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
+                                if (!empty($value3['foto_fu1'])) {
+                                    $tuntas[] = $value3['foto_fu1'];
+                                } else {
+                                    $no_tuntas[] = $value3['foto_fu1'];
+                                }
+                            }
                         }
+
+                        $tot_temuan = count($total_temuan);
+                        $tot_tuntas = count($tuntas);
+                        $tot_no_tuntas = count($no_tuntas);
                     }
-                    $tot_temuan = count($total_temuan);
-                    $tot_tuntas = count($tuntas);
-                    $tot_no_tuntas = count($no_tuntas);
                 }
                 $dataFinding[$value1['wil']][$key]['total_temuan_ma'] = $tot_temuan;
                 $dataFinding[$value1['wil']][$key]['tuntas_ma'] = $tot_tuntas;
@@ -632,10 +647,17 @@ class inspectController extends Controller
                     $dataSkor[$value1['wil']][$key][$key2]['jml_abnormal'] = $Jjg_Abr;
                     $dataSkor[$value1['wil']][$key][$key2]['jml_vcut'] = $Jjg_Vcut;
                     $dataSkor[$value1['wil']][$key][$key2]['jml_krg_brd'] = $dtBlok == 0 ? $Jjg_Als : round($Jjg_Als / $dtBlok, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMentah'] = round(($jml_mth / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMasak'] = round(($jml_mtg / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahOver'] = round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2);
-                    $dataSkor[$value1['wil']][$key][$key2]['PersenPerJanjang'] = round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2);
+                    $denom = ($janjang - $Jjg_Abr) != 0 ? ($janjang - $Jjg_Abr) : 1;
+
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMentah'] = $denom != 0 ? round(($jml_mth / $denom) * 100, 2) : 0;
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMasak'] = $denom != 0 ? round(($jml_mtg / $denom) * 100, 2) : 0;
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenBuahOver'] = $denom != 0 ? round(($Jjg_Over / $denom) * 100, 2) : 0;
+                    $dataSkor[$value1['wil']][$key][$key2]['PersenPerJanjang'] = $denom != 0 ? round(($Jjg_Empty / $denom) * 100, 2) : 0;
+
+                    // $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMentah'] = round(($jml_mth / ($janjang - $Jjg_Abr)) * 100, 2);
+                    // $dataSkor[$value1['wil']][$key][$key2]['PersenBuahMasak'] = round(($jml_mtg / ($janjang - $Jjg_Abr)) * 100, 2);
+                    // $dataSkor[$value1['wil']][$key][$key2]['PersenBuahOver'] = round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2);
+                    // $dataSkor[$value1['wil']][$key][$key2]['PersenPerJanjang'] = round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2);
                     $dataSkor[$value1['wil']][$key][$key2]['PersenVcut'] = count_percent($Jjg_Vcut, $janjang);
                     $dataSkor[$value1['wil']][$key][$key2]['PersenAbr'] = count_percent($Jjg_Abr, $janjang);
                     $dataSkor[$value1['wil']][$key][$key2]['PersenKrgBrd'] = count_percent($Jjg_Als, $dtBlok);
@@ -662,8 +684,8 @@ class inspectController extends Controller
         }
 
         foreach ($queryEstate as $value1) {
-            $queryAncak = DB::connection('mysql2')->table('mutu_ancak')
-                ->select("mutu_ancak.*")
+            $queryAncak = DB::connection('mysql2')->table('mutu_ancak_new')
+                ->select("mutu_ancak_new.*")
                 ->where('estate', $value1['est'])
                 ->where('datetime', 'like', '%' . $request->get('date') . '%')
                 ->orderBy('afdeling', 'asc')
@@ -752,7 +774,12 @@ class inspectController extends Controller
                     $dataSkor[$value1['wil']][$key][$key2]['bhtm2_ma'] = $jml_bhtm2;
                     $dataSkor[$value1['wil']][$key][$key2]['bhtm3_ma'] = $jml_bhtm3;
                     $dataSkor[$value1['wil']][$key][$key2]['tot_jjg_ma'] = $tot_jjg;
-                    $dataSkor[$value1['wil']][$key][$key2]['jjg_tgl_ma'] = round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2);
+                    if ($tot_jjg != 0) {
+                        $dataSkor[$value1['wil']][$key][$key2]['jjg_tgl_ma'] = round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2);
+                    } else {
+                        $dataSkor[$value1['wil']][$key][$key2]['jjg_tgl_ma'] = 0;
+                    }
+
                     $dataSkor[$value1['wil']][$key][$key2]['ps_ma'] = $jml_ps;
                     $dataSkor[$value1['wil']][$key][$key2]['PerPSMA'] = count_percent($jml_ps, $jml_pokok_sm);
                 }
@@ -767,13 +794,13 @@ class inspectController extends Controller
                 $dataSkor[$value1['wil']][$key]['k_ma_est'] = $jml_brtk_est;
                 $dataSkor[$value1['wil']][$key]['gl_ma_est'] = $jml_brtgl_est;
                 $dataSkor[$value1['wil']][$key]['total_brd_ma_est'] = $tot_brd_est;
-                $dataSkor[$value1['wil']][$key]['btr_jjg_ma_est'] = round(($tot_brd_est / $jml_jjg_panen_est), 2);
+                $dataSkor[$value1['wil']][$key]['btr_jjg_ma_est'] = $jml_jjg_panen_est == 0 ? $tot_brd_est : round(($tot_brd_est / $jml_jjg_panen_est), 2);
                 $dataSkor[$value1['wil']][$key]['bhts_ma_est'] = $jml_bhts_est;
                 $dataSkor[$value1['wil']][$key]['bhtm1_ma_est'] = $jml_bhtm1_est;
                 $dataSkor[$value1['wil']][$key]['bhtm2_ma_est'] = $jml_bhtm2_est;
                 $dataSkor[$value1['wil']][$key]['bhtm3_ma_est'] = $jml_bhtm3_est;
                 $dataSkor[$value1['wil']][$key]['tot_jjg_ma_est'] = $tot_jjg_est;
-                $dataSkor[$value1['wil']][$key]['jjg_tgl_ma_est'] = round(($tot_jjg_est / ($jml_jjg_panen_est + $tot_jjg_est)) * 100, 2);
+                $dataSkor[$value1['wil']][$key]['jjg_tgl_ma_est'] = ($jml_jjg_panen_est + $tot_jjg_est) == 0 ? $tot_jjg_est : round(($tot_jjg_est / ($jml_jjg_panen_est + $tot_jjg_est)) * 100, 2);
                 $dataSkor[$value1['wil']][$key]['ps_ma_est'] = $jml_ps_est;
                 $dataSkor[$value1['wil']][$key]['PerPSMA_est'] = count_percent($jml_ps_est, $jml_pokok_sm_est);
             }
@@ -916,8 +943,8 @@ class inspectController extends Controller
         $DataEstate = json_decode($DataEstate, true);
 
         //menghitung buat table tampilkan pertahun
-        $querytahun = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $querytahun = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             ->whereYear('datetime', '2023')
             ->get();
 
@@ -1114,7 +1141,12 @@ class inspectController extends Controller
 
                         $sumBH = $bhts_panen +  $bhtm1_panen +  $bhtm2_panen +  $bhtm3_oanen;
 
-                        $sumPerBH = $sumBH / ($janjang_panen + $sumBH) * 100;
+                        if ($sumBH != 0) {
+                            $sumPerBH = $sumBH / ($janjang_panen + $sumBH) * 100;
+                        } else {
+                            $sumPerBH = 0;
+                        }
+
 
                         $skor_bh = 0;
                         if ($sumPerBH <=  0.0) {
@@ -1488,12 +1520,12 @@ class inspectController extends Controller
                 }
 
 
-                $PerMth = ($Jjg_Mth / ($janjang - $Jjg_Abr)) * 100;
-                $PerMsk = ($Jjg_Mtng / ($janjang - $Jjg_Abr)) * 100;
-                $PerOver = ($Jjg_Over / ($janjang - $Jjg_Abr)) * 100;
-                $PerJanjang = ($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100;
-                $PerVcut = ($Jjg_Vcut / $janjang) * 100;
-                $PerAbr = ($Jjg_Abr / $janjang) * 100;
+                $PerMth = ($janjang - $Jjg_Abr) != 0 ? ($Jjg_Mth / ($janjang - $Jjg_Abr)) * 100 : 0;
+                $PerMsk = ($janjang - $Jjg_Abr) != 0 ? ($Jjg_Mtng / ($janjang - $Jjg_Abr)) * 100 : 0;
+                $PerOver = ($janjang - $Jjg_Abr) != 0 ? ($Jjg_Over / ($janjang - $Jjg_Abr)) * 100 : 0;
+                $PerJanjang = ($janjang - $Jjg_Abr) != 0 ? ($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100 : 0;
+                $PerVcut = $janjang != 0 ? ($Jjg_Vcut / $janjang) * 100 : 0;
+                $PerAbr = $janjang != 0 ? ($Jjg_Abr / $janjang) * 100 : 0;
 
                 // (jjgvcut /total janjang sampel )%
 
@@ -1623,8 +1655,8 @@ class inspectController extends Controller
 
         // dd($Mutubuah);
 
-        $queryMtAncak = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*")
+        $queryMtAncak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*")
             ->where('datetime', 'like', '%' .  '2023-02' . '%')
             ->get();
         $DataMtAncak = $queryMtAncak->groupBy(['estate', 'afdeling']);
@@ -1808,10 +1840,10 @@ class inspectController extends Controller
             ) //buat mengambil data di estate db dan willayah db
             ->join('estate', 'estate.id', '=', 'afdeling.estate') //kemudian di join untuk mengambil est perwilayah
             ->get();
-        $queryMTancakTab1 = DB::connection('mysql2')->table('mutu_ancak')
+        $queryMTancakTab1 = DB::connection('mysql2')->table('mutu_ancak_new')
             ->select(
-                "mutu_ancak.*",
-                DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan')
+                "mutu_ancak_new.*",
+                DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan')
             )
             ->where('datetime', 'like', '%' . '2023-02' . '%')
             ->get();
@@ -2484,9 +2516,6 @@ class inspectController extends Controller
         ]);
     }
 
-
-
-
     public function filter(Request $request)
     {
 
@@ -2501,8 +2530,8 @@ class inspectController extends Controller
 
         // backend untuk halaman utama
         //mutu ancak
-        $QueryMTancakWil = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $QueryMTancakWil = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             // ->whereYear('datetime', '2023')
             // ->where('datetime', 'like', '%' . $getDate . '%')
             ->where('datetime', 'like', '%' . $date . '%')
@@ -3504,7 +3533,7 @@ class inspectController extends Controller
                     $akpEst = 0;
                 }
 
-                if ($pokok_panenEst != 0) {
+                if ($janjang_panenEst != 0) {
                     $brdPerjjgEst = round($totalPKT / $janjang_panenEst, 1);
                 } else {
                     $brdPerjjgEst = 0;
@@ -5374,8 +5403,8 @@ class inspectController extends Controller
 
         //bagian querry
         //mutu ancak
-        $querytahun = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $querytahun = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             // ->whereYear('datetime', '2023')
             ->whereYear('datetime', $year)
             ->get();
@@ -8196,12 +8225,23 @@ class inspectController extends Controller
                             $no_Vcut = $sum_Samplejjg - $sum_vcut;
 
                             $per_kr = round($total_kr * 100, 2);
-                            $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                            $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                            $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                            $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                            $PerVcut = round(($no_Vcut / $sum_Samplejjg) * 100, 2);
-                            $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
+
+                            $denom1 = ($sum_Samplejjg - $sum_abnor) != 0 ? ($sum_Samplejjg - $sum_abnor) : 1; // set denominator to 1 if it is zero
+                            $denom2 = $sum_Samplejjg != 0 ? $sum_Samplejjg : 1; // set denominator to 1 if it is zero
+
+                            $PerMth = round(($jml_mth / $denom1) * 100, 2);
+                            $PerMsk = round(($jml_mtg / $denom1) * 100, 2);
+                            $PerOver = round(($sum_over / $denom1) * 100, 2);
+                            $Perkosongjjg = round(($sum_kosongjjg / $denom1) * 100, 2);
+                            $PerVcut = round(($no_Vcut / $denom2) * 100, 2);
+                            $PerAbr = round(($sum_abnor / $denom2) * 100, 2);
+
+                            // $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                            // $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                            // $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                            // $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                            // $PerVcut = round(($no_Vcut / $sum_Samplejjg) * 100, 2);
+                            // $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
 
                             $totalSkor =  skor_buah_mentah_mb($PerMth) + skor_buah_masak_mb($PerMsk) + skor_buah_over_mb($PerOver) + skor_vcut_mb($PerVcut) + skor_jangkos_mb($Perkosongjjg) + skor_abr_mb($per_kr);
 
@@ -8749,12 +8789,22 @@ class inspectController extends Controller
 
                     $no_Vcut = $sum_Samplejjg - $sum_vcut;
                     $per_kr = round($total_kr * 100, 2);
-                    $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                    $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                    $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                    $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                    $PerVcut = round(($sum_vcut / $sum_Samplejjg) * 100, 2);
-                    $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
+                    $denom1 = ($sum_Samplejjg - $sum_abnor) != 0 ? ($sum_Samplejjg - $sum_abnor) : 1; // set denominator to 1 if it is zero
+                    $denom2 = $sum_Samplejjg != 0 ? $sum_Samplejjg : 1; // set denominator to 1 if it is zero
+
+                    $PerMth = round(($jml_mth / $denom1) * 100, 2);
+                    $PerMsk = round(($jml_mtg / $denom1) * 100, 2);
+                    $PerOver = round(($sum_over / $denom1) * 100, 2);
+                    $Perkosongjjg = round(($sum_kosongjjg / $denom1) * 100, 2);
+                    $PerVcut = round(($sum_vcut / $denom2) * 100, 2);
+                    $PerAbr = round(($sum_abnor / $denom2) * 100, 2);
+
+                    // $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    // $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    // $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    // $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                    // $PerVcut = round(($sum_vcut / $sum_Samplejjg) * 100, 2);
+                    // $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
 
                     $totalSkor =  skor_buah_mentah_mb($PerMth) + skor_buah_masak_mb($PerMsk) + skor_buah_over_mb($PerOver) + skor_vcut_mb($PerVcut) + skor_jangkos_mb($Perkosongjjg) + skor_abr_mb($per_kr);
                     $RegMtBhAfdBln[$key][$key1][$key2]['tph_baris_blok'] = $dataBLok;
@@ -11280,8 +11330,8 @@ class inspectController extends Controller
 
         //bagian querry
         //mutu ancak
-        $querytahun = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $querytahun = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             ->whereYear('datetime', $yearGraph)
             // ->where('estate', 'KNE')
             ->get();
@@ -11572,12 +11622,22 @@ class inspectController extends Controller
                         }
 
                         $per_kr = round($total_kr * 100, 2);
-                        $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                        $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                        $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                        $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
-                        $PerVcut = round(($sum_vcut / $sum_Samplejjg) * 100, 2);
-                        $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
+                        $denom1 = ($sum_Samplejjg - $sum_abnor) != 0 ? ($sum_Samplejjg - $sum_abnor) : 1;
+                        $denom2 = $sum_Samplejjg != 0 ? $sum_Samplejjg : 1;
+
+                        $PerMth = $denom1 != 0 ? round(($jml_mth / $denom1) * 100, 2) : 0;
+                        $PerMsk = $denom1 != 0 ? round(($jml_mtg / $denom1) * 100, 2) : 0;
+                        $PerOver = $denom1 != 0 ? round(($sum_over / $denom1) * 100, 2) : 0;
+                        $Perkosongjjg = $denom1 != 0 ? round(($sum_kosongjjg / $denom1) * 100, 2) : 0;
+                        $PerVcut = $denom2 != 0 ? round(($sum_vcut / $denom2) * 100, 2) : 0;
+                        $PerAbr = $denom2 != 0 ? round(($sum_abnor / $denom2) * 100, 2) : 0;
+
+                        // $PerMth = round(($jml_mth / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                        // $PerMsk = round(($jml_mtg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                        // $PerOver = round(($sum_over / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                        // $Perkosongjjg = round(($sum_kosongjjg / ($sum_Samplejjg - $sum_abnor)) * 100, 2);
+                        // $PerVcut = round(($sum_vcut / $sum_Samplejjg) * 100, 2);
+                        // $PerAbr = round(($sum_abnor / $sum_Samplejjg) * 100, 2);
 
                         $totalSkor =  skor_buah_mentah_mb($PerMth) + skor_buah_masak_mb($PerMsk) + skor_buah_over_mb($PerOver) + skor_vcut_mb($PerVcut) + skor_jangkos_mb($Perkosongjjg) + skor_abr_mb($per_kr);
 
@@ -12253,11 +12313,11 @@ class inspectController extends Controller
 
     public function detailInpeksi($est, $afd, $date)
     {
-        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             ->where('datetime', 'like', '%' . $date . '%')
-            ->where('mutu_ancak.estate', $est)
-            ->where('mutu_ancak.afdeling', $afd)
+            ->where('mutu_ancak_new.estate', $est)
+            ->where('mutu_ancak_new.afdeling', $afd)
             ->get();
 
         $mutuAncak = $mutuAncak->groupBy(['estate', 'afdeling']);
@@ -12402,17 +12462,16 @@ class inspectController extends Controller
 
     public function dataDetail($est, $afd, $date, Request $request)
     {
-
         $selectedDate = new \DateTime($date);
         $selectedMonth = $selectedDate->format('m');
         $selectedYear = $selectedDate->format('Y');
 
-        $ancakDates = DB::connection('mysql2')->table('mutu_ancak')
-            ->select(DB::raw('DATE(mutu_ancak.datetime) as date'))
-            ->where('mutu_ancak.estate', $est)
-            ->where('mutu_ancak.afdeling', $afd)
-            ->whereRaw('MONTH(mutu_ancak.datetime) = ?', [$selectedMonth])
-            ->whereRaw('YEAR(mutu_ancak.datetime) = ?', [$selectedYear])
+        $ancakDates = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select(DB::raw('DATE(mutu_ancak_new.datetime) as date'))
+            ->where('mutu_ancak_new.estate', $est)
+            ->where('mutu_ancak_new.afdeling', $afd)
+            ->whereRaw("MONTH(mutu_ancak_new.datetime) = $selectedMonth")
+            ->whereRaw("YEAR(mutu_ancak_new.datetime) = $selectedYear")
             ->distinct()
             ->orderBy('date', 'asc')
             ->get();
@@ -12421,24 +12480,37 @@ class inspectController extends Controller
             ->select(DB::raw('DATE(mutu_buah.datetime) as date'))
             ->where('mutu_buah.estate', $est)
             ->where('mutu_buah.afdeling', $afd)
-            ->whereRaw('MONTH(mutu_buah.datetime) = ?', [$selectedMonth])
-            ->whereRaw('YEAR(mutu_buah.datetime) = ?', [$selectedYear])
+            ->whereRaw("MONTH(mutu_buah.datetime) = $selectedMonth")
+            ->whereRaw("YEAR(mutu_buah.datetime) = $selectedYear")
             ->distinct()
             ->orderBy('date', 'asc')
             ->get();
+
         $TransportDates = DB::connection('mysql2')->table('mutu_transport')
             ->select(DB::raw('DATE(mutu_transport.datetime) as date'))
             ->where('mutu_transport.estate', $est)
             ->where('mutu_transport.afdeling', $afd)
-            ->whereRaw('MONTH(mutu_transport.datetime) = ?', [$selectedMonth])
-            ->whereRaw('YEAR(mutu_transport.datetime) = ?', [$selectedYear])
+            ->whereRaw("MONTH(mutu_transport.datetime) = $selectedMonth")
+            ->whereRaw("YEAR(mutu_transport.datetime) = $selectedYear")
             ->distinct()
             ->orderBy('date', 'asc')
             ->get();
 
 
-        // dd($mutuAncak);
+
+        $ancakDatesArray = $ancakDates->pluck('date')->toArray();
+        $buahDatesArray = $buahDates->pluck('date')->toArray();
+        $TransportDatesArray = $TransportDates->pluck('date')->toArray();
+
+        $commonDates = collect([]);
+        foreach ($ancakDatesArray as $date) {
+            if (in_array($date, $buahDatesArray) && in_array($date, $TransportDatesArray)) {
+                $commonDates->push((object) ['date' => $date]);
+            }
+        }
+
         $arrView = array();
+        $arrView['commonDates'] = $commonDates;
         $arrView['ancakDates'] = $ancakDates;
         $arrView['buahDates'] = $buahDates;
         $arrView['TransportDates'] = $TransportDates;
@@ -12446,10 +12518,10 @@ class inspectController extends Controller
         $arrView['afd'] =  $afd;
         $arrView['tanggal'] =  $date;
         json_encode($arrView);
-        // exit();
 
         return view('dataDetail', $arrView);
     }
+
 
     public function filterDataDetail(Request $request)
     {
@@ -12460,11 +12532,11 @@ class inspectController extends Controller
 
         // dd($dates);
 
-        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak')
-            ->select("mutu_ancak.*", DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak.datetime, "%Y") as tahun'))
+        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
             ->where('datetime', 'like', '%' . $dates . '%')
-            ->where('mutu_ancak.estate', $Reg)
-            ->where('mutu_ancak.afdeling', $afd)
+            ->where('mutu_ancak_new.estate', $Reg)
+            ->where('mutu_ancak_new.afdeling', $afd)
             ->get();
         // $mutuAncak = $mutuAncak->groupBy(['blok']);
         $mutuAncak = json_decode($mutuAncak, true);
@@ -12489,79 +12561,6 @@ class inspectController extends Controller
         $mutuTransport = json_decode($mutuTransport, true);
         // dd($mutuAncak, $mutuBuah, $mutuTransport);
 
-        // $ancak = array();
-
-        // foreach ($mutuAncak as $key => $value) {
-        //     $foundSPH = false;
-        //     $jumPok = 0;
-        //     $luas_ha = 0;
-        //     $jumPan = 0;
-        //     $akp = 0;
-        //     $p = 0;
-        //     $k = 0;
-        //     $gl = 0;
-        //     $s = 0;
-        //     $m1 = 0;
-        //     $m2 = 0;
-        //     $m3 = 0;
-        //     $ps = 0;
-        //     $totalBT = 0;
-        //     $totalBH = 0;
-        //     $butir_jjg = 0;
-        //     $buah_jjg = 0;
-        //     $ps_sen = 0;
-        //     foreach ($value as $key1 => $value2) {
-        //         $jumPok += $value2['sample'];
-        //         $jumPan += $value2['jjg'];
-        //         $p += $value2['brtp'];
-        //         $k += $value2['brtk'];
-        //         $gl += $value2['brtgl'];
-        //         $s += $value2['bhts'];
-        //         $m1 += $value2['bhtm1'];
-        //         $m2 += $value2['bhtm2'];
-        //         $m3 += $value2['bhtm3'];
-        //         $ps += $value2['ps'];
-
-        //         if (!$foundSPH && !empty($value2['sph']) && $value2['sph'] > 0) {
-        //             $sph = $value2['sph'];
-        //             $ancak[$key]['SPH'] = $sph;
-        //             $foundSPH = true;
-        //         }
-        //         $luas_ha = round(($jumPok / $sph), 2);
-        //         $akp =  round($jumPan / $jumPok, 2);
-        //         $totalBT = $p + $k + $gl;
-        //         $totalBH = $m1 + $m2 + $m3 + $s;
-        //         $butir_jjg = round(($totalBT / $jumPan), 2);
-        //         $buah_jjg =  round(($totalBH / ($jumPan + $totalBH)) * 100, 2);
-        //         $ps_sen = count_percent($ps, $jumPok);
-
-        //         $ancak[$key]['nomor_blok'] = $value2['blok'];
-        //         $ancak[$key]['status'] = $value2['status_panen'];
-        //         $ancak[$key]['jum_pok'] = $jumPok;
-        //         $ancak[$key]['luas_ha'] = $luas_ha;
-        //         $ancak[$key]['luas_blok'] = 'Null';
-        //         $ancak[$key]['persen_samp'] = 'Null';
-        //         $ancak[$key]['jum_pan'] = $jumPan;
-        //         $ancak[$key]['akp'] = $akp;
-        //         $ancak[$key]['p'] = $p;
-        //         $ancak[$key]['k'] = $k;
-        //         $ancak[$key]['gl'] = $gl;
-        //         $ancak[$key]['toBT'] = $totalBT;
-        //         $ancak[$key]['brd_jjg'] = $butir_jjg;
-        //         $ancak[$key]['s'] = $s;
-        //         $ancak[$key]['m1'] = $m1;
-        //         $ancak[$key]['m2'] = $m2;
-        //         $ancak[$key]['m3'] = $m3;
-        //         $ancak[$key]['ps'] = $ps;
-        //         $ancak[$key]['toBH'] = $totalBH;
-        //         $ancak[$key]['buah_jjg'] = $buah_jjg;
-        //         $ancak[$key]['ps'] = $ps;
-        //         $ancak[$key]['ps_sen'] = $ps_sen;
-        //     }
-        // }
-
-
-
 
         $arrView = array();
 
@@ -12573,5 +12572,377 @@ class inspectController extends Controller
         $arrView['tanggal'] =  $dates;
         echo json_encode($arrView);
         exit();
+    }
+
+    public function updateBA(Request $request)
+    {
+
+        $est = $request->input('est');
+        $afd = $request->input('afd');
+        $date = $request->input('date');
+
+        // dd($date, $afd, $est);
+        // mutu ancak 
+        $blok = $request->input('blokCak');
+        $sph = $request->input('sph');
+        $id = $request->input('id');
+        $br1 = $request->input('br1');
+        $br2 = $request->input('br2');
+        $sample = $request->input('sampCak');
+        $pk_kuning = $request->input('pkKuning');
+        $piringan_semak = $request->input('prSmk');
+        $underpruning = $request->input('undrPR');
+        $overpruning = $request->input('overPR');
+        $janjang = $request->input('jjgCak');
+        $brtp = $request->input('brtp');
+        $brtk = $request->input('brtk');
+        $brtgl = $request->input('brtgl');
+        $bhts = $request->input('bhts');
+        $bhtm1 = $request->input('bhtm1');
+        $bhtm2 = $request->input('bhtm2');
+        $bhtm3 = $request->input('bhtm3');
+        $ps = $request->input('ps');
+        $sp = $request->input('sp');
+        $pk_panen = $request->input('pk_panenCAk');
+
+
+        // mutu buah 
+        $ids = $request->input('id_bh');
+        $blok_bh = $request->input('blok_bh');
+        $bmt = $request->input('bmt');
+        $bmk = $request->input('bmk');
+        $pemanen_bh = $request->input('pemanen_bh');
+
+        $estBH = $request->input('estBH');
+        $afdBH = $request->input('afdBH');
+        $tphBH = $request->input('tphBH');
+        $petugasBHs = $request->input('petugasBH');
+        $emptyBHS = $request->input('emptyBH');
+        $jjgBH = $request->input('jjgBH');
+        $overBH = $request->input('overBH');
+        $abrBH = $request->input('abrBH');
+        $vcutBHs = $request->input('vcutBH');
+        $alsBR = $request->input('alsBR');
+        $kmnBH = $request->input('kmnBH');
+        // mutu transport
+
+
+        $id_trans = $request->input('id_trans');
+        $afd_trans = $request->input('afd_trans');
+        $blok_trans = $request->input('blok_trans');
+        $tphbrTrans = $request->input('tphbrTrans');
+        $bt_trans = $request->input('bt_trans');
+        $komentar_trans = $request->input('komentar_trans');
+        $petugasTrans = $request->input('petugasTrans');
+        $rstTrans = $request->input('rstTrans');
+        $estTrans = $request->input('estTrans');
+
+        // dd($id_trans, $afd_trans, $blok_trans, $bt_trans, $komentar_trans);
+
+        DB::connection('mysql2')->table('mutu_ancak_new')->where('id', $id)->update([
+            'blok' => $blok,
+            'sph' => $sph,
+            'br1' => $br1,
+            'br2' => $br2,
+            'sample' => $sample,
+            'pokok_kuning' => $pk_kuning,
+            'piringan_semak' => $piringan_semak,
+            'underpruning' => $underpruning,
+            'overpruning' => $overpruning,
+            'jjg' => $janjang,
+            'brtp' => $brtp,
+            'brtk' => $brtk,
+            'brtgl' => $brtgl,
+            'bhts' => $bhts,
+            'bhtm1' => $bhtm1,
+            'bhtm2' => $bhtm2,
+            'bhtm3' => $bhtm3,
+            'ps' => $ps,
+            'sp' => $sp,
+            'pokok_panen' => $pk_panen,
+        ]);
+
+        DB::connection('mysql2')->table('mutu_buah')->where('id', $ids)->update([
+            'blok' => $blok_bh,
+            'bmt' => $bmt,
+            'bmk' => $bmk,
+            'ancak_pemanen' => $pemanen_bh,
+            'estate' => $estBH,
+            'afdeling' => $afdBH,
+            'tph_baris' => $tphBH,
+            'petugas' => $petugasBHs,
+            'empty' => $emptyBHS,
+            'jumlah_jjg' => $jjgBH,
+            'overripe' => $overBH,
+            'abnormal' => $abrBH,
+            'vcut' => $vcutBHs,
+            'alas_br' => $alsBR,
+            'komentar' => $kmnBH,
+        ]);
+        DB::connection('mysql2')->table('mutu_transport')->where('id', $id_trans)->update([
+            'afdeling' => $afd_trans,
+            'blok' => $blok_trans,
+            'bt' => $bt_trans,
+            'komentar' => $komentar_trans,
+            'petugas' => $petugasTrans,
+            'rst' => $rstTrans,
+            'estate' => $estTrans,
+            'tph_baris' => $tphbrTrans,
+        ]);
+    }
+
+    public function deleteBA(Request $request)
+    {
+
+        $idBuah = $request->input('ids');
+
+
+        // dd($idtrans);
+        //mutu ancak
+        DB::connection('mysql2')->table('mutu_ancak_new')->where('id', $request->input('id'))->delete();
+        //mutu buah
+        DB::connection('mysql2')->table('mutu_buah')
+            ->where('id', $idBuah)
+            ->delete();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function deleteTrans($id)
+    {
+        DB::connection('mysql2')->table('mutu_transport')
+            ->where('id', $id)
+            ->delete();
+        return response()->json(['status' => 'success']);
+    }
+
+    public function pdfBA(Request $request)
+    {
+        $est = $request->input('estBA');
+        $afd = $request->input('afdBA');
+        $date = $request->input('tglPDF');
+
+        $mutuAncak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*", DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_ancak_new.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_ancak_new.estate', $est)
+            ->where('mutu_ancak_new.afdeling', $afd)
+
+            ->get();
+        $mutuAncak = $mutuAncak->groupBy(['blok']);
+        $mutuAncak = json_decode($mutuAncak, true);
+
+
+        $mutuBuahQuery = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*", DB::raw('DATE_FORMAT(mutu_buah.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_buah.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_buah.estate', $est)
+            ->where('mutu_buah.afdeling', $afd)
+
+            ->get();
+        $mutuBuahQuery = $mutuBuahQuery->groupBy(['blok']);
+        $mutuBuahQuery = json_decode($mutuBuahQuery, true);
+
+        $mutuTransport = DB::connection('mysql2')->table('mutu_transport')
+            ->select("mutu_transport.*", DB::raw('DATE_FORMAT(mutu_transport.datetime, "%M") as bulan'), DB::raw('DATE_FORMAT(mutu_transport.datetime, "%Y") as tahun'))
+            ->where('datetime', 'like', '%' . $date . '%')
+            ->where('mutu_transport.estate', $est)
+            ->where('mutu_transport.afdeling', $afd)
+
+            ->get();
+        $mutuTransport = $mutuTransport->groupBy(['blok']);
+        $mutuTransport = json_decode($mutuTransport, true);
+
+        // dd($mutuAncak);
+
+        $ancak = array();
+        foreach ($mutuAncak as $key => $value) {
+            $jumPokok = 0;
+            $sph = 0;
+
+            $sph = 0;
+
+            $jml_jjg_panen = 0;
+            $jml_brtp = 0;
+            $jml_brtk = 0;
+            $jml_brtgl = 0;
+            $jml_bhts = 0;
+            $jml_bhtm1 = 0;
+            $jml_bhtm2 = 0;
+            $jml_bhtm3 = 0;
+            $jml_ps = 0;
+            $listBlok = array();
+            foreach ($value as $key1 => $value2) {
+                $jumPokok += $value2['sample'];
+
+                // Check if the current 'sph' value is non-zero and the stored 'sph' value is still zero
+                // if ($value2['sph'] != 0 && $sph == 0) {
+                //     $sph = $value2['sph'];
+                // }
+                if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $listBlok)) {
+                    if ($value2['sph'] != 0) {
+                        $listBlok[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
+                        $sph += $value2['sph'];
+                    }
+                }
+                $jml_blok = count($listBlok);
+
+                $jml_jjg_panen += $value2['jjg'];
+                $jml_brtp += $value2['brtp'];
+                $jml_brtk += $value2['brtk'];
+                $jml_brtgl += $value2['brtgl'];
+                $jml_bhts += $value2['bhts'];
+                $jml_bhtm1 += $value2['bhtm1'];
+                $jml_bhtm2 += $value2['bhtm2'];
+                $jml_bhtm3 += $value2['bhtm3'];
+                $jml_ps += $value2['ps'];
+            }
+
+
+            $jml_sph = $jml_blok == 0 ? $sph : ($sph / $jml_blok);
+            $tot_brd = ($jml_brtp + $jml_brtk + $jml_brtgl);
+            $tot_jjg = ($jml_bhts + $jml_bhtm1 + $jml_bhtm2 + $jml_bhtm3);
+            $luas_ha = round(($jumPokok / $jml_sph), 2);
+
+
+            $ancak[$key]['luas_blok'] = '-';
+            $ancak[$key]['status_panen'] = $value2['status_panen'];
+            $ancak[$key]['sph'] = $sph;
+            $ancak[$key]['pokok_sample'] = $jumPokok;
+            $ancak[$key]['luas_ha'] = $luas_ha;
+            $ancak[$key]['jml_jjg_panen'] = $jml_jjg_panen;
+            $ancak[$key]['akp_real'] = count_percent($jml_jjg_panen, $jumPokok);
+            $ancak[$key]['p_ma'] = $jml_brtp;
+            $ancak[$key]['k_ma'] = $jml_brtk;
+            $ancak[$key]['gl_ma'] = $jml_brtgl;
+            $ancak[$key]['total_brd_ma'] = $tot_brd;
+            if ($jml_jjg_panen != 0) {
+                $ancak[$key]['btr_jjg_ma'] = round(($tot_brd / $jml_jjg_panen), 2);
+            } else {
+                $ancak[$key]['btr_jjg_ma'] = 0;
+            }
+
+            $ancak[$key]['bhts_ma'] = $jml_bhts;
+            $ancak[$key]['bhtm1_ma'] = $jml_bhtm1;
+            $ancak[$key]['bhtm2_ma'] = $jml_bhtm2;
+            $ancak[$key]['bhtm3_ma'] = $jml_bhtm3;
+            $ancak[$key]['tot_jjg_ma'] = $tot_jjg;
+            if ($tot_jjg != 0) {
+                $ancak[$key]['jjg_tgl_ma'] = round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2);
+            } else {
+                $ancak[$key]['jjg_tgl_ma'] = 0;
+            }
+
+            $ancak[$key]['ps_ma'] = $jml_ps;
+            $ancak[$key]['persen_sample'] = '-';
+            $ancak[$key]['PerPSMA'] = count_percent($jml_ps, $jumPokok);
+        }
+
+        $transport = array();
+
+        foreach ($mutuTransport as $key => $value) {
+            $sum_bt = 0;
+            $sum_Restan = 0;
+            $tph_sample = 0;
+            $listBlokPerAfd = array();
+            foreach ($value as $key2 => $value2) {
+                // if (!in_array($value3['estate'] . ' ' . $value3['afdeling'] . ' ' . $value3['blok'], $listBlokPerAfd)) {
+                $listBlokPerAfd[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
+                // }
+                $sum_Restan += $value2['rst'];
+                $tph_sample = count($listBlokPerAfd);
+                $sum_bt += $value2['bt'];
+            }
+            $transport[$key]['bt_total'] = $sum_bt;
+            $transport[$key]['restan_total'] = $sum_Restan;
+            $transport[$key]['tph_sample'] = $tph_sample;
+            $transport[$key]['skor'] = round($sum_bt / $tph_sample, 2);
+            $transport[$key]['skor_restan'] = round($sum_Restan / $tph_sample, 2);
+        }
+
+
+        $mutuBuah = array();
+        foreach ($mutuBuahQuery as $key => $value) {
+            $listBlokPerAfd = array();
+            $janjang = 0;
+            $Jjg_Mth = 0;
+            $Jjg_Mth2 = 0;
+            $Jjg_Over = 0;
+            $Jjg_Empty = 0;
+            $Jjg_Abr = 0;
+            $Jjg_Vcut = 0;
+            $Jjg_Als = 0;
+            $dtBlok = count($value);
+            $count_alas_br_1 = 0;
+            $count_alas_br_0 = 0;
+            foreach ($value as $key2 => $value2) {
+
+                if (!in_array($value2['blok'], $listBlokPerAfd)) {
+                    $listBlokPerAfd[] = $value2['blok'];
+                }
+                $janjang += $value2['jumlah_jjg'];
+                $Jjg_Mth += $value2['bmt'];
+                $Jjg_Mth2 += $value2['bmk'];
+                $Jjg_Over += $value2['overripe'];
+                $Jjg_Empty += $value2['empty'];
+                $Jjg_Abr += $value2['abnormal'];
+                $Jjg_Vcut += $value2['vcut'];
+                $Jjg_Als += $value2['alas_br'];
+
+                if ($value2['alas_br'] == 1) {
+                    $count_alas_br_1++;
+                } elseif ($value2['alas_br'] == 0) {
+                    $count_alas_br_0++;
+                }
+            }
+            $jml_mth = ($Jjg_Mth + $Jjg_Mth2);
+            $jml_mtg = $janjang - ($jml_mth + $Jjg_Over + $Jjg_Empty + $Jjg_Abr);
+
+            $mutuBuah[$key]['blok_mb'] = $dtBlok;
+            $mutuBuah[$key]['alas_mb'] = $Jjg_Als;
+            $mutuBuah[$key]['jml_janjang'] = $janjang;
+            $mutuBuah[$key]['jml_mentah'] = $jml_mth;
+            $mutuBuah[$key]['jml_masak'] = $jml_mtg;
+            $mutuBuah[$key]['jml_over'] = $Jjg_Over;
+            $mutuBuah[$key]['jml_empty'] = $Jjg_Empty;
+            $mutuBuah[$key]['jml_abnormal'] = $Jjg_Abr;
+            $mutuBuah[$key]['jml_vcut'] = $Jjg_Vcut;
+            $mutuBuah[$key]['jml_krg_brd'] = $dtBlok == 0 ? $Jjg_Als : round($Jjg_Als / $dtBlok, 2);
+            $denom = ($janjang - $Jjg_Abr) != 0 ? ($janjang - $Jjg_Abr) : 1;
+
+            $mutuBuah[$key]['PersenBuahMentah'] = $denom != 0 ? round(($jml_mth / $denom) * 100, 2) : 0;
+            $mutuBuah[$key]['PersenBuahMasak'] = $denom != 0 ? round(($jml_mtg / $denom) * 100, 2) : 0;
+            $mutuBuah[$key]['PersenBuahOver'] = $denom != 0 ? round(($Jjg_Over / $denom) * 100, 2) : 0;
+            $mutuBuah[$key]['PersenPerJanjang'] = $denom != 0 ? round(($Jjg_Empty / $denom) * 100, 2) : 0;
+            $mutuBuah[$key]['PersenVcut'] = count_percent($Jjg_Vcut, $janjang);
+            $mutuBuah[$key]['PersenAbr'] = count_percent($Jjg_Abr, $janjang);
+            $mutuBuah[$key]['PersenKrgBrd'] = count_percent($count_alas_br_1, $dtBlok);
+            $mutuBuah[$key]['count_alas_br_1'] = $count_alas_br_1;
+            $mutuBuah[$key]['count_alas_br_0'] = $count_alas_br_0;
+        }
+
+        // dd($mutuBuahQuery);
+        // dd($mutuBuah);
+        $arrView = array();
+
+        $arrView['mutuAncak'] =  $ancak;
+        $arrView['mutuBuah'] =  $mutuBuah;
+        $arrView['mutuTransport'] =  $transport;
+        $arrView['est'] =  $est;
+        $arrView['afd'] =  $afd;
+        $arrView['tanggal'] =  $date;
+
+        $pdf = PDF::loadView('pdfBA', ['data' => $arrView]);
+
+        $customPaper = array(360, 360, 360, 360);
+        $pdf->set_paper('A2', 'potrait');
+
+        $filename = 'BA Inpeksi Quality control-' . $arrView['tanggal']  . $arrView['est'] . $arrView['afd'] . '.pdf';
+
+        return $pdf->stream($filename);
+
+
+        // return view('pdfBA', [$arrView ]);
+
     }
 }
