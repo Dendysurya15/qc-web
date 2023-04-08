@@ -50,14 +50,9 @@
         /* Push the footer to the bottom */
     }
 
-    .header {
-        align-items: center;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
 
-    .logo-container {
+
+    .header {
         display: flex;
         align-items: center;
     }
@@ -66,17 +61,25 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-left: 10px;
+        margin-left: 5px;
     }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+
 
     .logo {
         height: 60px;
         width: auto;
+        align-items: flex-start;
     }
 
     .pt-name,
     .qc-name {
         margin: 0;
+        padding-left: 1px;
     }
 
     .text-container {
@@ -119,29 +122,48 @@
 </style>
 
 <body>
-    <div class="content-wrapper">
-        <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3 border border-dark ">
+
+    <!-- ganti sessuai kebutuhan landsacpe/potrait -->
+
+    <!-- potrait -->
+    <!-- <div class="content-wrapper" style="border: 1px solid #000; padding: 50px; min-height: calc(594mm - 100px); width: 420mm; margin: 0 auto;"> -->
+    <!-- --- -->
+    <!-- landscape -->
+    <div class="content-wrapper" style="border: 1px solid #000; padding: 30px;">
+        <!-- -- -->
+
+        <style>
+            .custom-border {
+                border: 1px solid #000;
+                padding: 20px;
+                margin-top: 50px;
+                margin-bottom: 50px;
+            }
+        </style>
+
+        <div class="d-flex justify-content-center custom-border">
             <h2 class="text-center">BERITA ACARA REKAPITULASI PEMERIKSAAN KUALITAS PANEN QUALITY CONTROL</h2>
         </div>
 
         <table style="width: 100%; border-collapse: collapse;">
             <tr>
-                <td style="vertical-align: middle; border: 0;">
-                    <div class="logo-container">
-                        <img src="{{ asset('img/logo-SSS.png') }}" alt="Logo" class="logo">
+                <td style="vertical-align: middle; padding-left: 0; width: 10%;border:0;">
+                    <div>
+                        <img src="{{ asset('img/logo-SSS.png') }}" style="height:60px">
                     </div>
                 </td>
-                <td style="vertical-align: middle; border: 0;">
-                    <div class="text-container">
-                        <div class="pt-name">PT. SAWIT SUMBERMAS SARANA, TBK</div>
-                        <div class="qc-name">QUALITY CONTROL</div>
-                    </div>
+                <td style="width:30%;border:0;">
+
+                    <p style="text-align: left;">PT. SAWIT SUMBERMAS SARANA,TBK</p>
+                    <p style="text-align: left;">QUALITY CONTROL</p>
+
                 </td>
-                <td style="width: 40%; border: 0;"></td>
-                <td style="vertical-align: middle; text-align: right; border: 0;">
+                <td style=" width: 20%;border:0;">
+                </td>
+                <td style="vertical-align: middle; text-align: right;width:40%;border:0;">
                     <div class="right-container">
                         <div class="text-container">
-                            <div class="afd">periode pemeriksaan ke: _________________</div>
+                            <div class="afd">Periode pemeriksaan ke: _______________</div>
                             <div class="afd">ESTATE/ AFD: {{$data['est']}} {{$data['afd']}}</div>
                             <div class="afd">TANGGAL: {{$data['tanggal']}}</div>
                         </div>
@@ -149,6 +171,11 @@
                 </td>
             </tr>
         </table>
+
+        <!-- <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3" style="padding-top: 20px;">
+
+    </div> -->
+
         <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3 border border-dark ">
             <div class="table-responsive">
                 <table class="my-table">
@@ -212,6 +239,29 @@
                             $mergedKeys = array_unique(array_merge(array_keys($data['mutuAncak']), array_keys($data['mutuTransport'])));
                             $rowCount = count($mergedKeys);
                             $emptyRows = 8 - $rowCount;
+                            $totalPokokSample = 0;
+                            $totalLuasHa =0;
+
+                            $totaljumPanen =0;
+                            $akp_real =0;
+                            $total_p =0;
+                            $total_k =0;
+                            $total_gl =0;
+                            $total_brdMA =0;
+                            $brd_jjg =0;
+                            $total_s =0;
+                            $total_m1 =0;
+                            $total_m2 =0;
+                            $total_m3 =0;
+                            $total_bh =0;
+                            $buah_brd =0;
+                            $total_ps =0;
+                            $ps_persen =0;
+                            $total_tph =0;
+                            $total_brd =0;
+                            $brd_tph =0;
+                            $total_buah =0;
+                            $buah_tph =0;
                             @endphp
 
                             @foreach ($mergedKeys as $key)
@@ -234,9 +284,11 @@
                                 $buah_brd = 0;
                                 $total_ps = 0;
                                 $ps_persen=0;
+                                $TotLuasSam =0;
+                                $TotPersenSam =0;
                                 foreach ($data['mutuAncak'] as $mutuAncak) {
                                 $totalPokokSample += $mutuAncak['pokok_sample'] ?? 0;
-                                $totalLuasHa += $mutuAncak['luas_ha'] ?? 0;
+
                                 $totaljumPanen += $mutuAncak['jml_jjg_panen'] ?? 0;
                                 $akp_real = count_percent($totaljumPanen, $totalPokokSample);
                                 $total_p += $mutuAncak['p_ma'] ?? 0;
@@ -254,9 +306,15 @@
 
                                 $total_ps += $mutuAncak['ps_ma'] ?? 0;
                                 $ps_persen =count_percent($total_ps, $totalPokokSample);
+                                $avg = $data['avg']['average'];
+                                $TotLuasSam = $avg != 0 ? round(($totalPokokSample / $avg), 2) : '-';
+
+                                $TotPersenSam = $avg != 0 ? round(($TotLuasSam / $avg), 2) : '-';
+
                                 }
 
                                 @endphp
+
 
                                 @php
                                 $total_tph =0;
@@ -278,7 +336,7 @@
                                 <td>{{ $data['mutuAncak'][$key]['sph'] ?? '-' }}</td>
                                 <td>{{ $data['mutuAncak'][$key]['pokok_sample'] ?? '-' }}</td>
                                 <td>{{ $data['mutuAncak'][$key]['luas_ha'] ?? '-' }}</td>
-                                <td>{{ $data['mutuAncak'][$key]['persen_sample'] ?? '-' }}</td>
+                                <td>{{ $data['mutuAncak'][$key]['persenSamp'] ?? '-' }}</td>
                                 <td>{{ $data['mutuAncak'][$key]['jml_jjg_panen'] ?? '-' }}</td>
                                 <td>{{ $data['mutuAncak'][$key]['akp_real'] ?? '-' }}</td>
                                 <td>{{ $data['mutuAncak'][$key]['p_ma'] ?? '-' }}</td>
@@ -335,8 +393,8 @@
                                 <tr>
                                     <td colspan="4">Total</td>
                                     <td>{{ $totalPokokSample }}</td>
-                                    <td>{{ $totalLuasHa }}</td>
-                                    <td>-</td>
+                                    <td>{{$TotLuasSam}}</td>
+                                    <td>{{$TotPersenSam}}</td>
                                     <td>{{$totaljumPanen}}</td>
                                     <td>{{$akp_real}}</td>
                                     <td>{{$total_p}}</td>
@@ -363,7 +421,6 @@
                 </table>
             </div>
         </div>
-
 
 
         <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3 border border-dark ">
@@ -471,7 +528,7 @@
                             <td>{{$item['PersenAbr']}}</td>
                             <td>{{$item['jml_vcut']}}</td>
                             <td>{{$item['PersenVcut']}}</td>
-                            <td>{{$item['count_alas_br_1']}} of {{$item['blok_mb']}}</td>
+                            <td>{{$item['count_alas_br_1']}} / {{$item['blok_mb']}}</td>
                             <td>{{$item['PersenKrgBrd']}}</td>
                         </tr>
                         @endforeach
@@ -511,7 +568,7 @@
                                 <td>{{$perAbr}}</td>
                                 <td>{{$bh_vcut}}</td>
                                 <td>{{$preVcut}}</td>
-                                <td>{{$alasTot}} of {{$blokJm}}</td>
+                                <td>{{$alasTot}}/{{$blokJm}}</td>
                                 <td>{{$perKrg}}</td>
                             </tr>
                     </tbody>
@@ -519,82 +576,83 @@
             </div>
         </div>
 
+        <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3  border border-dark" style="padding: 10px;">
 
-        <div class="d-flex justify-content-center mt-3 mb-2 ml-3 mr-3 border border-dark">
-            <div class="custom-tables-container">
-                <!-- Table 1 -->
-                <table class="custom-table table-1-no-border" style="float: left; width: 20%;">
-                    <thead>
-                        <tr>
-                            <th colspan="2" class="text-center">Catatan Lainnya:</th>
-                        </tr>
-                    </thead>
+            <table class=" custom-table table-1-no-border" style="float: left; width: 20%;">
+                <thead>
                     <tr>
-                        <td>Frond Stacking</td>
-                        <td>: 99,2%</td>
+                        <th colspan="2" class="text-center">Catatan Lainnya(%)</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>Frond Stacking</td>
+                    <td>:{{$data['hitung']['frontstack'] }}</td>
+                </tr>
+                <!-- Add other rows for the remaining calculated values -->
+                <tr>
+                    <td>Pokok Kuning</td>
+                    <td>:{{$data['hitung']['pokok_kuning'] }}</td>
+                </tr>
+                <tr>
+                    <td>Piringan Semak</td>
+                    <td>:{{$data['hitung']['piringansmk'] }}</td>
+                </tr>
+                <tr>
+                    <td>Under Pruning</td>
+                    <td>:{{$data['hitung']['under'] }}</td>
+                </tr>
+                <tr>
+                    <td>Over Pruning</td>
+                    <td>:{{$data['hitung']['overprun'] }}</td>
+                </tr>
+                <tr>
+                    <td>Mentah Tanpa Brondol</td>
+                    <td>:{{$data['hitung']['mentah_tpBrd'] }}</td>
+                </tr>
+                <tr>
+                    <td>Mentah Kurang Brondol</td>
+                    <td>:{{$data['hitung']['mentah_krngBRD'] }}</td>
+                </tr>
+                <tr>
+                    <td>V-Cut</td>
+                    <td>:{{$data['hitung']['vcutStack'] }}</td>
+                </tr>
+            </table>
+            <!-- Table 2 -->
+            <table class="custom-table" style="float: right; width: 80%; border-collapse: collapse;" border="1">
+                <thead>
+                    <tr>
+                        <th colspan="12" class="text-center">Demikian hasil pemeriksaan ini dibuat dengan sebenar-benarnya tanpa rekayasa dan paksaan dari Siapapun,</th>
                     </tr>
                     <tr>
-                        <td>Pokok Kuning</td>
-                        <td>: 0,5%</td>
+                        <th colspan="6" class="text-center">Dibuat</th>
+                        <th colspan="3" class="text-center">Diterima</th>
+                        <th colspan="3" class="text-center">Diketahui</th>
                     </tr>
-                    <tr>
-                        <td>Piringan Semak</td>
-                        <td>: 1,3%</td>
-                    </tr>
-                    <tr>
-                        <td>Under Pruning</td>
-                        <td>: 2,7%</td>
-                    </tr>
-                    <tr>
-                        <td>Over Pruning</td>
-                        <td>: 0,4%</td>
-                    </tr>
-                    <tr>
-                        <td>Mentah Tanpa Brondol</td>
-                        <td>: 0,0%</td>
-                    </tr>
-                    <tr>
-                        <td>Mentah Kurang Brondol</td>
-                        <td>: 0,0%</td>
-                    </tr>
-                    <tr>
-                        <td>V-Cut</td>
-                        <td>: 75,6%</td>
-                    </tr>
-                </table>
+                </thead>
+                <tbody>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
 
-                <!-- Table 2 -->
-                <table class="custom-table" style="float: right; width: 80%; border-collapse: collapse;" border="1">
-                    <thead>
-                        <tr>
-                            <th colspan="12">Demikian hasil pemeriksaan ini dibuat dengan sebenar-benarnya tanpa rekayasa dan paksaan dari Siapapun,</th>
-                        </tr>
-                        <tr>
-                            <th colspan="6">Dibuat</th>
-                            <th colspan="3">Diterima</th>
-                            <th colspan="3">Diketahui</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td rowspan="4"></td>
-                            <td>Harno</td>
-                            <td rowspan="4"></td>
-                            <td>Nurul Akbar Majid</td>
-                            <td rowspan="4"></td>
-                            <td>Andika Ika S.</td>
-                            <td colspan="3" rowspan="7"></td>
-                            <td colspan="3" rowspan="7"></td>
-                        </tr>
-                        <tr></tr>
-                        <tr></tr>
-                        <tr></tr>
-                    </tbody>
-                </table>
+                    <tr>
+                        <td colspan="2" style="vertical-align: bottom;padding-top: 244px;text-align:center">__________</td>
+                        <td colspan="2" style="vertical-align: bottom;text-align:center">__________</td>
+                        <td colspan="2" style="vertical-align: bottom;text-align:center">__________</td>
+                        <td colspan="3" style="vertical-align: bottom;text-align:center">Asisten Afdeling</td>
 
-            </div>
+                        <td colspan="3" style="vertical-align: bottom;text-align:center">Estate Manager</td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+            <div style="clear:both;"></div>
         </div>
+        <!-- Table 1 -->
 
+        <div style="clear:both;"></div>
     </div>
 
 

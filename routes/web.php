@@ -8,6 +8,7 @@ use App\Http\Controllers\SidaktphController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\TesExportController;
 use App\Http\Controllers\inspectController;
+use App\Http\Controllers\mutubuahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,6 @@ use App\Http\Controllers\inspectController;
 Route::get('/', [LoginController::class, 'index'])->name('login');
 Route::post('/', [loginController::class, 'authenticate'])->name('login');
 Route::post('logout', [loginController::class, 'logout'])->name('logout');
-
 // Route::middleware(['auth'])->group(function () {
 Route::get('/index', [unitController::class, 'index']);
 Route::get('/dashboard_gudang', [unitController::class, 'dashboard_gudang'])->name('dashboard_gudang');
@@ -78,15 +78,19 @@ Route::post('/deleteBA', [inspectController::class, 'deleteBA'])->name('deleteBA
 
 Route::delete('/deleteTrans/{id}', [inspectController::class, 'deleteTrans'])->name('deleteTrans');
 Route::post('/pdfBA', [inspectController::class, 'pdfBA'])->name('pdfBA');
-
-
-
-
-
-
+Route::post('/fetchEstatesByRegion', [inspectController::class, 'fetchEstatesByRegion'])->name('fetchEstatesByRegion');
 Route::get('/listktu', [unitController::class, 'listktu'])->name('listktu');
 Route::post('/tambahKTU', [unitController::class, 'tambahKTU'])->name('tambahKTU');
 Route::post('/updateKTU', [unitController::class, 'updateKTU'])->name('updateKTU');
 Route::post('/hapusKTU', [unitController::class, 'hapusKTU'])->name('hapusKTU');
 
 Route::post('/hapusDetailSidak', [SidaktphController::class, 'hapusDetailSidak'])->name('hapusDetailSidak');
+Route::get('BaSidakTPH/{est}/{start}/{last}', [SidaktphController::class, 'BasidakTph'])->name('BasidakTph');
+
+Route::get('/dashboard_mutubuah', [mutubuahController::class, 'dashboard_mutubuah'])->name('dashboard_mutubuah');
+Route::get('/getWeek', [MutubuahController::class, 'getWeek'])->name('getWeek');
+Route::get('/getYear', [MutubuahController::class, 'getYear'])->name('getYear');
+Route::get('/getYearData', [MutubuahController::class, 'getYearData'])->name('getYearData');
+Route::get('/findingIsueTahun', [MutubuahController::class, 'findingIsueTahun'])->name('findingIsueTahun');
+
+// });

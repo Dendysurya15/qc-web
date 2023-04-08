@@ -6,10 +6,15 @@
     </div>
 </footer>
 
+<!-- Add the necessary JavaScript files for the AdminLTE template -->
+<script src="{{ asset('plugins/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/adminlte.min.js') }}"></script>
+
+<!-- Other JavaScript files -->
 <script src="{{ asset('js/js_tabel/jquery-3.5.1.js') }}"></script>
 <script src="{{ asset('js/js_tabel/jquery.dataTables.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
-<script>
 
-</script>
+</body>

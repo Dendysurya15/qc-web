@@ -41,6 +41,7 @@ session_start();
     <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.dataTables.min.css') }}" />
 
 
+
     <style type="text/css">
         .center {
             margin: auto;
@@ -69,7 +70,7 @@ session_start();
             color: red;
         }
     </style>
-
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@latest"></script>
 </head>
 
 
@@ -105,11 +106,31 @@ session_start();
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" style="height: 100%">
                         <!-- USER LAB -->
 
-                        <!-- TABEL -->
+                        <!-- Include Lottie library -->
+
+                        <style>
+                            .lottie-animation {
+                                width: 24px;
+                                /* adjust the width as per your preference */
+                                height: 24px;
+                                /* adjust the height as per your preference */
+                                margin-right: 8px;
+                                /* add some spacing between the icon and the text */
+                                display: inline-block;
+                                /* make the icon and the text appear on the same line */
+                                vertical-align: middle;
+                                /* align the icon vertically with the text */
+                            }
+
+                            .nav-link p {
+                                display: inline-block;
+                                vertical-align: middle;
+                            }
+                        </style>
+
                         <li class="nav-item">
-                            <!-- uses solid style -->
                             <a href="{{ asset('/dashboard_gudang') }}" class="nav-link">
-                                <i class="nav-icon fa-solid fa-file"></i>
+                                <div class="nav-icon lottie-animation" data-animation-path="https://assets9.lottiefiles.com/temp/lf20_vBnbOW.json"></div>
                                 <p>
                                     QC Gudang
                                 </p>
@@ -119,7 +140,8 @@ session_start();
                         <li class="nav-item">
                             <!-- uses solid style -->
                             <a href="{{ asset('/dashboardtph') }}" class="nav-link">
-                                <i class="nav-icon fa-solid fa-file"></i>
+                                <div class="nav-icon lottie-animation" data-animation-path="https://assets10.lottiefiles.com/packages/lf20_Lpuvp7YT5K.json"></div>
+
                                 <p>
                                     QC Sidak TPH
                                 </p>
@@ -129,28 +151,45 @@ session_start();
                         <li class="nav-item">
                             <!-- uses solid style -->
                             <a href="{{ asset('/dashboard_inspeksi') }}" class="nav-link">
-                                <i class="nav-icon fa-solid fa-file"></i>
+                                <div class="nav-icon lottie-animation" data-animation-path="https://assets10.lottiefiles.com/packages/lf20_w4hwxwuq.json"></div>
+
                                 <p>
                                     QC Inspeksi
                                 </p>
                             </a>
                         </li>
-
-                        {{-- <li class="nav-item">
-                            <a href="{{ asset('/field-inspection') }}" class="nav-link">
-                        <i class="nav-icon fa fa-book"></i>
-                        <p>
-                            Field Inspection
-                        </p>
-                        </a>
-                        </li>
                         <li class="nav-item">
-                            <a href="{{ asset('/vm') }}" class="nav-link">
-                                <i class="nav-icon fa fa-car"></i>
+                            <a href="{{ asset('/dashboard_mutubuah') }}" class="nav-link">
+                                <div class="nav-icon lottie-animation" data-animation-path="https://assets1.lottiefiles.com/packages/lf20_bENSfZ37DY.json"></div>
+
                                 <p>
-                                    Vehicle Management
+                                    Mutu Buah
                                 </p>
                             </a>
+                        </li>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var lottieElements = document.querySelectorAll('.lottie-animation');
+                                lottieElements.forEach(function(element) {
+                                    var animationPath = element.getAttribute('data-animation-path');
+                                    lottie.loadAnimation({
+                                        container: element,
+                                        renderer: 'svg',
+                                        loop: true,
+                                        autoplay: true,
+                                        path: animationPath
+                                    });
+                                });
+                            });
+                        </script>
+                        {{--
+                        <li class="nav-item">
+                            <a href="{{ asset('/vm') }}" class="nav-link">
+                        <i class="nav-icon fa fa-car"></i>
+                        <p>
+                            Vehicle Management
+                        </p>
+                        </a>
                         </li> --}}
 
                         <li class="nav-item fixed-bottom mb-3" heig style="position: absolute;">
