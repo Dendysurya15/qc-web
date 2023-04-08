@@ -25,8 +25,9 @@
     .tbl-fixed td {
         border: 1px solid #bbbbbb;
         padding: 5px;
-        width: 80px;
-        min-width: 80px;
+        /* Remove the following lines */
+        /* width: 80px; */
+        /* min-width: 80px; */
     }
 
     .tbl-fixed td:nth-child(1) {
@@ -61,6 +62,51 @@
     .legend {
         padding: 5px 5px;
         background: white;
+    }
+
+    @media (max-width: 360px) {
+        .table-sticky-header {
+            width: 100%;
+            margin: auto;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: auto;
+            position: relative;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .table-responsive .first-col {
+            position: sticky;
+            left: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+        }
+
+        /* .second-col {
+            position: sticky;
+            left: 50px;
+        
+            background-color: #cfcfcf;
+            z-index: 2;
+        } */
+
+        .second-col {
+            position: sticky;
+            left: 50px;
+            /* Adjust this value based on the width of your first column */
+            background-color: #cfcfcf;
+            z-index: 1;
+        }
+
     }
 </style>
 <div class="content-wrapper">
@@ -394,79 +440,97 @@
 
                             <div class="ml-4 mr-4">
                                 <div class=" row text-center">
-                                    <table class="table table-bordered" style="font-size: 13px">
-                                        <thead>
-                                            <tr>
-                                                @foreach ($arrHeader as $item)
-                                                <th>{{ $item }}</th>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sticky-header" style="font-size: 13px">
+                                            <thead class="sticky-header">
+                                                <tr>
+                                                    <!-- thead for estate -->
+                                                    @foreach ($arrHeader as $key => $item)
+                                                    @if ($key == 0)
+                                                    <th class="first-col">{{ $item }}</th>
+                                                    @elseif ($key == 1)
+                                                    <th class="second-col">{{ $item }}</th>
+                                                    @else
+                                                    <th>{{ $item }}</th>
+                                                    @endif
+                                                    @endforeach
+                                                    <th id="th_year">2023</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tb_tahun">
+                                            </tbody>
+                                            <thead>
+                                                <tr>
+                                                    <th colspan='17' style="background-color: white;"></th>
+                                                </tr>
+                                                <tr>
+                                                    <!-- thead for wilayah -->
+                                                    @foreach ($arrHeaderSc as $key => $item)
+                                                    @if ($key == 0)
+                                                    <th colspan="3">{{ $item }}</th>
+                                                    @elseif ($key == 1)
+                                                    <th>{{ $item }}</th>
+                                                    @else
+                                                    <th>{{ $item }}</th>
+                                                    @endif
+                                                    @endforeach
+                                                    <th id="th_years">2023</th>
 
-                                                @endforeach
-                                                <th id="th_year">2023</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tb_tahun">
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tablewil">
 
+                                            </tbody>
 
-                                        </tbody>
+                                            <thead>
+                                                <tr>
+                                                    <th colspan='17' style="background-color: white;"></th>
+                                                </tr>
 
-                                        <thead>
-                                            <tr>
+                                                <tr>
+                                                    <!-- thead for regional -->
+                                                    @foreach ($arrHeaderReg as $key => $item)
+                                                    @if ($key == 0)
+                                                    <th colspan="3">{{ $item }}</th>
+                                                    @elseif ($key == 1)
+                                                    <th>{{ $item }}</th>
+                                                    @else
+                                                    <th>{{ $item }}</th>
+                                                    @endif
+                                                    @endforeach
+                                                    <th id="th_years">2023</th>
 
-                                                <th colspan='17' style="background-color: white;"></th>
-                                            </tr>
-                                            <tr>
-                                                @foreach ($arrHeaderSc as $key => $item)
+                                                </tr>
+                                            </thead>
+                                            <tbody id="reg">
+
+                                            </tbody>
+
+                                            <thead>
+                                                <tr>
+
+                                                    <th colspan='17' style="background-color: white;"></th>
+                                                </tr>
+                                                <!-- thead for afdeling -->
+                                                @foreach ($arrHeaderTrd as $key => $item)
                                                 @if ($key == 0)
-                                                <th colspan="3">{{ $item }}</th>
+                                                <th>{{ $item }}</th>
+                                                @elseif ($key == 1)
+                                                <th class="first-col">{{ $item }}</th>
+                                                @elseif ($key == 2)
+                                                <th class="second-col">{{ $item }}</th>
                                                 @else
                                                 <th>{{ $item }}</th>
                                                 @endif
                                                 @endforeach
                                                 <th id="th_years">2023</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tablewil">
 
-                                        </tbody>
+                                            </thead>
+                                            <tbody id="rekapAFD">
 
-                                        <thead>
-                                            <tr>
-
-                                                <th colspan='17' style="background-color: white;"></th>
-                                            </tr>
-
-                                            <tr>
-                                                @foreach ($arrHeaderReg as $key => $item)
-                                                @if ($key == 0)
-                                                <th colspan="3">{{ $item }}</th>
-                                                @else
-                                                <th>{{ $item }}</th>
-                                                @endif
-                                                @endforeach
-                                                <th id="th_years">2023</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="reg">
-
-                                        </tbody>
-
-                                        <thead>
-                                            <tr>
-
-                                                <th colspan='17' style="background-color: white;"></th>
-                                            </tr>
-                                            <tr>
-                                                @foreach ($arrHeaderTrd as $item)
-                                                <th>{{ $item }}</th>
-                                                @endforeach
-                                                <th id="th_years">2023</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="rekapAFD">
-
-                                        </tbody>
-                                    </table>
-
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -703,6 +767,26 @@
                             <button class="btn btn-primary mb-3" style="float: right" id="showEstMap">Show</button>
                             <div class="col-2 mr-2" style="float: right">
                                 {{csrf_field()}}
+                                <select class="form-control" id="estDataMap" disabled>
+                                    <option value="" disabled>Pilih EST</option>
+
+                                </select>
+
+                            </div>
+                            <div class="col-2 mr-2" style="float: right">
+                                {{csrf_field()}}
+                                <select class="form-control" id="regDataMap">
+                                    <option value="" disabled>Pilih REG</option>
+                                    <option value="1,2,3" selected>Region 1</option>
+                                    <option value="4,5,6">Region 2</option>
+                                    <option value="7,8">Region 3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="d-flex flex-row-reverse mr-3">
+                            <button class="btn btn-primary mb-3" style="float: right" id="showEstMap">Show</button>
+                            <div class="col-2 mr-2" style="float: right">
+                                {{csrf_field()}}
                                 <select class="form-control" id="estDataMap">
                                     <option value="" disabled>Pilih Estate</option>
                                     @foreach ($estate as $key => $item)
@@ -710,7 +794,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
+                        </div> -->
+
 
                         <div class="ml-4 mr-4 mb-3">
                             <div class="row text-center">
@@ -730,6 +815,7 @@
                             <div class="col-2 mr-2" style="float: right">
                                 {{csrf_field()}}
                                 <select class="form-control" id="estData" name="estData">
+
                                     @foreach($listEstate as $item)
                                     <option value={{$item}}>{{$item}}</option>
                                     @endforeach
@@ -773,28 +859,81 @@
             </div>
     </section>
 </div>
+<div id="lottie-container" style="display: none; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 9999; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+    <div id="lottie-animation" style="width: 200px; height: 200px;"></div>
+</div>
+
 @include('layout/footer')
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
 </script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+
 
 <script>
+    const estDataMapSelect = document.querySelector('#estDataMap');
+    const regDataMapSelect = document.querySelector('#regDataMap');
+
+    // Add an event listener to the select element
+    // Add an event listener to the select element
+    function fetchEstates(region) {
+        var _token = $('input[name="_token"]').val();
+
+        // Fetch the estates for the selected region and update the estate filter
+        $.ajax({
+            url: "{{ route('fetchEstatesByRegion') }}",
+            method: "POST",
+            data: {
+                region: region,
+                _token: _token
+            },
+            success: function(result) {
+                // Update the estate filter with the fetched estates
+                estDataMapSelect.innerHTML = '<option value="" disabled>Pilih EST</option>';
+                result.estates.forEach(function(estate) {
+                    const option = document.createElement('option');
+                    option.value = estate;
+                    option.textContent = estate;
+                    estDataMapSelect.appendChild(option);
+                });
+                estDataMapSelect.disabled = false;
+            }
+        });
+    }
+    regDataMapSelect.addEventListener('change', function() {
+        // Get the selected option value
+        const selectedOptionValue = this.value;
+
+        // Fetch the estates for the selected region
+        fetchEstates(selectedOptionValue);
+    });
+
+    // Fetch the estates for the default region when the page loads
+    fetchEstates(regDataMapSelect.value);
+
+
+
+    /////
     $(document).ready(function() {
         changeData()
         getFindData()
         dataDashboard()
         dashboard_tahun()
         graphFilter()
-
-
-        setTimeout(function() {
-            map.invalidateSize()
-            removeMarkers()
-            getPlotBlok()
-            // getPlotEstate()
-        }, 2000);
+        map = initializeMap(); // Initialize the map on document ready
     });
+
+    function initializeMap() {
+        var map = L.map('map').setView([-2.2745234, 111.61404248], 13);
+
+        googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map);
+
+        return map;
+    }
 
     $("#showDataIns").click(function() {
         changeData()
@@ -804,21 +943,24 @@
         getFindData()
     });
 
-    var map = L.map('map').setView([-2.2745234, 111.61404248], 13);
-
-    googleSat = L.tileLayer('http://{s}.google.com/vt?lyrs=s&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    }).addTo(map);
-
-    var legendVar = ''
+    var map = null;
+    var legendVar = null;
 
     $('#showEstMap').click(function() {
-        map.removeControl(legendVar)
-        removeMarkers()
-        getPlotBlok()
-        // getPlotEstate()
+        if (map === null) {
+            map = initializeMap();
+        } else {
+            map.invalidateSize();
+        }
+
+        if (legendVar !== null) {
+            map.removeControl(legendVar);
+        }
+
+        removeMarkers();
+        getPlotBlok();
     });
+
 
     var titleEstate = new Array();
 
@@ -853,7 +995,7 @@
         geoJsonEst += ']}'
 
         var estate = JSON.parse(geoJsonEst)
-
+        console.log(estate);
         var estateObj = L.geoJSON(estate, {
                 onEachFeature: function(feature, layer) {
                     layer.myTag = 'EstateMarker'
@@ -876,45 +1018,29 @@
     var titleBlok = new Array();
 
     function drawBlokPlot(blok) {
-        var getPlotStr = '{"type"'
-        getPlotStr += ":"
-        getPlotStr += '"FeatureCollection",'
-        getPlotStr += '"features"'
-        getPlotStr += ":"
-        getPlotStr += '['
+        if (blok.length === 0) {
+            const errorAnimationPath = 'https://assets1.lottiefiles.com/packages/lf20_no386ede.json';
+            showLottieAlert(errorAnimationPath);
+            return;
+        }
+        // ...
+
+        // Show the success animation after the map is updated
+
+        var getPlotStr = '{"type":"FeatureCollection","features":[';
 
         for (let i = 0; i < blok.length; i++) {
-            getPlotStr += '{"type"'
-            getPlotStr += ":"
-            getPlotStr += '"Feature",'
-            getPlotStr += '"properties"'
-            getPlotStr += ":"
-            getPlotStr += '{"blok"'
-            getPlotStr += ":"
-            getPlotStr += '"' + blok[i][1]['blok'] + '",'
-            getPlotStr += '"estate"'
-            getPlotStr += ":"
-            getPlotStr += '"' + blok[i][1]['estate'] + '",'
-            getPlotStr += '"nilai"'
-            getPlotStr += ":"
-            getPlotStr += '"' + blok[i][1]['nilai'] + '"'
-            getPlotStr += '},'
-            getPlotStr += '"geometry"'
-            getPlotStr += ":"
-            getPlotStr += '{"coordinates"'
-            getPlotStr += ":"
-            getPlotStr += '[['
-            getPlotStr += blok[i][1]['latln']
-            getPlotStr += ']],"type"'
-            getPlotStr += ":"
-            getPlotStr += '"Polygon"'
-            getPlotStr += '}},'
+            getPlotStr += '{"type":"Feature","properties":{"blok":"' + blok[i][1]['blok'] + '","estate":"' + blok[i][1]['estate'] + '","nilai":"' + blok[i][1]['nilai'] + '"},"geometry":{"coordinates":[[' + blok[i][1]['latln'] + ']],"type":"Polygon"}}';
+
+            if (i < blok.length - 1) {
+                getPlotStr += ',';
+            }
         }
-        getPlotStr = getPlotStr.substring(0, getPlotStr.length - 1);
-        getPlotStr += ']}'
+
+        getPlotStr += ']}';
 
         var blok = JSON.parse(getPlotStr)
-
+        // console.log(blok)
         var test = L.geoJSON(blok, {
                 onEachFeature: function(feature, layer) {
                     layer.myTag = 'BlokMarker'
@@ -981,10 +1107,55 @@
                     }
                 }
             })
+
+
             .addTo(map);
 
-        map.fitBounds(test.getBounds());
+
+        if (test.getBounds().isValid()) {
+            map.fitBounds(test.getBounds());
+        } else {
+            console.error('Invalid bounds:', test.getBounds());
+        }
     }
+
+    // Declare a variable to store the previous Lottie animation instance
+    let previousAnimation = null;
+
+    function showLottieAlert(animationPath, callback) {
+        // Get the Lottie container and animation elements
+        const lottieContainer = document.getElementById('lottie-container');
+        const lottieAnimation = document.getElementById('lottie-animation');
+
+        // Destroy the previous Lottie animation instance if it exists
+        if (previousAnimation) {
+            previousAnimation.destroy();
+        }
+
+        // Show the Lottie container
+        lottieContainer.style.display = 'flex';
+
+        // Load and play the Lottie animation
+        const animation = lottie.loadAnimation({
+            container: lottieAnimation,
+            renderer: 'svg',
+            loop: false,
+            autoplay: true,
+            path: animationPath
+        });
+
+        // Save the current Lottie animation instance as the previous one
+        previousAnimation = animation;
+
+        // Hide the Lottie container after the animation is completed
+        animation.addEventListener('complete', () => {
+            if (callback) {
+                callback();
+            }
+            lottieContainer.style.display = 'none';
+        });
+    }
+
 
     var removeMarkers = function() {
         map.eachLayer(function(layer) {
@@ -1034,6 +1205,8 @@
         for (const param of params) {
             paramArr = param
         }
+
+
 
         $.ajax({
             url: "{{ route('plotBlok') }}",
@@ -1107,58 +1280,151 @@
             success: function(result) {
                 var parseResult = JSON.parse(result)
                 var dataResFind = Object.entries(parseResult['dataResFind']) //parsing data brondolan ke dalam var list
+                // var dataResFindes = Object.entries(parseResult['dataResFindes']) //parsing data brondolan ke dalam var list
 
-                //   console.log(dataResFind[0])
-                dataResFind.forEach(function(value, key) {
-                    dataResFind[key].forEach(function(value1, key1) {
-                        Object.entries(value1).forEach(function(value2, key2) {
-                            if (value2[0] != 0) {
-                                // console.log(value2)
-                                var tbody1 = document.getElementById('bodyFind');
+                // console.log(dataResFind)
+                const dataResFindes = Object.entries(parseResult['dataResFindes']);
+                // console.log(dataResFindes);
+                const newCum = dataResFindes.map(([_, data]) => ({
 
-                                tr = document.createElement('tr')
+                    est: data.est,
+                    tot: data.total_temuan,
+                    tuntan: data.tuntas,
+                    perTuntas: data.perTuntas,
+                    no_tuntas: data.no_tuntas,
+                    perNoTuntas: data.perNoTuntas,
+                    visit: data.visit,
+                }));
 
-                                let item1 = value2[0]
-                                let item2 = value2[1]['total_temuan']
-                                let item3 = value2[1]['tuntas']
-                                let item4 = value2[1]['perTuntas']
-                                let item5 = value2[1]['no_tuntas']
-                                let item6 = value2[1]['perNoTuntas']
+                // console.log(newCum);
 
-                                let itemElement1 = document.createElement('td')
-                                let itemElement2 = document.createElement('td')
-                                let itemElement3 = document.createElement('td')
-                                let itemElement4 = document.createElement('td')
-                                let itemElement5 = document.createElement('td')
-                                let itemElement6 = document.createElement('td')
-                                let itemElement7 = document.createElement('td')
-                                let itemElement8 = document.createElement('td')
-                                let itemElement9 = document.createElement('td')
+                function createDownloadButtons(visit, item1, date) {
+                    let buttonsHTML = '';
+                    const maxVisits = 3;
 
-                                itemElement1.innerText = item1
-                                itemElement2.innerText = item2
-                                itemElement3.innerText = item3
-                                itemElement4.innerText = item4
-                                itemElement5.innerText = item5
-                                itemElement6.innerText = item6
-                                itemElement7.innerHTML = '<a href="/cetakPDFFI/1/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
-                                itemElement8.innerHTML = '<a href="/cetakPDFFI/2/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
-                                itemElement9.innerHTML = '<a href="/cetakPDFFI/3/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                    for (let i = 1; i <= maxVisits; i++) {
+                        let itemElement = document.createElement('td');
+                        if (i <= visit) {
+                            itemElement.innerHTML = '<a href="/cetakPDFFI/' + i + '/' + item1 + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>';
+                        } else {
+                            itemElement.innerHTML = '<a href="#" class="btn btn-secondary" disabled><i class="nav-icon fa fa-ban"></i></a>';
+                        }
+                        tr.appendChild(itemElement);
+                    }
 
-                                tr.appendChild(itemElement1)
-                                tr.appendChild(itemElement2)
-                                tr.appendChild(itemElement3)
-                                tr.appendChild(itemElement4)
-                                tr.appendChild(itemElement5)
-                                tr.appendChild(itemElement6)
-                                tr.appendChild(itemElement7)
-                                tr.appendChild(itemElement8)
-                                tr.appendChild(itemElement9)
-                                tbody1.appendChild(tr)
-                            }
-                        });
-                    });
+
+                    return buttonsHTML;
+                }
+
+                var arrTbody1 = newCum
+
+                var tbody1 = document.getElementById('bodyFind');
+                //         $('#thead1').empty()
+                // $('#thead2').empty()
+                // $('#thead3').empty()
+
+                arrTbody1.forEach(element => {
+
+                    tr = document.createElement('tr')
+                    let item1 = element['est']
+                    let item2 = element['tot']
+                    let item3 = element['tuntan']
+                    let item4 = element['perTuntas']
+                    let item5 = element['no_tuntas']
+                    let item6 = element['perNoTuntas']
+                    let visit = element['visit']; // Correct
+
+                    let itemElement1 = document.createElement('td')
+                    let itemElement2 = document.createElement('td')
+                    let itemElement3 = document.createElement('td')
+                    let itemElement4 = document.createElement('td')
+                    let itemElement5 = document.createElement('td')
+                    let itemElement6 = document.createElement('td')
+
+
+
+                    itemElement4.innerText = item4
+                    itemElement1.innerText = item1
+                    // itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+
+                    itemElement2.innerText = item2
+                    itemElement3.innerText = item3
+                    //   itemElement4.innerText  = item4
+                    itemElement5.innerText = item5
+                    itemElement6.innerText = item6
+
+                    tr.appendChild(itemElement1)
+                    tr.appendChild(itemElement2)
+                    tr.appendChild(itemElement3)
+                    tr.appendChild(itemElement4)
+                    tr.appendChild(itemElement5)
+                    tr.appendChild(itemElement6)
+                    const maxVisits = 3;
+
+                    for (let i = 1; i <= maxVisits; i++) {
+                        let itemElement = document.createElement('td');
+                        if (i <= visit) {
+                            itemElement.innerHTML = '<a href="/cetakPDFFI/' + i + '/' + item1 + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>';
+                        } else {
+                            itemElement.innerHTML = '<a href="#" class="btn btn-secondary" disabled><i class="nav-icon fa fa-ban"></i></a>';
+                        }
+                        tr.appendChild(itemElement);
+                    }
+
+                    tbody1.appendChild(tr)
+                    // }
                 });
+
+                // dataResFind.forEach(function(value, key) {
+                //     dataResFind[key].forEach(function(value1, key1) {
+                //         Object.entries(value1).forEach(function(value2, key2) {
+                //             if (value2[0] != 0) {
+                //                 // console.log(value2)
+                //                 var tbody1 = document.getElementById('bodyFind');
+
+                //                 tr = document.createElement('tr')
+
+                //                 let item1 = value2[0]
+                //                 let item2 = value2[1]['total_temuan']
+                //                 let item3 = value2[1]['tuntas']
+                //                 let item4 = value2[1]['perTuntas']
+                //                 let item5 = value2[1]['no_tuntas']
+                //                 let item6 = value2[1]['perNoTuntas']
+
+                //                 let itemElement1 = document.createElement('td')
+                //                 let itemElement2 = document.createElement('td')
+                //                 let itemElement3 = document.createElement('td')
+                //                 let itemElement4 = document.createElement('td')
+                //                 let itemElement5 = document.createElement('td')
+                //                 let itemElement6 = document.createElement('td')
+                //                 let itemElement7 = document.createElement('td')
+                //                 let itemElement8 = document.createElement('td')
+                //                 let itemElement9 = document.createElement('td')
+
+                //                 itemElement1.innerText = item1
+                //                 itemElement2.innerText = item2
+                //                 itemElement3.innerText = item3
+                //                 itemElement4.innerText = item4
+                //                 itemElement5.innerText = item5
+                //                 itemElement6.innerText = item6
+                //                 itemElement7.innerHTML = '<a href="/cetakPDFFI/1/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                //                 itemElement8.innerHTML = '<a href="/cetakPDFFI/2/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+                //                 itemElement9.innerHTML = '<a href="/cetakPDFFI/3/' + value2[0] + '/' + date + '" class="btn btn-primary" target="_blank"><i class="nav-icon fa fa-download"></i></a>'
+
+                //                 tr.appendChild(itemElement1)
+                //                 tr.appendChild(itemElement2)
+                //                 tr.appendChild(itemElement3)
+                //                 tr.appendChild(itemElement4)
+                //                 tr.appendChild(itemElement5)
+                //                 tr.appendChild(itemElement6)
+                //                 tr.appendChild(itemElement7)
+                //                 tr.appendChild(itemElement8)
+                //                 tr.appendChild(itemElement9)
+                //                 tbody1.appendChild(tr)
+                //             }
+                //         });
+                //     });
+                // });
             }
         });
     }
@@ -1639,9 +1905,9 @@
 
                     itemElement4.innerText = item4
                     itemElement1.innerText = item1
-                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+                    // itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
 
-                    // itemElement2.innerText = item2
+                    itemElement2.innerText = item2
                     itemElement3.innerText = item3
                     //   itemElement4.innerText  = item4
                     itemElement5.innerText = item5
@@ -1842,8 +2108,8 @@
                     //     itemElement4.innerText = item4
                     // }
                     itemElement1.innerText = item1
-                    // itemElement2.innerText = item2
-                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+                    itemElement2.innerText = item2
+                    // itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
 
                     itemElement3.innerText = item3
                     itemElement4.innerText = item4
@@ -2040,8 +2306,8 @@
                     //     itemElement4.innerText = item4
                     // }
                     itemElement1.innerText = item1
-                    // itemElement2.innerText = item2
-                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+                    itemElement2.innerText = item2
+                    // itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
 
                     itemElement3.innerText = item3
                     itemElement4.innerText = item4
@@ -2294,8 +2560,8 @@
                     //     itemElement4.innerText = item4
                     // }
                     itemElement1.innerText = item1
-                    // itemElement2.innerText = item2
-                    itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
+                    itemElement2.innerText = item2
+                    // itemElement2.innerHTML = '<a href="detailInpeksi/' + element['est'] + '/' + element['afd'] + '/' + date + '" target="_blank">' + element['afd'] + ' </a>';
 
                     itemElement3.innerText = item3
                     itemElement4.innerText = item4
@@ -2850,6 +3116,14 @@
                     let column = 0;
                     items.forEach(item => {
                         let td = document.createElement('td');
+
+                        // Add the "first-col" and "second-col" classes
+                        if (column == 0) {
+                            td.classList.add("first-col");
+                        } else if (column == 1) {
+                            td.classList.add("second-col");
+                        }
+
                         if (column >= 4) {
                             if (item >= 95) {
                                 td.style.backgroundColor = "#0804fc";
@@ -2944,6 +3218,7 @@
                     for (let i = 1; i < items.length; i++) {
                         let item = items[i];
                         let td = document.createElement('td');
+
                         if (column >= 2) {
                             if (item >= 95) {
                                 td.style.backgroundColor = "#0804fc";
@@ -3006,6 +3281,7 @@
                         for (let i = 1; i < items.length; i++) {
                             let item = items[i];
                             let td = document.createElement('td');
+
                             if (column >= 2) {
                                 if (item >= 95) {
                                     td.style.backgroundColor = "#0804fc";
@@ -3166,6 +3442,13 @@
                         for (let j = 0; j < items.length; j++) {
                             let item = items[j];
                             let td = document.createElement('td');
+
+                            // Add the "first-col" and "second-col" classes
+                            if (column == 2) {
+                                td.classList.add("first-col");
+                            } else if (column == 3) {
+                                td.classList.add("second-col");
+                            }
                             if (column >= 5) {
                                 if (item >= 95) {
                                     td.style.backgroundColor = "#0804fc";
@@ -3357,7 +3640,7 @@
             },
 
             {
-                name: "Batas Toleransi",
+                name: "Score Good ",
                 data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 color: "#ff0000" // set the color to red
             }
@@ -3447,7 +3730,7 @@
                     },
 
                     {
-                        name: "Batas Toleransi",
+                        name: "Score Good",
                         data: [85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85]
                     }
                 ])
@@ -3458,7 +3741,7 @@
                     },
 
                     {
-                        name: "Batas Toleransi",
+                        name: "Score Good",
                         data: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
                     }
                 ])
@@ -3468,7 +3751,7 @@
                     },
 
                     {
-                        name: "Batas Toleransi",
+                        name: "Score Good",
                         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 ])

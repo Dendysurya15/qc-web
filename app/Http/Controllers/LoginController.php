@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 
 class LoginController extends Controller
 {
+    //
     public function index(Request $request)
     {
-        return view('admin.index');
+        return view('Admin.index');
     }
-
     public function authenticate(Request $request)
     {
         $user = DB::table('pengguna')
@@ -23,8 +27,9 @@ class LoginController extends Controller
             'email_or_nama_lengkap' => 'required',
             'password' => 'required'
         ]);
-
-
+        // $user = User::where('email', $request->email_or_nama_lengkap)
+        //     ->orWhere('nama_lengkap', $request->email_or_nama_lengkap)
+        //     ->first();
         $user = DB::table('pengguna')->where('email', $request->email_or_nama_lengkap)
             ->orWhere('nama_lengkap', $request->email_or_nama_lengkap)
             ->first();

@@ -11,29 +11,7 @@ require '../app/helpers.php';
 
 class inspectController extends Controller
 {
-    public function plotEstate(Request $request)
-    {
-        $est = $request->get('est');
 
-        $queryEstate = DB::connection('mysql2')->table('estate_plot')
-            ->select('*')
-            ->join('estate', 'estate_plot.est', '=', 'estate.est')
-            ->where('estate.est', $est)
-            ->get();
-
-        $estate_plot = array();
-        $plot = '';
-        $estate = '';
-
-        foreach ($queryEstate as $key2 => $val) {
-            $plot .= '[' . $val->lon . ',' . $val->lat . '],';
-            $estate = $val->nama;
-        }
-        $estate_plot['est'] = $estate . ' Estate';
-        $estate_plot['plot'] =  rtrim($plot, ',');
-
-        echo json_encode($estate_plot);
-    }
 
     public function plotBlok(Request $request)
     {
@@ -116,10 +94,11 @@ class inspectController extends Controller
             }
             $jml_mth = ($Jjg_Mth + $Jjg_Mth2);
             $jml_mtg = $janjang - ($jml_mth + $Jjg_Over + $Jjg_Empty + $Jjg_Abr);
-            $perBuahMentah = round(($jml_mth / ($janjang - $Jjg_Abr)) * 100, 2);
-            $perBuahMtg = round(($jml_mtg / ($janjang - $Jjg_Abr)) * 100, 2);
-            $perBuahOver = round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2);
-            $perJangkos = round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2);
+            $perBuahMentah = ($janjang - $Jjg_Abr) != 0 ? round(($jml_mth / ($janjang - $Jjg_Abr)) * 100, 2) : 0;
+            $perBuahMtg = ($janjang - $Jjg_Abr) != 0 ? round(($jml_mtg / ($janjang - $Jjg_Abr)) * 100, 2) : 0;
+            $perBuahOver = ($janjang - $Jjg_Abr) != 0 ? round(($Jjg_Over / ($janjang - $Jjg_Abr)) * 100, 2) : 0;
+            $perJangkos = ($janjang - $Jjg_Abr) != 0 ? round(($Jjg_Empty / ($janjang - $Jjg_Abr)) * 100, 2) : 0;
+
             $perVcut = count_percent($Jjg_Vcut, $janjang);
             $perAbnr = count_percent($Jjg_Abr, $janjang);
             $perKrgBrd = count_percent($Jjg_Als, $dtBlok);
@@ -165,8 +144,9 @@ class inspectController extends Controller
             $tot_jjg = ($jml_bhts + $jml_bhtm1 + $jml_bhtm2 + $jml_bhtm3);
             $luas_ha = round(($jml_pokok_sm / $jml_sph), 2);
 
-            $perBrdt = round(($tot_brd / $jml_jjg_panen), 2);
-            $perBt = round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2);
+            $perBrdt = ($jml_jjg_panen != 0) ? round(($tot_brd / $jml_jjg_panen), 2) : 0;
+            $perBt = ($jml_jjg_panen != 0) ? round(($tot_jjg / ($jml_jjg_panen + $tot_jjg)) * 100, 2) : 0;
+
             $perPSMA = count_percent($jml_ps, $jml_pokok_sm);
             $skorAncak = skor_brd_ma($perBrdt) + skor_buah_Ma($perBt) + skor_palepah_ma($perPSMA);
 
@@ -198,10 +178,14 @@ class inspectController extends Controller
                 $skorTrans = check_array('skorTrans', $value1);
                 $skorBuah = check_array('skorBuah', $value1);
                 $skorAncak = check_array('skorAncak', $value1);
-                $skorAkhir = $skorTrans + $skorBuah + $skorAncak;
+                // $skorAkhir = $skorTrans + $skorBuah + $skorAncak;
+                $skorAkhir = $skorTrans + $skorAncak;
                 $skor_kategori_akhir_est = skor_kategori_akhir($skorAkhir);
 
                 $dataSkorResult[$newData][0]['estate'] = $est;
+                $dataSkorResult[$newData][0]['skorTrans'] = $skorTrans;
+                $dataSkorResult[$newData][0]['skorBuah'] = $skorBuah;
+                $dataSkorResult[$newData][0]['skorAncak'] = $skorAncak;
                 $dataSkorResult[$newData][0]['blok'] = $newData;
                 $dataSkorResult[$newData][0]['text'] = $skor_kategori_akhir_est[1];
                 $dataSkorResult[$newData][0]['skorAkhir'] = $skorAkhir;
@@ -233,6 +217,7 @@ class inspectController extends Controller
         $blokEstate =  DB::connection('mysql2')->Table('blok')->whereIn('afdeling', $listIdAfd)->groupBy('nama')->pluck('nama', 'id');
         $blokEstateFix[$est] = json_decode($blokEstate, true);
         // dd($blokPerEstate);
+
 
         $blokLatLn = array();
         foreach ($blokEstateFix as $key => $value) {
@@ -317,16 +302,20 @@ class inspectController extends Controller
             $dataLegend['perFair'] = count_percent($tot_fair, $totalSkor);
             $dataLegend['perPoor'] = count_percent($tot_poor, $totalSkor);
         }
-        // dd($dataLegend);
+        // dd($blokLatLn, $dataLegend);
 
         $plot['blok'] = $blokLatLn;
         $plot['legend'] = $dataLegend;
-        // dd($dataLegend);
+        // dd($blokLatLn);
         echo json_encode($plot);
     }
 
     public function cetakPDFFI($id, $est, $tgl)
     {
+
+        if ($est == 'Pla') {
+            $est = 'Plasma1';
+        }
         $date = Carbon::parse($tgl)->format('F Y');
         $queryMTFI = DB::connection('mysql2')->table('mutu_transport')
             ->select("mutu_transport.*")
@@ -340,6 +329,8 @@ class inspectController extends Controller
         });
         $dataMTFI1 = json_decode($dataMTFI1, true);
 
+        // dd($dataMTFI1);
+
         $queryMAFI = DB::connection('mysql2')->table('mutu_ancak_new')
             ->select("mutu_ancak_new.*")
             ->where('estate', $est)
@@ -347,10 +338,10 @@ class inspectController extends Controller
             ->orderBy('afdeling', 'asc')
             ->orderBy('datetime', 'asc')
             ->get();
-        $dataMAFI1 = $queryMAFI->groupBy(function ($item) {
+        $queryMAFI = $queryMAFI->groupBy(function ($item) {
             return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
         });
-        $dataMAFI1 = json_decode($dataMAFI1, true);
+        $queryMAFI = json_decode($queryMAFI, true);
 
         $queryMBFI = DB::connection('mysql2')->table('mutu_buah')
             ->select("mutu_buah.*")
@@ -359,49 +350,448 @@ class inspectController extends Controller
             ->orderBy('afdeling', 'asc')
             ->orderBy('datetime', 'asc')
             ->get();
-        $dataMBFI1 = $queryMBFI->groupBy(function ($item) {
+        $queryMBFI = $queryMBFI->groupBy(function ($item) {
             return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
         });
-        $dataMBFI1 = json_decode($dataMBFI1, true);
+        $queryMBFI = json_decode($queryMBFI, true);
+
 
         $queryNew = DB::connection('mysql2')->table('follow_up_ma')
             ->select("follow_up_ma.*")
             ->where('estate', 'not like', '%Plasma%')
             ->get();
+
+        $queryNew = $queryNew->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
         $queryNew = json_decode($queryNew, true);
+        // dd($queryMAFI, $queryNew);
 
-        $tempData = array_merge($dataMTFI1, $dataMBFI1);
-        $dataEst = array_merge($tempData, $dataMAFI1);
-        ksort($dataEst);
+        $all_mutu = [];
 
-        $resultData = array();
-        $incr = 0;
-        foreach ($dataEst as $key => $value) {
-            $listBlokPerAfd = array();
-            $inc = 1;
-            foreach ($value as $key1 => $value1) {
-                foreach ($queryNew as $key3 => $value3) {
-                    if ($value1['estate'] == $value3['estate'] && $value1['afdeling'] == $value3['afdeling'] && $value1['blok'] == $value3['blok'] && $value1['br1'] == $value3['br1'] && $value1['br2'] == $value3['br2']) {
-                        $tgl = Carbon::parse($value1['datetime'])->format('Y-m-d');
-                        if (!in_array($key . ' ' . $tgl, $listBlokPerAfd)) {
-                            $listBlokPerAfd[] = $key . ' ' . $tgl;
-                            $resultData[$incr][$inc] = $value1;
-                            if (strpos($value3['foto_temuan1'], 'IMB') !== false) {
-                                $resultData[$incr][$inc]['foto_fu'] = 'MB';
+        foreach ($dataMTFI1 as $key => $items) {
+            if (!array_key_exists($key, $all_mutu)) {
+                $all_mutu[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $all_mutu[$key]['mutu_transport'][] = $item;
+                }
+            }
+        }
+
+        // dd($dataMTFI1);
+        foreach ($queryMAFI as $key => $items) {
+            if (!array_key_exists($key, $all_mutu)) {
+                $all_mutu[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+
+            $updatedQueryNew = [];
+
+            // Initialize visit_count for each category
+            $visit_count = [];
+
+            foreach ($items as $item) {
+                if (array_key_exists($key, $queryNew)) {
+                    foreach ($queryNew[$key] as $index => $newItem) {
+                        if ($newItem['br1'] == $item['br1'] && $newItem['br2'] == $item['br2']) {
+                            $item['foto_temuan1'] = $newItem['foto_temuan1'];
+                            $item['foto_temuan2'] = $newItem['foto_temuan2'];
+                            $item['foto_fu1'] = $newItem['foto_fu1'];
+                            $item['foto_fu2'] = $newItem['foto_fu2'];
+                            $item['komentar'] = $newItem['komentar'];
+                            $item['status'] = $newItem['status'];
+                            $updatedQueryNew[$index] = true;
+                            break;
+                        }
+                    }
+                }
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['br1'] . '_' . $item['br2'] . '_' . $item['jalur_masuk'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's datetime is not in the visit_count array, add it and assign a visit number
+                if (!in_array($item['datetime'], $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $item['datetime'];
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($item['datetime'], $visit_count[$identifier]) + 1;
+
+                if (!empty($item['foto_temuan1']) || !empty($item['foto_temuan2']) || !empty($item['foto_fu1']) || !empty($item['foto_fu2']) || !empty($item['komentar'])) {
+                    $all_mutu[$key]['mutu_ancak'][] = $item;
+                }
+            }
+        }
+        foreach ($queryMBFI as $key => $items) {
+            if (!array_key_exists($key, $all_mutu)) {
+                $all_mutu[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $all_mutu[$key]['mutu_buah'][] = $item;
+                }
+            }
+        }
+
+
+        $all_mutu = array_filter($all_mutu, function ($item) {
+            return !empty($item['mutu_transport']) || !empty($item['mutu_ancak']) || !empty($item['mutu_buah']);
+        });
+
+
+
+        // dd($all_mutu);
+        // $all_mutu now contains the merged data based on the same keys
+
+
+        // dd($all_mutu);
+        // $all_mutu now contains the merged data based on the same keys
+
+
+        // $tempData = array_merge($dataMTFI1, $queryMBFI);
+        // // dd($tempData);
+        // $dataEst = array_merge($tempData, $queryMAFI);
+        // ksort($dataEst);
+        // // dd($queryNew);
+        // $resultData = array();
+        // $incr = 0;
+        // foreach ($dataEst as $key => $value) {
+        //     $listBlokPerAfd = array();
+        //     $inc = 1;
+        //     foreach ($value as $key1 => $value1) {
+        //         foreach ($queryNew as $key3 => $value3) {
+        //             if ($value1['estate'] == $value3['estate'] && $value1['afdeling'] == $value3['afdeling'] && $value1['blok'] == $value3['blok']) {
+        //                 $tgl = Carbon::parse($value1['datetime'])->format('Y-m-d');
+        //                 if (!in_array($key . ' ' . $tgl, $listBlokPerAfd)) {
+        //                     // Check if foto_temuan1 or foto_temuan2 are not empty
+        //                     if (!empty($value3['foto_temuan1']) || !empty($value3['foto_temuan2'])) {
+        //                         $listBlokPerAfd[] = $key . ' ' . $tgl;
+        //                         $resultData[$incr][$inc] = $value1;
+
+        //                         // Assign foto_temuan1 and komentar from $value3 to the resultData
+        //                         $resultData[$incr][$inc]['foto_temuan1'] = $value3['foto_temuan1'];
+        //                         $resultData[$incr][$inc]['foto_temuan2'] = $value3['foto_temuan2'];
+        //                         $resultData[$incr][$inc]['foto_fu1'] = $value3['foto_fu1'];
+        //                         $resultData[$incr][$inc]['foto_fu2'] = $value3['foto_fu2'];
+        //                         $resultData[$incr][$inc]['komentar'] = $value3['komentar'];
+        //                         $resultData[$incr][$inc]['status'] = $value3['status'];
+
+        //                         if (strpos($value3['foto_temuan1'], 'IMB') !== false) {
+        //                             $resultData[$incr][$inc]['foto_fu1'] = 'MB';
+        //                         }
+        //                         $inc++;
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     $incr++;
+        // }
+
+        //buat functind getdata nnti di pindah
+        $estatex = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->join('wil', 'wil.id', '=', 'estate.wil')
+            ->where('wil.regional', '1')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
+            ->where('estate.est', '!=', 'PLASMA')
+            ->pluck('est');
+
+        $queryMtTrans = DB::connection('mysql2')->table('mutu_transport')
+            ->select("mutu_transport.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . '2023-03' . '%')
+            ->get();
+
+        // $dataTrans = $queryMtTrans->groupBy('estate');
+        $dataTrans = $queryMtTrans->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $dataTrans = json_decode($dataTrans, true);
+
+        $queryANcak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . '2023-03' . '%')
+            ->where('estate', 'not like', '%Plasma%')
+            ->get();
+        // $dataAncak = $queryANcak->groupBy('estate');
+        $dataAncak = $queryANcak->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $dataAncak = json_decode($dataAncak, true);
+
+        $queryFLW = DB::connection('mysql2')->table('follow_up_ma')
+            ->select("follow_up_ma.*")
+            ->where('estate', 'not like', '%Plasma%')
+            ->get();
+        $queryFLW = $queryFLW->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $queryFLW = json_decode($queryFLW, true);
+        // dd($queryANcak, $queryNew);
+
+        $queryMutuBh = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . '2023-03' . '%')
+            ->get();
+        // $mutuBuah = $queryMutuBh->groupBy('estate');
+        $mutuBuah = $queryMutuBh->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $mutuBuah = json_decode($mutuBuah, true);
+
+        $mutu_all = [];
+
+        foreach ($dataTrans as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_transport'][] = $item;
+                }
+            }
+        }
+
+        foreach ($dataAncak as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+
+            $updatedQueryNew = [];
+
+
+
+            foreach ($items as $item) {
+                if (array_key_exists($key, $queryFLW)) {
+                    foreach ($queryFLW[$key] as $index => $newItem) {
+                        if ($newItem['br1'] == $item['br1'] && $newItem['br2'] == $item['br2']) {
+                            $item['foto_temuan1'] = $newItem['foto_temuan1'];
+                            $item['foto_temuan2'] = $newItem['foto_temuan2'];
+                            $item['foto_fu1'] = $newItem['foto_fu1'];
+                            $item['foto_fu2'] = $newItem['foto_fu2'];
+                            $item['komentar'] = $newItem['komentar'];
+                            $item['status'] = $newItem['status'];
+                            $updatedQueryNew[$index] = true;
+                            break;
+                        }
+                    }
+                }
+                $visit_count = [];
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['br1'] . '_' . $item['br2'] . '_' . $item['jalur_masuk'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's datetime is not in the visit_count array, add it and assign a visit number
+                if (!in_array($item['datetime'], $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $item['datetime'];
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($item['datetime'], $visit_count[$identifier]) + 1;
+
+                if (!empty($item['foto_temuan1']) || !empty($item['foto_temuan2']) || !empty($item['foto_fu1']) || !empty($item['foto_fu2']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_ancak'][] = $item;
+                }
+            }
+        }
+
+        // dd($mutu_all);
+        foreach ($mutuBuah as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_buah'][] = $item;
+                }
+            }
+        }
+
+
+        $mutu_all = array_filter($mutu_all, function ($item) {
+            return !empty($item['mutu_transport']) || !empty($item['mutu_ancak']) || !empty($item['mutu_buah']);
+        });
+
+        $groupedArray = array();
+
+        foreach ($mutu_all as $key => $value) {
+            $groupKey = substr($key, 0, 3);
+
+            if (!array_key_exists($groupKey, $groupedArray)) {
+                $groupedArray[$groupKey] = array();
+            }
+
+            $groupedArray[$groupKey][$key] = $value;
+        }
+        // dd($groupedArray, $all_mutu);
+
+        // dd($groupedArray);
+        $item_counts = [];
+
+        foreach ($groupedArray as $key => $value) {
+            $count = 0;
+            $total_foto_temuan = 0;
+            $total_followUP = 0;
+            $total_visits = 0;
+            $highest_visit = 1; // Add this line to keep track of the highest number of visits
+
+            foreach ($value as $sub_key => $sub_value) {
+                foreach ($sub_value as $key2 => $value2) {
+                    $count += count($value2);
+                    foreach ($value2 as $item) {
+                        if (!empty($item["foto_temuan1"]) || !empty($item["foto_temuan"])) {
+                            $total_foto_temuan++;
+                        }
+                        if (!empty($item["foto_fu1"]) || !empty($item["foto_fu"])) {
+                            $total_followUP++;
+                        }
+                        // Increment the total_visits counter for each visit found
+                        if (!empty($item["visit"])) {
+                            $total_visits++;
+
+                            // Update the highest_visit variable if a higher visit number is found
+                            if ($item["visit"] > $highest_visit) {
+                                $highest_visit = $item["visit"];
                             }
-                            $inc++;
                         }
                     }
                 }
             }
-            $incr++;
+            $item_counts[$key]['est'] = $key;
+            $item_counts[$key]['total_temuan'] = $count; // Renamed this key to 'total_values'
+            $item_counts[$key]['foto_temuan'] = $total_foto_temuan;
+            $item_counts[$key]['followUp'] = $total_followUP;
+            $item_counts[$key]['tuntas'] = $total_followUP;
+            $item_counts[$key]['no_tuntas'] = $total_foto_temuan - $total_followUP;
+            $item_counts[$key]['perTuntas'] = ($total_foto_temuan - $total_followUP == 0) ? 0 : round($total_followUP / $total_foto_temuan * 100, 2);
+            $item_counts[$key]['perNoTuntas'] = ($total_foto_temuan - $total_followUP == 0) ? 0 : round(($total_foto_temuan - $total_followUP) / $total_foto_temuan * 100, 2);
+            $item_counts[$key]['visit'] = $highest_visit;
         }
-        dd($resultData);
+
+        // print_r($item_counts);
+
+
+        // dd($groupedArray['Pla'], $all_mutu);
+        // dd($item_counts, $groupedArray);
+        // $item_counts now contains the count of items in each key
+
+        // dd($groupedArray, $item_counts);
+        ////
 
         $pdf = pdf::loadview('cetakFI', [
             'id' => $id,
-            'dataResult' => $resultData
+            'date' => $date,
+            'est' => $est,
+            // 'dataResult' => $resultData,
+            'newResult' => $all_mutu,
         ]);
+
         $customPaper = array(0, 0, 1800, 900);
         $pdf->set_paper($customPaper, 'potrait');
 
@@ -411,6 +801,8 @@ class inspectController extends Controller
 
     public function getFindData(Request $request)
     {
+        // $test = $request->get('date');
+        // dd($test);
         $queryEstate = DB::connection('mysql2')->table('estate')
             ->select('estate.*')
             ->join('wil', 'wil.id', '=', 'estate.wil')
@@ -421,6 +813,7 @@ class inspectController extends Controller
 
         $queryEstate = json_decode($queryEstate, true);
 
+        // dd($queryEstate);
         $dataFinding = array();
         $dataResFind = array();
         foreach ($queryEstate as $value1) {
@@ -432,6 +825,8 @@ class inspectController extends Controller
                 ->get();
             $dataMTFI = $queryMTFI->groupBy('estate');
             $dataMTFI = json_decode($dataMTFI, true);
+
+            // dd($dataMTFI);
 
             $queryMAFI = DB::connection('mysql2')->table('mutu_ancak_new')
                 ->select("mutu_ancak_new.*")
@@ -471,6 +866,7 @@ class inspectController extends Controller
                 $dataFinding[$value1['wil']][$key]['no_tuntas'] = $tot_no_tuntas;
             }
 
+            // dd($dataFinding);
             foreach ($dataMAFI as $key => $value) {
                 $total_temuan = array();
                 $tuntas = array();
@@ -498,7 +894,7 @@ class inspectController extends Controller
                 $dataFinding[$value1['wil']][$key]['tuntas_ma'] = $tot_tuntas;
                 $dataFinding[$value1['wil']][$key]['no_tuntas_ma'] = $tot_no_tuntas;
             }
-
+            // dd($dataFinding);
             foreach ($dataFinding as $key => $value) {
                 foreach ($value as $key1 => $value1) {
                     $dataResFind[$key][$key1]['total_temuan'] = check_array('total_temuan', $value1) + check_array('total_temuan_ma', $value1);
@@ -509,10 +905,249 @@ class inspectController extends Controller
                 }
             }
         }
+        //refvisi
+        $estatex = DB::connection('mysql2')->table('estate')
+            ->select('estate.*')
+            ->join('wil', 'wil.id', '=', 'estate.wil')
+            ->where('wil.regional', $request->get('regional'))
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
+            ->where('estate.est', '!=', 'PLASMA')
+            ->pluck('est');
 
+        $queryMtTrans = DB::connection('mysql2')->table('mutu_transport')
+            ->select("mutu_transport.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . $request->get('date') . '%')
+            ->get();
+
+        // $dataTrans = $queryMtTrans->groupBy('estate');
+        $dataTrans = $queryMtTrans->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $dataTrans = json_decode($dataTrans, true);
+
+        $queryANcak = DB::connection('mysql2')->table('mutu_ancak_new')
+            ->select("mutu_ancak_new.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . $request->get('date') . '%')
+            ->where('estate', 'not like', '%Plasma%')
+            ->get();
+        // $dataAncak = $queryANcak->groupBy('estate');
+        $dataAncak = $queryANcak->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $dataAncak = json_decode($dataAncak, true);
+
+        $queryFLW = DB::connection('mysql2')->table('follow_up_ma')
+            ->select("follow_up_ma.*")
+            ->where('estate', 'not like', '%Plasma%')
+            ->get();
+        $queryFLW = $queryFLW->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $queryFLW = json_decode($queryFLW, true);
+        // dd($queryANcak, $queryNew);
+
+        $queryMutuBh = DB::connection('mysql2')->table('mutu_buah')
+            ->select("mutu_buah.*")
+            ->whereIn('estate', $estatex)
+            ->where('datetime', 'like', '%' . $request->get('date') . '%')
+            ->orderBy('afdeling', 'asc')
+            ->orderBy('datetime', 'asc')
+            ->get();
+        // $mutuBuah = $queryMutuBh->groupBy('estate');
+        $mutuBuah = $queryMutuBh->groupBy(function ($item) {
+            return $item->estate . ' ' . $item->afdeling . ' ' . $item->blok;
+        });
+        $mutuBuah = json_decode($mutuBuah, true);
+
+
+        $mutu_all = [];
+
+        foreach ($dataTrans as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_transport'][] = $item;
+                }
+            }
+        }
+
+        foreach ($dataAncak as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+
+            $updatedQueryNew = [];
+
+
+
+            foreach ($items as $item) {
+                if (array_key_exists($key, $queryFLW)) {
+                    foreach ($queryFLW[$key] as $index => $newItem) {
+                        if ($newItem['br1'] == $item['br1'] && $newItem['br2'] == $item['br2']) {
+                            $item['foto_temuan1'] = $newItem['foto_temuan1'];
+                            $item['foto_temuan2'] = $newItem['foto_temuan2'];
+                            $item['foto_fu1'] = $newItem['foto_fu1'];
+                            $item['foto_fu2'] = $newItem['foto_fu2'];
+                            $item['komentar'] = $newItem['komentar'];
+                            $item['status'] = $newItem['status'];
+                            $updatedQueryNew[$index] = true;
+                            break;
+                        }
+                    }
+                }
+                $visit_count = [];
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['br1'] . '_' . $item['br2'] . '_' . $item['jalur_masuk'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's datetime is not in the visit_count array, add it and assign a visit number
+                if (!in_array($item['datetime'], $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $item['datetime'];
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($item['datetime'], $visit_count[$identifier]) + 1;
+
+                if (!empty($item['foto_temuan1']) || !empty($item['foto_temuan2']) || !empty($item['foto_fu1']) || !empty($item['foto_fu2']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_ancak'][] = $item;
+                }
+            }
+        }
+
+        // dd($mutu_all);
+        foreach ($mutuBuah as $key => $items) {
+            if (!array_key_exists($key, $mutu_all)) {
+                $mutu_all[$key] = [
+                    'mutu_transport' => [],
+                    'mutu_ancak' => [],
+                    'mutu_buah' => [],
+                ];
+            }
+            $visit_count = [];
+
+
+            foreach ($items as $item) {
+                $date = substr($item['datetime'], 0, 10);
+                $identifier = $item['blok'] . '_' . $item['tph_baris'];
+
+                if (!array_key_exists($identifier, $visit_count)) {
+                    $visit_count[$identifier] = [];
+                }
+
+                // If the item's date is not in the visit_count array, add it and assign a visit number
+                if (!in_array($date, $visit_count[$identifier])) {
+                    $visit_count[$identifier][] = $date;
+                    // Sort the dates in ascending order
+                    sort($visit_count[$identifier]);
+                }
+
+                $item['visit'] = array_search($date, $visit_count[$identifier]) + 1;
+                if (!empty($item['foto_temuan']) || !empty($item['foto_fu']) || !empty($item['komentar'])) {
+                    $mutu_all[$key]['mutu_buah'][] = $item;
+                }
+            }
+        }
+
+
+        $mutu_all = array_filter($mutu_all, function ($item) {
+            return !empty($item['mutu_transport']) || !empty($item['mutu_ancak']) || !empty($item['mutu_buah']);
+        });
+
+        $groupedArray = array();
+
+        foreach ($mutu_all as $key => $value) {
+            $groupKey = substr($key, 0, 3);
+
+            if (!array_key_exists($groupKey, $groupedArray)) {
+                $groupedArray[$groupKey] = array();
+            }
+
+            $groupedArray[$groupKey][$key] = $value;
+        }
+        // dd($groupedArray, $all_mutu);
+
+        // dd($groupedArray);
+        $item_counts = [];
+
+        foreach ($groupedArray as $key => $value) {
+            $count = 0;
+            $total_foto_temuan = 0;
+            $total_followUP = 0;
+            $total_visits = 0;
+            $highest_visit = 1; // Add this line to keep track of the highest number of visits
+
+            foreach ($value as $sub_key => $sub_value) {
+                foreach ($sub_value as $key2 => $value2) {
+                    $count += count($value2);
+                    foreach ($value2 as $item) {
+                        if (!empty($item["foto_temuan1"]) || !empty($item["foto_temuan"])) {
+                            $total_foto_temuan++;
+                        }
+                        if (!empty($item["foto_fu1"]) || !empty($item["foto_fu"])) {
+                            $total_followUP++;
+                        }
+                        // Increment the total_visits counter for each visit found
+                        if (!empty($item["visit"])) {
+                            $total_visits++;
+
+                            // Update the highest_visit variable if a higher visit number is found
+                            if ($item["visit"] > $highest_visit) {
+                                $highest_visit = $item["visit"];
+                            }
+                        }
+                    }
+                }
+            }
+            $item_counts[$key]['est'] = $key;
+            $item_counts[$key]['total_temuan'] = $count; // Renamed this key to 'total_values'
+            $item_counts[$key]['foto_temuan'] = $total_foto_temuan;
+            $item_counts[$key]['followUp'] = $total_followUP;
+            $item_counts[$key]['tuntas'] = $total_followUP;
+            $item_counts[$key]['no_tuntas'] = $total_foto_temuan - $total_followUP;
+            $item_counts[$key]['perTuntas'] = ($total_foto_temuan - $total_followUP == 0) ? 0 : round($total_followUP / $total_foto_temuan * 100, 2);
+            $item_counts[$key]['perNoTuntas'] = ($total_foto_temuan - $total_followUP == 0) ? 0 : round(($total_foto_temuan - $total_followUP) / $total_foto_temuan * 100, 2);
+            $item_counts[$key]['visit'] = $highest_visit;
+        }
+
+        // dd($dataResFind);
         $arrView = array();
 
         $arrView['dataResFind'] = $dataResFind;
+        $arrView['dataResFindes'] = $item_counts;
 
         echo json_encode($arrView);
         exit();
@@ -2468,13 +3103,6 @@ class inspectController extends Controller
         // dd($DataEstate);
         $DataEstate = json_decode($DataEstate, true);
 
-        // $queryReg = DB::connection('mysql2')->table('reg')
-        //     ->select("reg.*")
-
-        //     ->pluck('nama');
-        // // dd($DataEstate);
-        // $queryReg = json_decode($queryReg, true);
-        // dd($queryReg);
 
         //menghitung buat table tampilkan pertahun
         $listEst = DB::connection('mysql2')->table('estate')
@@ -2484,8 +3112,9 @@ class inspectController extends Controller
         // dd($listEst);
         //bagian querry
 
-        //end testing
-        // dd($RegMTbuahBln);
+
+
+
 
         $queryAsisten =  DB::connection('mysql2')->Table('asisten_qc')->get();
         // dd($QueryMTbuahWil);
@@ -12756,12 +13385,11 @@ class inspectController extends Controller
         // dd($mutuAncak);
 
         $ancak = array();
+        $sum = 0; // Initialize sum variable
+        $count = 0; // Initialize count variable
         foreach ($mutuAncak as $key => $value) {
             $jumPokok = 0;
             $sph = 0;
-
-            $sph = 0;
-
             $jml_jjg_panen = 0;
             $jml_brtp = 0;
             $jml_brtk = 0;
@@ -12772,13 +13400,14 @@ class inspectController extends Controller
             $jml_bhtm3 = 0;
             $jml_ps = 0;
             $listBlok = array();
+            $pk_kuning = 0;
+            $pr_smak = 0;
+            $unprun  = 0;
+            $sp = 0;
+            $over_prun = 0;
+            $firstEntry = $value[0];
             foreach ($value as $key1 => $value2) {
                 $jumPokok += $value2['sample'];
-
-                // Check if the current 'sph' value is non-zero and the stored 'sph' value is still zero
-                // if ($value2['sph'] != 0 && $sph == 0) {
-                //     $sph = $value2['sph'];
-                // }
                 if (!in_array($value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'], $listBlok)) {
                     if ($value2['sph'] != 0) {
                         $listBlok[] = $value2['estate'] . ' ' . $value2['afdeling'] . ' ' . $value2['blok'];
@@ -12796,16 +13425,30 @@ class inspectController extends Controller
                 $jml_bhtm2 += $value2['bhtm2'];
                 $jml_bhtm3 += $value2['bhtm3'];
                 $jml_ps += $value2['ps'];
+
+
+                // untuk bagian food stacking
+                $pk_kuning += $value2['pokok_kuning'];
+                $pr_smak += $value2['piringan_semak'];
+                $unprun += $value2['underpruning'];
+                $over_prun += $value2['overpruning'];
+                $sp += $value2['sp'];
             }
-
-
             $jml_sph = $jml_blok == 0 ? $sph : ($sph / $jml_blok);
             $tot_brd = ($jml_brtp + $jml_brtk + $jml_brtgl);
             $tot_jjg = ($jml_bhts + $jml_bhtm1 + $jml_bhtm2 + $jml_bhtm3);
             $luas_ha = round(($jumPokok / $jml_sph), 2);
 
+            if ($firstEntry['luas_blok'] != 0) {
+                $first = $firstEntry['luas_blok'];
+            } else {
+                $first = '-';
+            }
 
-            $ancak[$key]['luas_blok'] = '-';
+
+            $ancak[$key]['luas_blok'] = $first;
+            $ancak[$key]['persenSamp'] = ($first != '-') ? round(($luas_ha / $first) * 100, 2) : '-';
+
             $ancak[$key]['status_panen'] = $value2['status_panen'];
             $ancak[$key]['sph'] = $sph;
             $ancak[$key]['pokok_sample'] = $jumPokok;
@@ -12834,10 +13477,31 @@ class inspectController extends Controller
             }
 
             $ancak[$key]['ps_ma'] = $jml_ps;
-            $ancak[$key]['persen_sample'] = '-';
-            $ancak[$key]['PerPSMA'] = count_percent($jml_ps, $jumPokok);
-        }
 
+            $ancak[$key]['PerPSMA'] = count_percent($jml_ps, $jumPokok);
+            $ancak[$key]['front'] = $sp;
+            $ancak[$key]['pk_kuning'] = $pk_kuning;
+            $ancak[$key]['und'] = $unprun;
+            $ancak[$key]['overprn'] = $over_prun;
+            $ancak[$key]['prsmk'] = $pr_smak;
+            $ancak[$key]['frontstack'] = round(($sp / $jumPokok) * 100, 2);
+            $ancak[$key]['under'] = round(($unprun / $jumPokok) * 100, 2);
+            $ancak[$key]['overprun'] = round(($over_prun / $jumPokok) * 100, 2);
+            $ancak[$key]['piringansmk'] = round(($pr_smak / $jumPokok) * 100, 2);
+
+            if ($first != '-') {
+                $sum += $first; // Add luas_blok to the sum
+                $count++;
+            }
+        }
+        $average = $count != 0 ? $sum / $count : 0;
+
+
+        $avg = [];
+        foreach ($ancak as $key) {
+            $avg['average'] = $average;
+        }
+        // dd($ancak, $avg);
         $transport = array();
 
         foreach ($mutuTransport as $key => $value) {
@@ -12875,6 +13539,7 @@ class inspectController extends Controller
             $dtBlok = count($value);
             $count_alas_br_1 = 0;
             $count_alas_br_0 = 0;
+            $vcutStack = 0;
             foreach ($value as $key2 => $value2) {
 
                 if (!in_array($value2['blok'], $listBlokPerAfd)) {
@@ -12895,11 +13560,16 @@ class inspectController extends Controller
                     $count_alas_br_0++;
                 }
             }
+            //untuk food stacking
+            $vcutStack = $janjang - $Jjg_Vcut;
+
             $jml_mth = ($Jjg_Mth + $Jjg_Mth2);
             $jml_mtg = $janjang - ($jml_mth + $Jjg_Over + $Jjg_Empty + $Jjg_Abr);
 
             $mutuBuah[$key]['blok_mb'] = $dtBlok;
             $mutuBuah[$key]['alas_mb'] = $Jjg_Als;
+            $mutuBuah[$key]['bmt'] = $Jjg_Mth;
+            $mutuBuah[$key]['bmk'] = $Jjg_Mth2;
             $mutuBuah[$key]['jml_janjang'] = $janjang;
             $mutuBuah[$key]['jml_mentah'] = $jml_mth;
             $mutuBuah[$key]['jml_masak'] = $jml_mtg;
@@ -12919,13 +13589,87 @@ class inspectController extends Controller
             $mutuBuah[$key]['PersenKrgBrd'] = count_percent($count_alas_br_1, $dtBlok);
             $mutuBuah[$key]['count_alas_br_1'] = $count_alas_br_1;
             $mutuBuah[$key]['count_alas_br_0'] = $count_alas_br_0;
+            $mutuBuah[$key]['vst'] = $vcutStack;
+            $mutuBuah[$key]['vcutStack'] = $janjang != 0 ? round(($vcutStack / $janjang) * 100, 2) : 0;
         }
 
-        // dd($mutuBuahQuery);
-        // dd($mutuBuah);
+        // dd($ancak, $mutuBuah);
+
+        $BuahStack = array();
+
+        // Merge the keys from both arrays and create a unique set of keys
+        $keys = array_unique(array_merge(array_keys($mutuBuah), array_keys($ancak)));
+
+        foreach ($keys as $key) {
+            $currentBuahStack = array();
+            $currentBuahStack['vst'] = isset($mutuBuah[$key]['vst']) ? $mutuBuah[$key]['vst'] : 0;
+            $currentBuahStack['jml_janjang'] = isset($mutuBuah[$key]['jml_janjang']) ? $mutuBuah[$key]['jml_janjang'] : 0;
+            $currentBuahStack['bmt'] = isset($mutuBuah[$key]['bmt']) ? $mutuBuah[$key]['bmt'] : 0;
+            $currentBuahStack['bmk'] = isset($mutuBuah[$key]['bmk']) ? $mutuBuah[$key]['bmk'] : 0;
+            $currentBuahStack['jml_vcut'] = isset($mutuBuah[$key]['jml_vcut']) ? $mutuBuah[$key]['jml_vcut'] : 0;
+            //ancak 
+            $currentBuahStack['front'] = isset($ancak[$key]['front']) ? $ancak[$key]['front'] : 0;
+            $currentBuahStack['pk_kuning'] = isset($ancak[$key]['pk_kuning']) ? $ancak[$key]['pk_kuning'] : 0;
+            $currentBuahStack['und'] = isset($ancak[$key]['und']) ? $ancak[$key]['und'] : 0;
+            $currentBuahStack['overprn'] = isset($ancak[$key]['overprn']) ? $ancak[$key]['overprn'] : 0;
+            $currentBuahStack['prsmk'] = isset($ancak[$key]['prsmk']) ? $ancak[$key]['prsmk'] : 0;
+            $currentBuahStack['pokok_sample'] = isset($ancak[$key]['pokok_sample']) ? $ancak[$key]['pokok_sample'] : 0;
+
+            // Append the current iteration values to the main $BuahStack array with the $key
+            $BuahStack[$key] = $currentBuahStack;
+        }
+
+        // dd($BuahStack);
+        $CalculateStack = array();
+        $vcut = 0;
+        $jjg = 0;
+        $front = 0;
+        $und  = 0;
+        $overprn = 0;
+        $prsmk = 0;
+        $pkok_sam = 0;
+        $pkok_kuning = 0;
+        $bmt = 0;
+        $bmk = 0;
+        $vcutt = 0;
+        foreach ($BuahStack as $key => $value) {
+            $vcut += $value['vst'];
+            $vcutt += $value['jml_vcut'];
+            $bmt += $value['bmt'];
+            $bmk += $value['bmk'];
+            $jjg += $value['jml_janjang'];
+            $front += $value['front'];
+            $und  += $value['und'];
+            $overprn += $value['overprn'];
+            $prsmk += $value['prsmk'];
+            $pkok_sam += $value['pokok_sample'];
+            $pkok_kuning += $value['pk_kuning'];
+        }
+        $vcutStacks  = $jjg - $vcutt;
+        $CalculateStack['frontstack'] = $pkok_sam != 0 ? round(($front / $pkok_sam) * 100, 2) : 0;
+        $CalculateStack['pokok_kuning'] = $pkok_sam != 0 ? round(($pkok_kuning / $pkok_sam) * 100, 2) : 0;
+        $CalculateStack['piringansmk'] = $pkok_sam != 0 ? round(($prsmk / $pkok_sam) * 100, 2) : 0;
+        $CalculateStack['under'] = $pkok_sam != 0 ? round(($und / $pkok_sam) * 100, 2) : 0;
+        $CalculateStack['overprun'] = $pkok_sam != 0 ? round(($overprn / $pkok_sam) * 100, 2) : 0;
+        $CalculateStack['mentah_tpBrd'] = $jjg != 0 ? round(($bmt / $jjg) * 100, 2) : 0;
+        $CalculateStack['mentah_krngBRD'] = $jjg != 0 ? round(($bmk / $jjg) * 100, 2) : 0;
+        $CalculateStack['vcutStack'] = $jjg != 0 ? round(($vcutStacks / $jjg) * 100, 2) : 0;
+
+
+        $CalculateStack['vst'] = $vcut;
+        $CalculateStack['vcutStacks'] = $vcutStacks;
+        $CalculateStack['TidakVcut'] = $vcutt;
+        $CalculateStack['jjg_buah'] = $jjg;
+        $CalculateStack['bmk'] = $bmk;
+        $CalculateStack['bmt'] = $bmt;
+        $CalculateStack['pokok_sample'] = $jjg;
+
+        // dd($CalculateStack);
         $arrView = array();
+        $arrView['hitung'] =  $CalculateStack;
 
         $arrView['mutuAncak'] =  $ancak;
+        $arrView['avg'] =  $avg;
         $arrView['mutuBuah'] =  $mutuBuah;
         $arrView['mutuTransport'] =  $transport;
         $arrView['est'] =  $est;
@@ -12935,7 +13679,8 @@ class inspectController extends Controller
         $pdf = PDF::loadView('pdfBA', ['data' => $arrView]);
 
         $customPaper = array(360, 360, 360, 360);
-        $pdf->set_paper('A2', 'potrait');
+        $pdf->set_paper('A2', 'landscape');
+        // $pdf->set_paper('A2', 'potrait');
 
         $filename = 'BA Inpeksi Quality control-' . $arrView['tanggal']  . $arrView['est'] . $arrView['afd'] . '.pdf';
 
@@ -12944,5 +13689,25 @@ class inspectController extends Controller
 
         // return view('pdfBA', [$arrView ]);
 
+    }
+
+    public function fetchEstatesByRegion(Request $request)
+    {
+        $reg = $request->input('region');
+
+        // Split the string into an array of numbers
+        $regArray = array_map('intval', explode(',', $reg));
+
+        $EstMapVal = DB::connection('mysql2')->table('estate')
+            ->whereNotIn('estate.est', ['CWS1', 'CWS2', 'CWS3'])
+            ->whereIn('wil', $regArray)->pluck('est');
+        $EstMapVal = json_decode($EstMapVal, true);
+
+
+        // dd($reg, $EstMapVal);
+        // Return the estates as JSON data
+        return response()->json([
+            'estates' => $EstMapVal
+        ]);
     }
 }

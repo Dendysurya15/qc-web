@@ -442,85 +442,9 @@ class SidaktphController extends Controller
                             $skor_kr = round($sum_all_karung / $jum_blok, 1);
                             $skor_buahtgl = round($sum_all_bt_tgl / $jum_blok, 1);
                             $skor_restan = round($sum_all_restan_unreported / $jum_blok, 1);
-                            $skor_brd_akhir = 0;
-                            if ($skor_brd <= 18) {
-                                $skor_brd_akhir = 30;
-                            } else if ($skor_brd >= 18 && $skor_brd <= 30) {
-                                $skor_brd_akhir = 26;
-                            } else if ($skor_brd >= 30 && $skor_brd <= 42) {
-                                $skor_brd_akhir = 22;
-                            } else if ($skor_brd >= 42 && $skor_brd <= 54) {
-                                $skor_brd_akhir = 18;
-                            } else if ($skor_brd >= 54 && $skor_brd <= 66) {
-                                $skor_brd_akhir = 14;
-                            } else if ($skor_brd >= 66 && $skor_brd <= 78) {
-                                $skor_brd_akhir = 10;
-                            } else if ($skor_brd >= 78 && $skor_brd <= 90) {
-                                $skor_brd_akhir = 6;
-                            } else if ($skor_brd >= 96) {
-                                $skor_brd_akhir = 0;
-                            }
 
-                            //karung
-                            $skor_kr_akhir = 0;
-                            if ($skor_kr <= 0) {
-                                $skor_kr_akhir = 20;
-                            } else if ($skor_kr >= 0 && $skor_kr <= 3) {
-                                $skor_kr_akhir = 17;
-                            } else if ($skor_kr >= 3 && $skor_kr <= 6) {
-                                $skor_kr_akhir = 14;
-                            } else if ($skor_kr >= 6 && $skor_kr <= 9) {
-                                $skor_kr_akhir = 11;
-                            } else if ($skor_kr >= 9 && $skor_kr <= 12) {
-                                $skor_kr_akhir = 8;
-                            } else if ($skor_kr >= 12 && $skor_kr <= 15) {
-                                $skor_kr_akhir = 5;
-                            } else if ($skor_kr >= 15 && $skor_kr <= 18) {
-                                $skor_kr_akhir = 2;
-                            } else if ($skor_kr >= 18) {
-                                $skor_kr_akhir = 0;
-                            }
-                            //buah tinggal
-                            $skor_buahtgl_akhir = 0;
-                            if ($skor_buahtgl <= 0) {
-                                $skor_buahtgl_akhir = 20;
-                            } else if ($skor_buahtgl >= 0 && $skor_buahtgl <= 3) {
-                                $skor_buahtgl_akhir = 17;
-                            } else if ($skor_buahtgl >= 3 && $skor_buahtgl <= 6) {
-                                $skor_buahtgl_akhir = 14;
-                            } else if ($skor_buahtgl >= 6 && $skor_buahtgl <= 9) {
-                                $skor_buahtgl_akhir = 11;
-                            } else if ($skor_buahtgl >= 9 && $skor_buahtgl <= 12) {
-                                $skor_buahtgl_akhir = 8;
-                            } else if ($skor_buahtgl >= 12 && $skor_buahtgl <= 15) {
-                                $skor_buahtgl_akhir = 5;
-                            } else if ($skor_buahtgl >= 15 && $skor_buahtgl <= 18) {
-                                $skor_buahtgl_akhir = 2;
-                            } else if ($skor_buahtgl >= 18) {
-                                $skor_buahtgl_akhir = 0;
-                            }
-                            //restant
-                            $skor_restan_akhir = 0;
-                            if ($skor_restan <= 0) {
-                                $skor_restan_akhir = 30;
-                            } else if ($skor_restan >= 0 && $skor_restan <= 3) {
-                                $skor_restan_akhir = 26;
-                            } else if ($skor_restan >= 3 && $skor_restan <= 6) {
-                                $skor_restan_akhir = 22;
-                            } else if ($skor_restan >= 6 && $skor_restan <= 9) {
-                                $skor_restan_akhir = 18;
-                            } else if ($skor_restan >= 9 && $skor_restan <= 12) {
-                                $skor_restan_akhir = 14;
-                            } else if ($skor_restan >= 12 && $skor_restan <= 15) {
-                                $skor_restan_akhir = 10;
-                            } else if ($skor_restan >= 15 && $skor_restan <= 18) {
-                                $skor_restan_akhir = 6;
-                            } else if ($skor_restan >= 18 && $skor_restan <= 21) {
-                                $skor_restan_akhir = 2;
-                            } else if ($skor_restan >= 21) {
-                                $skor_restan_akhir = 0;
-                            }
-                            $skoreTotal = $skor_brd_akhir + $skor_kr_akhir + $skor_buahtgl_akhir + $skor_restan_akhir;
+
+                            $skoreTotal = skorBRDsidak($skor_brd) + skorKRsidak($skor_kr) + skorBHsidak($skor_buahtgl) + skorRSsidak($skor_restan);
 
 
 
@@ -531,10 +455,10 @@ class SidaktphController extends Controller
 
                             $dataSkorAwal[$key][$key2]['jumlah_blok'] = $jum_blok;
 
-                            $dataSkorAwal[$key][$key2]['brd_blok'] = $skor_brd_akhir;
-                            $dataSkorAwal[$key][$key2]['kr_blok'] = $skor_kr_akhir;
-                            $dataSkorAwal[$key][$key2]['buah_blok'] = $skor_buahtgl_akhir;
-                            $dataSkorAwal[$key][$key2]['restan_blok'] = $skor_restan_akhir;
+                            $dataSkorAwal[$key][$key2]['brd_blok'] = skorBRDsidak($skor_brd);
+                            $dataSkorAwal[$key][$key2]['kr_blok'] = skorKRsidak($skor_kr);
+                            $dataSkorAwal[$key][$key2]['buah_blok'] = skorBHsidak($skor_buahtgl);
+                            $dataSkorAwal[$key][$key2]['restan_blok'] = skorRSsidak($skor_restan);
                             $dataSkorAwal[$key][$key2]['skore_akhir'] = $skoreTotal;
                         } else {
                             $dataSkorAwal[$key][$key2]['karung_tes'] = 0;
@@ -592,106 +516,16 @@ class SidaktphController extends Controller
                         $skor_restan = 0;
                     }
 
-                    $skor_tph_akhir = 0;
-                    if ($skor_tph <= 18) {
-                        $skor_tph_akhir = 30;
-                    } else if ($skor_tph >= 18 && $skor_tph <= 30) {
-                        $skor_tph_akhir = 26;
-                    } else if ($skor_tph >= 30 && $skor_tph <= 42) {
-                        $skor_tph_akhir = 22;
-                    } else if ($skor_tph >= 42 && $skor_tph <= 54) {
-                        $skor_tph_akhir = 18;
-                    } else if ($skor_tph >= 54 && $skor_tph <= 66) {
-                        $skor_tph_akhir = 14;
-                    } else if ($skor_tph >= 66 && $skor_tph <= 78) {
-                        $skor_tph_akhir = 10;
-                    } else if ($skor_tph >= 78 && $skor_tph <= 90) {
-                        $skor_tph_akhir = 6;
-                    } else if ($skor_tph >= 96) {
-                        $skor_tph_akhir = 0;
-                    }
+                    $skoreTotal =  skorBRDsidak($skor_tph) + skorKRsidak($skor_karung) + skorBHsidak($skor_buah) + skorRSsidak($skor_restan);
 
-
-                    //karung
-                    $skor_karung_akhir = 0;
-                    if ($skor_karung <= 0) {
-                        $skor_karung_akhir = 20;
-                    } else if ($skor_karung >= 0 && $skor_karung <= 3) {
-                        $skor_karung_akhir = 17;
-                    } else if ($skor_karung >= 3 && $skor_karung <= 6) {
-                        $skor_karung_akhir = 14;
-                    } else if ($skor_karung >= 6 && $skor_karung <= 9) {
-                        $skor_karung_akhir = 11;
-                    } else if ($skor_karung >= 9 && $skor_karung <= 12) {
-                        $skor_karung_akhir = 8;
-                    } else if ($skor_karung >= 12 && $skor_karung <= 15) {
-                        $skor_karung_akhir = 5;
-                    } else if ($skor_karung >= 15 && $skor_karung <= 18) {
-                        $skor_karung_akhir = 2;
-                    } else if ($skor_karung >= 18) {
-                        $skor_karung_akhir = 0;
-                    }
-                    //buah tinggal
-                    $skor_buah_akhir = 0;
-                    if ($skor_buah <= 0) {
-                        $skor_buah_akhir = 20;
-                    } else if ($skor_buah >= 0 && $skor_buah <= 3) {
-                        $skor_buah_akhir = 17;
-                    } else if ($skor_buah >= 3 && $skor_buah <= 6) {
-                        $skor_buah_akhir = 14;
-                    } else if ($skor_buah >= 6 && $skor_buah <= 9) {
-                        $skor_buah_akhir = 11;
-                    } else if ($skor_buah >= 9 && $skor_buah <= 12) {
-                        $skor_buah_akhir = 8;
-                    } else if ($skor_buah >= 12 && $skor_buah <= 15) {
-                        $skor_buah_akhir = 5;
-                    } else if ($skor_buah >= 15 && $skor_buah <= 18) {
-                        $skor_buah_akhir = 2;
-                    } else if ($skor_buah >= 18) {
-                        $skor_buah_akhir = 0;
-                    }
-
-                    //restant
-                    $skor_restan_akhir = 0;
-                    if ($skor_restan <= 0) {
-                        $skor_restan_akhir = 30;
-                    } else if ($skor_restan >= 0 && $skor_restan <= 3) {
-                        $skor_restan_akhir = 26;
-                    } else if ($skor_restan >= 3 && $skor_restan <= 6) {
-                        $skor_restan_akhir = 22;
-                    } else if ($skor_restan >= 6 && $skor_restan <= 9) {
-                        $skor_restan_akhir = 18;
-                    } else if ($skor_restan >= 9 && $skor_restan <= 12) {
-                        $skor_restan_akhir = 14;
-                    } else if ($skor_restan >= 12 && $skor_restan <= 15) {
-                        $skor_restan_akhir = 10;
-                    } else if ($skor_restan >= 15 && $skor_restan <= 18) {
-                        $skor_restan_akhir = 6;
-                    } else if ($skor_restan >= 18 && $skor_restan <= 21) {
-                        $skor_restan_akhir = 2;
-                    } else if ($skor_restan >= 21) {
-                        $skor_restan_akhir = 0;
-                    }
-
-                    $skoreTotal = $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
-
-                    // if ($skoreTotal == 100) {
-                    //     if ($skor_tph == 0 && $skor_karung == 0 && $skor_buah == 0 && $skor_restan == 0) {
-                    //         $skoreTotal = 0;
-                    //     }
-                    // }
-                    // $dataSkorAwaltest[$key]['tot_tph'] = $sum_all_tph;
-                    // $dataSkorAwaltest[$key]['tot_karung'] = $sum_all_karung;
-                    // $dataSkorAwaltest[$key]['tot_buah'] = $sum_all_buah;
-                    // $dataSkorAwaltest[$key]['tot_restant'] = $sum_all_restant;
                     $dataSkorAwaltest[$key]['total_estate_brondol'] = $sum_all_tph;
                     $dataSkorAwaltest[$key]['total_estate_karung'] = $sum_all_karung;
                     $dataSkorAwaltest[$key]['total_estate_buah_tinggal'] = $sum_all_buah;
                     $dataSkorAwaltest[$key]['total_estate_restan_tinggal'] = $sum_all_restant;
-                    $dataSkorAwaltest[$key]['tph'] = $skor_tph_akhir;
-                    $dataSkorAwaltest[$key]['karung'] = $skor_karung_akhir;
-                    $dataSkorAwaltest[$key]['buah_tinggal'] = $skor_buah_akhir;
-                    $dataSkorAwaltest[$key]['restant'] = $skor_restan_akhir;
+                    $dataSkorAwaltest[$key]['tph'] =  skorBRDsidak($skor_tph);
+                    $dataSkorAwaltest[$key]['karung'] = skorKRsidak($skor_karung);
+                    $dataSkorAwaltest[$key]['buah_tinggal'] = skorBHsidak($skor_buah);
+                    $dataSkorAwaltest[$key]['restant'] = skorRSsidak($skor_restan);
                     $dataSkorAwaltest[$key]['total_blokokok'] = $jum_all_blok;
                     $dataSkorAwaltest[$key]['skor_akhir'] = $skoreTotal;
                 }
@@ -853,112 +687,12 @@ class SidaktphController extends Controller
                         $skor_total_restan_tinggal = 0;
                     }
 
-
-
-                    $skor_tph_akhir = 0;
-                    if ($skor_total_brondol <= 18) {
-                        $skor_tph_akhir = 30;
-                    } else if ($skor_total_brondol >= 18 && $skor_total_brondol <= 30) {
-                        $skor_tph_akhir = 26;
-                    } else if ($skor_total_brondol >= 30 && $skor_total_brondol <= 42) {
-                        $skor_tph_akhir = 22;
-                    } else if ($skor_total_brondol >= 42 && $skor_total_brondol <= 54) {
-                        $skor_tph_akhir = 18;
-                    } else if ($skor_total_brondol >= 54 && $skor_total_brondol <= 66) {
-                        $skor_tph_akhir = 14;
-                    } else if ($skor_total_brondol >= 66 && $skor_total_brondol <= 78) {
-                        $skor_tph_akhir = 10;
-                    } else if ($skor_total_brondol >= 78 && $skor_total_brondol <= 90) {
-                        $skor_tph_akhir = 6;
-                    } else if ($skor_total_brondol >= 96) {
-                        $skor_tph_akhir = 0;
-                    }
-
-
-                    //karung
-                    $skor_karung_akhir = 0;
-                    if ($skor_total_karung <= 0) {
-                        $skor_karung_akhir = 20;
-                    } else if ($skor_total_karung >= 0 && $skor_total_karung <= 3) {
-                        $skor_karung_akhir = 17;
-                    } else if ($skor_total_karung >= 3 && $skor_total_karung <= 6) {
-                        $skor_karung_akhir = 14;
-                    } else if ($skor_total_karung >= 6 && $skor_total_karung <= 9) {
-                        $skor_karung_akhir = 11;
-                    } else if ($skor_total_karung >= 9 && $skor_total_karung <= 12) {
-                        $skor_karung_akhir = 8;
-                    } else if ($skor_total_karung >= 12 && $skor_total_karung <= 15) {
-                        $skor_karung_akhir = 5;
-                    } else if ($skor_total_karung >= 15 && $skor_total_karung <= 18) {
-                        $skor_karung_akhir = 2;
-                    } else if ($skor_total_karung >= 18) {
-                        $skor_karung_akhir = 0;
-                    }
-                    //buah tinggal
-                    $skor_buah_akhir = 0;
-                    if ($skor_total_buah_tinggal <= 0) {
-                        $skor_buah_akhir = 20;
-                    } else if ($skor_total_buah_tinggal >= 0 && $skor_total_buah_tinggal <= 3) {
-                        $skor_buah_akhir = 17;
-                    } else if ($skor_total_buah_tinggal >= 3 && $skor_total_buah_tinggal <= 6) {
-                        $skor_buah_akhir = 14;
-                    } else if ($skor_total_buah_tinggal >= 6 && $skor_total_buah_tinggal <= 9) {
-                        $skor_buah_akhir = 11;
-                    } else if ($skor_total_buah_tinggal >= 9 && $skor_total_buah_tinggal <= 12) {
-                        $skor_buah_akhir = 8;
-                    } else if ($skor_total_buah_tinggal >= 12 && $skor_total_buah_tinggal <= 15) {
-                        $skor_buah_akhir = 5;
-                    } else if ($skor_total_buah_tinggal >= 15 && $skor_total_buah_tinggal <= 18) {
-                        $skor_buah_akhir = 2;
-                    } else if ($skor_total_buah_tinggal >= 18) {
-                        $skor_buah_akhir = 0;
-                    }
-
-                    //restant
-                    $skor_restan_akhir = 0;
-                    if ($skor_total_restan_tinggal <= 0) {
-                        $skor_restan_akhir = 30;
-                    } else if ($skor_total_restan_tinggal >= 0 && $skor_total_restan_tinggal <= 3) {
-                        $skor_restan_akhir = 26;
-                    } else if ($skor_total_restan_tinggal >= 3 && $skor_total_restan_tinggal <= 6) {
-                        $skor_restan_akhir = 22;
-                    } else if ($skor_total_restan_tinggal >= 6 && $skor_total_restan_tinggal <= 9) {
-                        $skor_restan_akhir = 18;
-                    } else if ($skor_total_restan_tinggal >= 9 && $skor_total_restan_tinggal <= 12) {
-                        $skor_restan_akhir = 14;
-                    } else if ($skor_total_restan_tinggal >= 12 && $skor_total_restan_tinggal <= 15) {
-                        $skor_restan_akhir = 10;
-                    } else if ($skor_total_restan_tinggal >= 15 && $skor_total_restan_tinggal <= 18) {
-                        $skor_restan_akhir = 6;
-                    } else if ($skor_total_restan_tinggal >= 18 && $skor_total_restan_tinggal <= 21) {
-                        $skor_restan_akhir = 2;
-                    } else if ($skor_total_restan_tinggal >= 21) {
-                        $skor_restan_akhir = 0;
-                    }
-
                     $skor_gm_wil[$key]['total_brondolan'] = $sum_est_brondol;
                     $skor_gm_wil[$key]['total_karung'] = $sum_est_karung;
                     $skor_gm_wil[$key]['total_buah_tinggal'] = $sum_est_buah_tinggal;
                     $skor_gm_wil[$key]['total_restan'] = $sum_est_restan_tinggal;
                     $skor_gm_wil[$key]['blok'] = $sum_blok;
-                    $skor_gm_wil[$key]['skor'] = $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
-
-                    // if ($key == 1) {
-                    //     $estWil = 'WIL-I';
-                    // } else if ($key == 2) {
-                    //     $estWil = 'WIL-II';
-                    // } else {
-                    //     $estWil = 'WIL-III';
-                    // }
-
-                    // foreach ($queryAsisten as $key5 => $value5) {
-                    //     if ($value5->est == $estWil && $value5->afd == 'GM') {
-                    //         $skor_gm_wil[$key]['nama'] = $value4->nama;
-                    //     }
-                    // }
-                    // if (empty($skor_gm_wil[$key]['nama'])) {
-                    //     $skor_gm_wil[$key]['nama'] = '-';
-                    // }
+                    $skor_gm_wil[$key]['skor'] =  skorBRDsidak($skor_total_brondol) + skorKRsidak($skor_total_karung) + skorBHsidak($skor_total_buah_tinggal) + skorRSsidak($skor_total_restan_tinggal);
                 }
 
                 $GmSkorWil = array();
@@ -1022,87 +756,6 @@ class SidaktphController extends Controller
                 $skor_total_wil_buah_tinggal = round($sum_wil_buah_tinggal / $sum_wil_blok, 2);
                 $skor_total_wil_restan = round($sum_wil_restan / $sum_wil_blok, 2);
 
-                $skor_tph_akhir = 0;
-                if ($skor_total_wil_brondol <= 18) {
-                    $skor_tph_akhir = 30;
-                } else if ($skor_total_wil_brondol >= 18 && $skor_total_wil_brondol <= 30) {
-                    $skor_tph_akhir = 26;
-                } else if ($skor_total_wil_brondol >= 30 && $skor_total_wil_brondol <= 42) {
-                    $skor_tph_akhir = 22;
-                } else if ($skor_total_wil_brondol >= 42 && $skor_total_wil_brondol <= 54) {
-                    $skor_tph_akhir = 18;
-                } else if ($skor_total_wil_brondol >= 54 && $skor_total_wil_brondol <= 66) {
-                    $skor_tph_akhir = 14;
-                } else if ($skor_total_wil_brondol >= 66 && $skor_total_wil_brondol <= 78) {
-                    $skor_tph_akhir = 10;
-                } else if ($skor_total_wil_brondol >= 78 && $skor_total_wil_brondol <= 90) {
-                    $skor_tph_akhir = 6;
-                } else if ($skor_total_wil_brondol >= 96) {
-                    $skor_tph_akhir = 0;
-                }
-
-
-                //karung
-                $skor_karung_akhir = 0;
-                if ($skor_total_wil_karung <= 0) {
-                    $skor_karung_akhir = 20;
-                } else if ($skor_total_wil_karung >= 0 && $skor_total_wil_karung <= 3) {
-                    $skor_karung_akhir = 17;
-                } else if ($skor_total_wil_karung >= 3 && $skor_total_wil_karung <= 6) {
-                    $skor_karung_akhir = 14;
-                } else if ($skor_total_wil_karung >= 6 && $skor_total_wil_karung <= 9) {
-                    $skor_karung_akhir = 11;
-                } else if ($skor_total_wil_karung >= 9 && $skor_total_wil_karung <= 12) {
-                    $skor_karung_akhir = 8;
-                } else if ($skor_total_wil_karung >= 12 && $skor_total_wil_karung <= 15) {
-                    $skor_karung_akhir = 5;
-                } else if ($skor_total_wil_karung >= 15 && $skor_total_wil_karung <= 18) {
-                    $skor_karung_akhir = 2;
-                } else if ($skor_total_wil_karung >= 18) {
-                    $skor_karung_akhir = 0;
-                }
-                //buah tinggal
-                $skor_buah_akhir = 0;
-                if ($skor_total_wil_buah_tinggal <= 0) {
-                    $skor_buah_akhir = 20;
-                } else if ($skor_total_wil_buah_tinggal >= 0 && $skor_total_wil_buah_tinggal <= 3) {
-                    $skor_buah_akhir = 17;
-                } else if ($skor_total_wil_buah_tinggal >= 3 && $skor_total_wil_buah_tinggal <= 6) {
-                    $skor_buah_akhir = 14;
-                } else if ($skor_total_wil_buah_tinggal >= 6 && $skor_total_wil_buah_tinggal <= 9) {
-                    $skor_buah_akhir = 11;
-                } else if ($skor_total_wil_buah_tinggal >= 9 && $skor_total_wil_buah_tinggal <= 12) {
-                    $skor_buah_akhir = 8;
-                } else if ($skor_total_wil_buah_tinggal >= 12 && $skor_total_wil_buah_tinggal <= 15) {
-                    $skor_buah_akhir = 5;
-                } else if ($skor_total_wil_buah_tinggal >= 15 && $skor_total_wil_buah_tinggal <= 18) {
-                    $skor_buah_akhir = 2;
-                } else if ($skor_total_wil_buah_tinggal >= 18) {
-                    $skor_buah_akhir = 0;
-                }
-
-                //restant
-                $skor_restan_akhir = 0;
-                if ($skor_total_wil_restan <= 0) {
-                    $skor_restan_akhir = 30;
-                } else if ($skor_total_wil_restan >= 0 && $skor_total_wil_restan <= 3) {
-                    $skor_restan_akhir = 26;
-                } else if ($skor_total_wil_restan >= 3 && $skor_total_wil_restan <= 6) {
-                    $skor_restan_akhir = 22;
-                } else if ($skor_total_wil_restan >= 6 && $skor_total_wil_restan <= 9) {
-                    $skor_restan_akhir = 18;
-                } else if ($skor_total_wil_restan >= 9 && $skor_total_wil_restan <= 12) {
-                    $skor_restan_akhir = 14;
-                } else if ($skor_total_wil_restan >= 12 && $skor_total_wil_restan <= 15) {
-                    $skor_restan_akhir = 10;
-                } else if ($skor_total_wil_restan >= 15 && $skor_total_wil_restan <= 18) {
-                    $skor_restan_akhir = 6;
-                } else if ($skor_total_wil_restan >= 18 && $skor_total_wil_restan <= 21) {
-                    $skor_restan_akhir = 2;
-                } else if ($skor_total_wil_restan >= 21) {
-                    $skor_restan_akhir = 0;
-                }
-
                 $skor_rh = array();
                 foreach ($queryReg as $key => $value) {
                     if ($value == 1) {
@@ -1120,7 +773,7 @@ class SidaktphController extends Controller
                     if (empty($skor_rh[$value]['nama'])) {
                         $skor_rh[$value]['nama'] = '-';
                     }
-                    $skor_rh[$value]['skor'] =  $skor_tph_akhir + $skor_karung_akhir + $skor_buah_akhir + $skor_restan_akhir;
+                    $skor_rh[$value]['skor'] =    skorBRDsidak($skor_total_wil_brondol) + skorKRsidak($skor_total_wil_karung) + skorBHsidak($skor_total_wil_buah_tinggal) + skorRSsidak($skor_total_wil_restan);
                 }
 
                 foreach ($list_all_will as $key => $value) {
@@ -1377,27 +1030,7 @@ class SidaktphController extends Controller
                     }
                 }
             }
-            // dd($defPLASidak, $SidakTPHPlA);
-            // $sidakTphplasma = array();
-            // foreach ($defPLAtrans as $estKey => $afdArray) {
-            //     foreach ($afdArray as $afdKey => $afdValue) {
-            //         if (array_key_exists($estKey, $SidakTPHPlA)) {
-            //             if (array_key_exists($afdKey, $SidakTPHPlA[$estKey])) {
-            //                 if (!empty($SidakTPHPlA[$estKey][$afdKey])) {
-            //                     $sidakTphplasma[$estKey][$afdKey] = $SidakTPHPlA[$estKey][$afdKey];
-            //                 } else {
-            //                     $sidakTphplasma[$estKey][$afdKey] = $afdValue;
-            //                 }
-            //             } else {
-            //                 $sidakTphplasma[$estKey][$afdKey] = $afdValue;
-            //             }
-            //         } else {
-            //             $sidakTphplasma[$estKey][$afdKey] = $afdValue;
-            //         }
-            //     }
-            // }
 
-            // dd($defPLASidak, $SidakTPHPlA['Plasma1']);s
             foreach ($defPLASidak as $key => $estValue) {
                 foreach ($estValue as $monthKey => $monthValue) {
                     $mergedValues = array();
@@ -2514,5 +2147,147 @@ class SidaktphController extends Controller
 
         session()->flash('status', 'Data Sidak berhasil dihapus!');
         return redirect()->route('detailSidakTph', ['est' => $est, 'afd' => $afd, 'start' => $start, 'last' => $last]);
+    }
+
+
+    public function BasidakTph($est, $start, $last)
+    {
+        $startDate = DateTime::createFromFormat('Y-m-d', $start);
+        $endDate = clone $startDate;
+        $endDate->modify('+6 days');
+
+        $formattedStartDate = $startDate->format('d-m-Y');
+        $formattedEndDate = $endDate->format('d-m-Y');
+
+        // dd($start, $endDate);
+        $query = DB::connection('mysql2')->Table('sidak_tph')
+            ->select('sidak_tph.*', 'estate.wil') //buat mengambil data di estate db dan willayah db
+            ->join('estate', 'estate.est', '=', 'sidak_tph.est') //kemudian di join untuk mengambil est perwilayah
+            ->where('sidak_tph.est', $est)
+            ->whereBetween('sidak_tph.datetime', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
+
+        $query = $query->groupBy(['afd', 'blok']);
+        // dd($query);
+        $query = json_decode($query, true);
+        // dd($query);
+
+        $pdf = array();
+        $totalblok = 0;
+        $totaltph = 0;
+        $totaljalan = 0;
+        $totalbin = 0;
+        $totalkr = 0;
+        $totaltgl = 0;
+        $totalunr = 0;
+        foreach ($query as $key => $value) {
+            $dtBlok = 0;
+            $dtBlok = count($value);
+            $btTPH = 0;
+            $btJlan = 0;
+            $btBin = 0;
+            $jumKR = 0;
+            $bhTGL = 0;
+            $rsUNR  = 0;
+            $sum_luas = 0; // Add
+            foreach ($value as $key2 => $value2) {
+                $sum_bt_tph = 0;
+                $sum_bt_jalan = 0;
+                $sum_bt_bin = 0;
+                $sum_jum_karung = 0;
+                $sum_buah_tinggal = 0;
+                $sum_restan_unreported = 0;
+                $luas_blok = 0;
+                foreach ($value2 as $key3 => $value3) {
+                    $sum_bt_tph += $value3['bt_tph'];
+                    $sum_bt_jalan += $value3['bt_jalan'];
+                    $sum_bt_bin += $value3['bt_bin'];
+
+                    $sum_jum_karung += $value3['jum_karung'];
+                    $sum_buah_tinggal += $value3['buah_tinggal'];
+                    $sum_restan_unreported += $value3['restan_unreported'];
+                    $luas_bk =  $value2[0]['luas'];
+                }
+                $pdf[$key][$key2]['bt_tph'] = $sum_bt_tph;
+                $pdf[$key][$key2]['bt_jalan'] = $sum_bt_jalan;
+                $pdf[$key][$key2]['bt_bin'] = $sum_bt_bin;
+                $pdf[$key][$key2]['jum_karung'] = $sum_jum_karung;
+                $pdf[$key][$key2]['buah_tinggal'] = $sum_buah_tinggal;
+                $pdf[$key][$key2]['restan_unreported'] = $sum_restan_unreported;
+                $pdf[$key][$key2]['TotalBRD'] = $sum_bt_bin + $sum_bt_jalan + $sum_bt_tph;
+                $pdf[$key][$key2]['luas'] = $luas_bk;
+
+                $sum_luas += $value2[0]['luas']; // Add this line
+                $luas_blok += $luas_bk;
+                $btTPH += $sum_bt_tph;
+                $btJlan += $sum_bt_jalan;
+                $btBin += $sum_bt_bin;
+                $jumKR += $sum_jum_karung;
+                $bhTGL += $sum_buah_tinggal;
+                $rsUNR += $sum_restan_unreported;
+            }
+            $pdf[$key]['luas_blok'] = $sum_luas; //
+            $pdf[$key]['jum_blok'] = $dtBlok;
+            $pdf[$key]['bt_tph'] = $btTPH;
+            $pdf[$key]['tph_blok'] = $dtBlok != 0 ? round($btTPH / $dtBlok, 2) : 0;
+            $pdf[$key]['bt_jalan'] = $btJlan;
+            $pdf[$key]['jalan_blok'] = $dtBlok != 0 ? round($btJlan / $dtBlok, 2) : 0;
+            $pdf[$key]['bt_bin'] = $btBin;
+            $pdf[$key]['bin_blok'] = $dtBlok != 0 ? round($btBin / $dtBlok, 2) : 0;
+            $pdf[$key]['TotalBRD'] = $btTPH + $btJlan + $btBin;
+            $pdf[$key]['Total_blok'] = $dtBlok != 0 ? round(($btTPH + $btJlan + $btBin) / $dtBlok, 2) : 0;
+            $pdf[$key]['jum_karung'] = $jumKR;
+            $pdf[$key]['blok_karung'] = $dtBlok != 0 ? round($jumKR / $dtBlok, 2) : 0;
+            $pdf[$key]['buah_tinggal'] = $bhTGL;
+            $pdf[$key]['blok_buah'] = $dtBlok != 0 ? round($bhTGL / $dtBlok, 2) : 0;
+            $pdf[$key]['restan_unreported'] = $rsUNR;
+            $pdf[$key]['blok_restanx'] = $dtBlok != 0 ? round($rsUNR / $dtBlok, 2) : 0;
+
+
+            $totalblok += $dtBlok;
+            $totaltph += $btTPH;
+            $totaljalan += $btJlan;
+            $totalbin += $btBin;
+
+            $totalkr += $jumKR;
+            $totaltgl += $bhTGL;
+            $totalunr += $rsUNR;
+        }
+        $pdf['totalblok'] = $totalblok;
+        $pdf['bt_tph'] = $totaltph;
+        $pdf['tph_blok'] = $totalblok != 0 ? round($totaltph / $totalblok, 2) : 0;
+        $pdf['bt_jalan'] = $totaljalan;
+        $pdf['jalan_blok'] = $totalblok != 0 ? round($totaljalan / $totalblok, 2) : 0;
+        $pdf['bt_bin'] = $totalbin;
+        $pdf['bin_blok'] = $totalblok != 0 ? round($totalbin / $totalblok, 2) : 0;
+        $pdf['TotalBRD'] = $totaltph + $totaljalan + $totalbin;
+        $pdf['Total_blok'] = $totalblok != 0 ? round(($totaltph + $totaljalan + $totalbin) / $totalblok, 2) : 0;
+        $pdf['jum_karung'] = $totalkr;
+        $pdf['blok_karung'] = $totalblok != 0 ? round($totalkr / $totalblok, 2) : 0;
+        $pdf['buah_tinggal'] = $totaltgl;
+        $pdf['blok_buah'] = $totalblok != 0 ? round($totaltgl / $totalblok, 2) : 0;
+        $pdf['restan_unreported'] = $totalunr;
+        $pdf['blok_restan'] = $totalblok != 0 ? round($totalunr / $totalblok, 2) : 0;
+
+        // dd($pdf);
+        $arrView = array();
+        $arrView['hitung'] =  $pdf;
+
+        $arrView['est'] =  $est;
+        $arrView['awal'] =  $formattedStartDate;
+        $arrView['akhir'] =  $formattedEndDate;
+
+        $pdf = PDF::loadView('BaSidakTPH', ['data' => $arrView]);
+
+        $customPaper = array(360, 360, 360, 360);
+        $pdf->set_paper('A2', 'landscape');
+        // $pdf->set_paper('A2', 'potrait');
+
+        $filename = 'BA Sidak TPH -' . $arrView['awal'] . '-' .  $arrView['akhir'] . '-' . $arrView['est']  . '.pdf';
+
+        return $pdf->stream($filename);
+
+        // dd($pdf);
+        // return view('BaSidakTPH', ['est' => $est, 'query' => $query, 'awal' => $start, 'akhir' => $last]);
     }
 }

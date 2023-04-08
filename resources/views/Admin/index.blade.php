@@ -7,7 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Sidak TPH</title>
     <link rel="stylesheet" href="{{ asset('css/loginadmin.css') }}">
-
+    <style>
+        @media (max-width: 767px) {
+            .login-box {
+                width: 80%;
+                max-width: 400px;
+                padding: 40px 30px;
+            }
+        }
+    </style>
 
 <body>
 
@@ -26,16 +34,14 @@
         font-size: 14px;
         font-family: Arial, Helvetica, sans-serif;
         font-weight: 600 ; color: #1e1e1f">
-                    Silakan masukkan Nama atau Email dan Password yang ada miliki untuk mengakses portal <span
-                        style="color: #4CAF50">Sidak TPH</span>
+                    Silakan masukkan Nama atau Email dan Password yang ada miliki untuk mengakses portal <span style="color: #4CAF50">Sidak TPH</span>
                 </p>
             </div>
 
             <form class="text-center mt-4" action="{{ route('login') }}" method="post">
                 @csrf
                 <div class="user-box">
-                    <input type="text" name="email_or_nama_lengkap" required id="email_or_nama_lengkap" autofocus
-                        value="{{old('email_or_nama_lengkap')}}">
+                    <input type="text" name="email_or_nama_lengkap" required id="email_or_nama_lengkap" autofocus value="{{old('email_or_nama_lengkap')}}">
                     <label for="email_or_nama_lengkap">Email / Nama</label>
                     @error('error')
                     <div class="invalid-feedback">
